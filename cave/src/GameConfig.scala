@@ -85,6 +85,7 @@ object GameConfig {
    */
   def apply(index: UInt): GameConfig = {
     MuxLookup(index, dfeveron, Seq(
+      Game.AGALLET.U -> agallet,
       Game.DDONPACH.U -> ddonpach,
       Game.DONPACHI.U -> donpachi,
       Game.ESPRADE.U -> esprade,
@@ -93,6 +94,31 @@ object GameConfig {
       Game.HOTDOGST.U -> hotdogst,
       Game.UOPOKO.U -> uopoko
     ))
+  }
+
+  private def agallet = {
+    val wire = Wire(new GameConfig)
+    wire.granularity := 16.U
+    wire.progRomOffset := 0x00000000.U
+    wire.eepromOffset := 0x00080000.U
+    wire.fillPalette := 0x7f.U
+    wire.sound(0).device := SoundDevice.Z80.U
+    wire.sound(1).device := SoundDevice.DISABLED.U 
+    wire.sound(0).romOffset := 0x00080080.U
+    wire.sound(1).romOffset := 0x00180080.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(0).paletteBank := 1.U
+    wire.layer(1).paletteBank := 1.U
+    wire.layer(2).paletteBank := 1.U
+    wire.layer(0).romOffset := 0x00300080.U
+    wire.layer(1).romOffset := 0x00500080.U
+    wire.layer(2).romOffset := 0x00700080.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.sprite.romOffset := 0x00B00080.U
+    wire.sprite.zoom := true.B
+    wire
   }
 
   private def dfeveron = {

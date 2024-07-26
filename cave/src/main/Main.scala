@@ -263,8 +263,30 @@ class Main extends Module {
   // menu freezes.
   map(0x110000 to 0x1fffff).noprw()
 
-  // Dangun Feveron
-  when(io.gameIndex === Game.DFEVERON.U) {
+  when(io.gameIndex === Game.AGALLET.U) {
+    map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
+    map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
+    map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(10, 0))
+    map(0x400000 to 0x407fff).noprw()
+    map(0x40c000 to 0x40ffff).noprw()
+    map(0x410000).noprw()
+    map(0x510000).noprw()
+    map(0x908000).noprw()
+    vramMap(0x800000, vram8x8(0).io.portA, vram16x16(0).io.portA, lineRam(0).io.portA)
+    vramMap(0x880000, vram8x8(1).io.portA, vram16x16(1).io.portA, lineRam(1).io.portA)
+    vramMap(0x900000, vram8x8(2).io.portA, vram16x16(2).io.portA, lineRam(2).io.portA)
+    vregMap(0xb80000)
+    //map(0xa8006e).w { (_, _, _) => io.soundCtrl.req := true.B }
+    map(0xb8006e).noprw()
+    map(0xb8006c).nopr();
+    map(0xa00000 to 0xa00005).readWriteMem(layerRegs(0).io.mem)
+    map(0xa80000 to 0xa80005).readWriteMem(layerRegs(1).io.mem)
+    map(0xb00000 to 0xb00005).readWriteMem(layerRegs(2).io.mem)
+    map(0x600000).r { (_, _) => input0 }
+    map(0x600002).r { (_, _) => input1 }
+    map(0x700000).writeMem(eepromMem)
+    map(0x500000 to 0x50ffff).readWriteMem(spriteRam.io.portA)
+  }.elsewhen(io.gameIndex === Game.DFEVERON.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
     map(0x300000 to 0x300003).readWriteMem(io.soundCtrl.ymz)
@@ -279,10 +301,7 @@ class Main extends Module {
     map(0xb00000).r { (_, _) => input0 }
     map(0xb00002).r { (_, _) => input1 }
     map(0xc00000).writeMem(eepromMem)
-  }
-
-  // DonPachi
-  when(io.gameIndex === Game.DONPACHI.U) {
+  }.elsewhen(io.gameIndex === Game.DONPACHI.U) { 
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
     vramMap(0x200000, vram8x8(1).io.portA, vram16x16(1).io.portA, lineRam(1).io.portA)
@@ -300,10 +319,7 @@ class Main extends Module {
     map(0xc00000).r { (_, _) => input0 }
     map(0xc00002).r { (_, _) => input1 }
     map(0xd00000).writeMem(eepromMem)
-  }
-
-  // DoDonPachi
-  when(io.gameIndex === Game.DDONPACH.U) {
+  }.elsewhen(io.gameIndex === Game.DDONPACH.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
     map(0x300000 to 0x300003).readWriteMem(io.soundCtrl.ymz)
@@ -320,10 +336,7 @@ class Main extends Module {
     map(0xd00000).r { (_, _) => input0 }
     map(0xd00002).r { (_, _) => input1 }
     map(0xe00000).writeMem(eepromMem)
-  }
-
-  // ESP Ra.De.
-  when(io.gameIndex === Game.ESPRADE.U) {
+  }.elsewhen(io.gameIndex === Game.ESPRADE.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
     map(0x300000 to 0x300003).readWriteMem(io.soundCtrl.ymz)
@@ -340,10 +353,7 @@ class Main extends Module {
     map(0xd00000).r { (_, _) => input0 }
     map(0xd00002).r { (_, _) => input1 }
     map(0xe00000).writeMem(eepromMem)
-  }
-
-  // Gaia Crusaders
-  when(io.gameIndex === Game.GAIA.U) {
+  }.elsewhen(io.gameIndex === Game.GAIA.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x00057e to 0x000581).nopw() // access occurs during boot
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
@@ -362,10 +372,7 @@ class Main extends Module {
     map(0xd00012).r { (_, _) => input1 }
     map(0xd00014).r { (_, _) => io.dips(0) }
     map(0xd00014).nopw() // watchdog
-  }
-
-  // Guwange
-  when(io.gameIndex === Game.GUWANGE.U) {
+  }.elsewhen(io.gameIndex === Game.GUWANGE.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x200000 to 0x20ffff).readWriteMem(mainRam.io)
     map(0x210000 to 0x2fffff).nopr() // access occurs for Guwange (Special)
@@ -387,10 +394,7 @@ class Main extends Module {
     map(0xd00010).writeMem(eepromMem)
     map(0xd00010).r { (_, _) => input0 }
     map(0xd00012).r { (_, _) => input1 }
-  }
-
-  // Hotdog Storm
-  when(io.gameIndex === Game.HOTDOGST.U) {
+  }.elsewhen(io.gameIndex === Game.HOTDOGST.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x300000 to 0x30ffff).readWriteMem(mainRam.io)
     map(0x408000 to 0x408fff).readWriteMemT(paletteRam.io.portA)(a => a(10, 0))
@@ -408,10 +412,7 @@ class Main extends Module {
     map(0xd00000).writeMem(eepromMem)
     map(0xd00002).noprw()
     map(0xf00000 to 0xf0ffff).readWriteMem(spriteRam.io.portA)
-  }
-
-  // Puzzle Uo Poko
-  when(io.gameIndex === Game.UOPOKO.U) {
+  }.elsewhen(io.gameIndex === Game.UOPOKO.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
     map(0x300000 to 0x300003).readWriteMem(io.soundCtrl.ymz)
