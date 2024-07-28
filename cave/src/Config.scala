@@ -91,7 +91,7 @@ object Config {
   /** The width of the sound ROM data bus */
   val SOUND_ROM_DATA_WIDTH = 8
   /** The number of sound ROMs */
-  val SOUND_ROM_COUNT = 2
+  val SOUND_ROM_COUNT = 3 
 
   /** The width of the tile ROM address bus */
   val TILE_ROM_ADDR_WIDTH = 32
@@ -99,7 +99,7 @@ object Config {
   val TILE_ROM_DATA_WIDTH = 64
 
   /** The width of the main RAM address bus */
-  val MAIN_RAM_ADDR_WIDTH = 15
+  val MAIN_RAM_ADDR_WIDTH = 16
   /** The width of the main RAM address bus */
   val MAIN_RAM_DATA_WIDTH = 16
 

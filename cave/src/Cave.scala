@@ -158,6 +158,7 @@ class Cave extends Module {
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom(0) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(0))
   sound.io.rom(1) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(1))
+  sound.io.rom(2) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(2))
 
   // Graphics processor
   val gpu = Module(new GPU)

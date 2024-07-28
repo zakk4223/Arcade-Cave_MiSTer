@@ -103,20 +103,22 @@ object GameConfig {
     wire.eepromOffset := 0x00080000.U
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.Z80.U
-    wire.sound(1).device := SoundDevice.DISABLED.U 
+    wire.sound(1).device := SoundDevice.OKIM6259.U
+    wire.sound(2).device := SoundDevice.OKIM6259.U
     wire.sound(0).romOffset := 0x00080080.U
-    wire.sound(1).romOffset := 0x00180080.U
+    wire.sound(1).romOffset := 0x00100080.U
+    wire.sound(2).romOffset := 0x00300080.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
-    wire.layer(0).romOffset := 0x00300080.U
-    wire.layer(1).romOffset := 0x00500080.U
-    wire.layer(2).romOffset := 0x00700080.U
+    wire.layer(0).romOffset := 0x00500080.U
+    wire.layer(1).romOffset := 0x00700080.U
+    wire.layer(2).romOffset := 0x00900080.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
-    wire.sprite.romOffset := 0x00B00080.U
+    wire.sprite.romOffset := 0x00D00080.U
     wire.sprite.zoom := true.B
     wire
   }
@@ -129,8 +131,10 @@ object GameConfig {
     wire.fillPalette := 0x3f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U
@@ -154,8 +158,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
@@ -179,8 +185,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.OKIM6259.U
     wire.sound(1).device := SoundDevice.OKIM6259.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00080080.U
     wire.sound(1).romOffset := 0x00280080.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
@@ -204,8 +212,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
@@ -229,8 +239,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100000.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
@@ -254,8 +266,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
@@ -279,8 +293,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.Z80.U
     wire.sound(1).device := SoundDevice.OKIM6259.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0x00140080.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
@@ -304,8 +320,10 @@ object GameConfig {
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.YMZ280B.U
     wire.sound(1).device := SoundDevice.DISABLED.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U

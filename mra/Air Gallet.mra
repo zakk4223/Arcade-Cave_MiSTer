@@ -20,10 +20,12 @@
     <part name="agallet_europe.nv" crc="ec38bf65" />
 
     <!-- sound ROM -->
-    <part name="bp962a.u76" crc="06caddbe" />
+    <part name="bp962a.u9" crc="06caddbe" />
 
-    <!-- PCM ROM -->
+    <!-- PCM ROM OKI1 -->
     <part name="bp962a.u48" crc="ae00a1ce" />
+    <!-- PCM ROM OKI2 -->
+    <part name="bp962a.u47" crc="6d4e9737" />
 
     <!-- layer 0 -->
     <part name="bp962a.u53" crc="fcd9a107" />

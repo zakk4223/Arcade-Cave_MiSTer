@@ -171,13 +171,14 @@ class MemSys extends Module {
   ) <> io.ddr
 
   // SDRAM arbiter
-  val sdramArbiter = Module(new BurstMemArbiter(8, Config.sdramConfig.addrWidth, Config.sdramConfig.dataWidth))
+  val sdramArbiter = Module(new BurstMemArbiter(9, Config.sdramConfig.addrWidth, Config.sdramConfig.dataWidth))
   sdramArbiter.connect(
     sdramDownloadBuffer.io.out,
     progRomCache.io.out.mapAddr(_ + io.gameConfig.progRomOffset),
     eepromCache.io.out.mapAddr(_ + io.gameConfig.eepromOffset),
     soundRomCache(0).io.out.mapAddr(_ + io.gameConfig.sound(0).romOffset),
     soundRomCache(1).io.out.mapAddr(_ + io.gameConfig.sound(1).romOffset),
+    soundRomCache(2).io.out.mapAddr(_ + io.gameConfig.sound(2).romOffset),
     layerRomCache(0).io.out.mapAddr(_ + io.gameConfig.layer(0).romOffset),
     layerRomCache(1).io.out.mapAddr(_ + io.gameConfig.layer(1).romOffset),
     layerRomCache(2).io.out.mapAddr(_ + io.gameConfig.layer(2).romOffset)
