@@ -257,26 +257,42 @@ class Main extends Module {
     map((baseAddr + 0x00) to (baseAddr + 0x07)).r(irqCause)
     map((baseAddr + 0x00) to (baseAddr + 0x0f)).writeMem(spriteRegs.io.mem.asWriteMemIO)
     map(baseAddr + 0x08).w { (_, _, _) => io.spriteFrameBufferSwap := true.B }
-    map((baseAddr + 0x0a) to (baseAddr + 0x7f)).noprw()
+    map((baseAddr + 0x10) to (baseAddr + 0x7f)).readWriteStub()
   }
 
 
+  val ackLatchReg = RegEnable(true.B, false.B, io.soundCtrl.ack)
+
+  val ackDataReg = RegEnable(io.soundCtrl.ackData, 0xFF.U, io.soundCtrl.ack)
+  //val ackDataReg = RegInit(0x10.U)
+
+  def getAckLatchFlag() : UInt = {
+    ackLatchReg := false.B
+    Cat("b000000".U, ~ackLatchReg, "b0".U) 
+  }
+
+  def getAckLatch(): UInt = {
+    ackLatchReg := false.B
+    ackDataReg
+  }
+
   when(io.gameIndex === Game.AGALLET.U) {
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
-    map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
+    map(0x100000 to 0x110001).readWriteMem(mainRam.io)
     map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(10, 0))
     map(0x400000 to 0x407fff).readWriteStub()
     map(0x40c000 to 0x40ffff).readWriteStub()
-    map(0x410000).readWriteStub()
-    map(0x510000).readWriteStub()
-    map(0x908000).readWriteStub()
+    map(0x410000 to 0x410001).readWriteStub()
+    map(0x510000 to 0x510001).readWriteStub()
+    map(0x908000 to 0x908001).readWriteStub()
     vramMap(0x800000, vram8x8(0).io.portA, vram16x16(0).io.portA, lineRam(0).io.portA)
     vramMap(0x880000, vram8x8(1).io.portA, vram16x16(1).io.portA, lineRam(1).io.portA)
     vramMap(0x900000, vram8x8(2).io.portA, vram16x16(2).io.portA, lineRam(2).io.portA)
     vregMap(0xb80000)
-    map(0xb8006e).w { (_, _, _) => io.soundCtrl.req := true.B }
-    //map(0xb8006e).readWriteStub()
-    map(0xb8006c).readWriteStub();
+    map(0xb8006e to 0xb8006f).rw ({ (_, _) => getAckLatch()}) ({(_, _, _) => io.soundCtrl.req := true.B })
+    //map(0xb8006c to 0xb8006d).rw ({ (_, _) => 0.U})({(_,_,_) => {} })
+    map(0x110000 to 0x1fffff).noprw()
+    map(0xb8006c to 0xb8006d).rw ({ (_, _) => getAckLatchFlag()  })({(_,_,_) => {}})
     map(0xa00000 to 0xa00005).readWriteMem(layerRegs(0).io.mem)
     map(0xa80000 to 0xa80005).readWriteMem(layerRegs(1).io.mem)
     map(0xb00000 to 0xb00005).readWriteMem(layerRegs(2).io.mem)
@@ -284,7 +300,6 @@ class Main extends Module {
     map(0x600002).r { (_, _) => input1 }
     map(0x700000).writeMem(eepromMem)
     map(0x500000 to 0x50ffff).readWriteMem(spriteRam.io.portA)
-    map(0x110000 to 0x1fffff).readWriteStub()
   }.elsewhen(io.gameIndex === Game.DFEVERON.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)

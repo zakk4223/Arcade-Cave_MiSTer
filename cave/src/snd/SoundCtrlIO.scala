@@ -45,8 +45,12 @@ class SoundCtrlIO extends Bundle {
   val ymz = Flipped(MemIO(23, 16))
   /** Request flag */
   val req = Input(Bool())
+  /** Ack flag */
+  val ack = Output(Bool())
   /** Request data */
   val data = Input(Bits(16.W))
+  /** Ack data */
+  val ackData = Output(Bits(8.W))
   /** IRQ */
   val irq = Output(Bool())
 }

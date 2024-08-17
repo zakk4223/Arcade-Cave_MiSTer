@@ -52,6 +52,7 @@ class GameConfig extends Bundle {
     /** Sound ROM offset */
     val romOffset = UInt(32.W)
   })
+
   /** Layer configuration */
   val layer = Vec(Config.LAYER_COUNT, new Bundle {
     /** Layer graphics format */

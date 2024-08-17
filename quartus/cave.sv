@@ -199,6 +199,7 @@ localparam CONF_STR = {
   "-;",
   "R0,Reset;",
   "J,B0,B1,B2,B3,Start,Coin,Pause;",
+  "DEFMRA,/_Arcade/cave.mra;",
   "V,v",`BUILD_DATE," by nullobject;"
 };
 

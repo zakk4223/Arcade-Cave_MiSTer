@@ -51,6 +51,7 @@ object Config {
   /** Sound clock divider */
   val SOUND_CLOCK_DIV = 8 // 4 MHz
 
+
   /** Video clock frequency (Hz) */
   val VIDEO_CLOCK_FREQ = 28_000_000D
   /** Video clock divider */
@@ -235,7 +236,8 @@ object Config {
 
   /** OKIM6295 configuration */
   val okiConfig = Seq(
-    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 1_056_000),
+//    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 1_056_000),
+    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 2_112_000),
     OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 2_112_000)
   )
 }

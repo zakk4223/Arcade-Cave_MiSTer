@@ -172,6 +172,11 @@ class MemMap(cpu: CPUIO, addrMask: Int = 0xffff) {
       when(cs && cpu.mreq && cpu.wr) { f(addr, offset, cpu.dout) }
     }
 
+    def readWriteStub(): Unit = {
+      val tmp = Reg(UInt())
+      rw((_, _) => tmp)((_, _, data) => tmp := data)
+    }
+
     /** Ignores read access for the address range. */
     def nopr(): Unit = {
       r((_, _) => 0.U)
