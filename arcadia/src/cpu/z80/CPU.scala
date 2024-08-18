@@ -32,7 +32,6 @@
 
 package arcadia.cpu.z80
 
-import arcadia.util.Counter
 import chisel3._
 
 /** An interface for the Z80 CPU. */
@@ -65,10 +64,12 @@ class CPUIO extends Bundle {
   val busak = Output(Bool())
   /** Register file output (for debugging) */
   val regs = Output(new RegisterFile)
+
+  val cen = Input(Bool())
 }
 
 /** Z80 CPU */
-class CPU(clockDiv: Int = 1) extends Module {
+class CPU() extends Module {
   val io = IO(new CPUIO)
 
   /** Wraps the T80s implementation of the Z80 CPU. */
@@ -96,12 +97,11 @@ class CPU(clockDiv: Int = 1) extends Module {
     })
   }
 
-  val (_, cen) = Counter.static(clockDiv)
 
   val cpu = Module(new T80s)
   cpu.io.RESET_n := !reset.asBool
   cpu.io.CLK := clock
-  cpu.io.CEN := cen
+  cpu.io.CEN := io.cen
   cpu.io.WAIT_n := !io.halt
   cpu.io.INT_n := !io.int
   cpu.io.NMI_n := !io.nmi

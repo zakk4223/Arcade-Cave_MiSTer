@@ -32,10 +32,12 @@
 
 package cave.snd
 
+import arcadia.util.Counter
 import arcadia.cpu.z80._
 import arcadia.mem._
 import arcadia.mem.arbiter.AsyncReadMemArbiter
 import arcadia.snd._
+import arcadia.clk.ClockDivider
 import cave._
 import chisel3._
 import chisel3.util._
@@ -71,24 +73,30 @@ class Sound extends Module {
   val irq = Wire(Bool())
 
   // Registers
-  val reqRegH = RegEnable(true.B, false.B, io.ctrl.req)
-  val reqRegL = RegEnable(true.B, false.B, io.ctrl.req)
+  val reqReg = RegEnable(true.B, false.B, io.ctrl.req)
 
   val dataReg = RegEnable(io.ctrl.data, io.ctrl.req)
   val z80BankReg = RegInit(0.U(5.W))
   val mainLatchReg = RegInit(0.U(8.W))
 
   // Sound CPU
-  val cpu = Module(new CPU(Config.SOUND_CLOCK_DIV))
+  val cpu = Module(new CPU())
   val memMap = new MemMap(cpu.io)
   val ioMap = new IOMap(cpu.io, 0xff)
   cpu.io.halt := false.B
   cpu.io.din := DontCare
   cpu.io.int := irq
-  cpu.io.nmi := reqRegH & reqRegL
+  cpu.io.nmi := reqReg
   io.ctrl.ack := false.B
   io.ctrl.ackData := 0.U(8.W)
 
+  when(io.gameIndex === Game.AGALLET.U) {
+    val (_, cen) = Counter.static(4)
+    cpu.io.cen := cen
+  }.otherwise {
+    val (_, cen) = Counter.static(8)
+    cpu.io.cen := cen
+  }
 
   // Sound RAM
   val soundRam = Module(new TrueDualPortRam(
@@ -103,11 +111,9 @@ class Sound extends Module {
 
   // NMK112 banking controller
   // 
-   /*
   val nmk = Module(new NMK112)
   nmk.io.cpu <> io.ctrl.nmk
   nmk.io.mask := 1.U // disable phrase table bank switching for chip 0 (background music)
-  */
 
   // OKIM6295 ADPCM decoder
 
@@ -117,33 +123,34 @@ class Sound extends Module {
     oki
   }
 
+  when (io.gameIndex === Game.AGALLET.U)  {
+    oki(0).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 2_112_000)
+    oki(1).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 2_112_000)
+  }.otherwise {
+    oki(0).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 1_056_000)
+    oki(1).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 2_112_000)
+  }
+
   val okiBank = 0.until(Sound.OKI_COUNT).map { i =>
     val okiBank = RegInit(0.U.asTypeOf(new OkiBanks())) 
     okiBank
   } 
 
-  /*
   // YMZ280B ADPCM decoder
   val ymz280b = Module(new YMZ280B(Config.ymzConfig))
   ymz280b.io.cpu <> io.ctrl.ymz
   ymz280b.io.rom <> io.rom(0)
   io.ctrl.irq := ymz280b.io.irq
-  */
-
- io.ctrl.ymz <> DontCare
- io.ctrl.irq := 0.U
 
   // YM2203 FM synthesizer
-  // 
-   /*
   val ym2203 = Module(new YM2203(clockFreq = Config.CPU_CLOCK_FREQ, sampleFreq = Sound.FM_SAMPLE_CLOCK_FREQ))
   ym2203.io.cpu.default()
-  */
 
   val ym2151 = Module(new YM2151(clockFreq = Config.CPU_CLOCK_FREQ, sampleFreq = Sound.FM_SAMPLE_CLOCK_FREQ))
   ym2151.io.cpu.default()
-
   irq := ym2151.io.irq
+
+
   // Program and bank ROM wires
   val progRom = Wire(AsyncReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH))
   val bankRom = Wire(AsyncReadMemIO(Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH))
@@ -152,27 +159,21 @@ class Sound extends Module {
 
   // Connect sound ROM port 0
   //
-  val arbiter = Module(new AsyncReadMemArbiter(2, Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH))
+  val arbiter = Module(new AsyncReadMemArbiter(4, Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH))
   arbiter.connect(
-    //oki(0).io.rom.mapAddr(mapOkiAddr(0)).enable(io.gameConfig.sound(0).device === SoundDevice.OKIM6259.U),
-    //ymz280b.io.rom.enable(io.gameConfig.sound(0).device === SoundDevice.YMZ280B.U),
+    oki(0).io.rom.mapAddr(mapOkiAddr(0)).enable(io.gameConfig.sound(0).device === SoundDevice.OKIM6259.U),
+    ymz280b.io.rom.enable(io.gameConfig.sound(0).device === SoundDevice.YMZ280B.U),
     progRom.enable(io.gameConfig.sound(0).device === SoundDevice.Z80.U),
     bankRom.enable(io.gameConfig.sound(0).device === SoundDevice.Z80.U),
   ) <> io.rom(0)
-  /*
+
 when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
   oki(0).io.rom.mapAddr(mapOkiAddr(0)) <> io.rom(1)
   oki(1).io.rom.mapAddr(mapOkiAddr(1)) <> io.rom(2)
 }.otherwise {
   oki(1).io.rom.mapAddr(mapOkiAddr(1)) <> io.rom(1)
   io.rom(2) <> DontCare
-}*/
-
-  oki(0).io.rom.mapAddr(mapOkiAddr(0)) <> io.rom(1)
-  oki(1).io.rom.mapAddr(mapOkiAddr(1)) <> io.rom(2)
-  //oki(1).io.rom.mapAddr(mapOkiAddr(1)) <> io.rom(1)
-
-
+}
 
 
   /**
@@ -181,9 +182,7 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
    * @param high The high byte flag.
    */
   def getLatch(high: Boolean): Bits = {
-    if (high) reqRegH := false.B
-    else reqRegL := false.B
-
+    reqReg := false.B
     if (high) dataReg(15, 8) else dataReg(7, 0)
   }
 
@@ -201,11 +200,10 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
   def mapOkiAddr(chip: Int)(addr: UInt): UInt = {
     val bank = Mux(addr(17), okiBank(chip).bankHi, okiBank(chip).bankLo)
     bank ## addr(16, 0)
-    /*
     Mux(io.gameIndex === Game.DONPACHI.U,
       nmk.transform(chip)(addr),
       bank ## addr(16, 0)
-    )*/
+    )
   }
 
   /**
@@ -227,43 +225,39 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
     memMap(0xd000 to 0xdfff).readWriteStub()
 
     ioMap(0x00).w { (_, _, data) => z80BankReg := data(3, 0) }
-    ioMap(0x30).r { (_, _) => getLatch(false) } //soundlatch_lo_r
-    ioMap(0x40).r { (_, _) => getLatch(true) } //soundlatch_hi_r
-    //ioMap(0x50 to 0x51).readWriteMem(ym2203.io.cpu) //ym2203_device
-    ioMap(0x60).readWriteMem(oki(1).io.cpu) //first ok
-    ioMap(0x70).w { (_, _, data) => setOkiBank(1, 0x3, data) } //oki1_bank_w
+    ioMap(0x30).r { (_, _) => getLatch(false) }
+    ioMap(0x40).r { (_, _) => getLatch(true) }
+    ioMap(0x50 to 0x51).readWriteMem(ym2203.io.cpu) //ym2203_device
+    ioMap(0x60).readWriteMem(oki(1).io.cpu)
+    ioMap(0x70).w { (_, _, data) => setOkiBank(1, 0x3, data) }
   }.elsewhen (io.gameIndex === Game.AGALLET.U) {
     memMap(0x0000 to 0x3fff).readMem(progRom)
     memMap(0x4000 to 0x7fff).readMemT(bankRom) { addr => z80BankReg ## addr(13, 0) }
     memMap(0x8000 to 0xbfff).readWriteStub()
     memMap(0xc000 to 0xdfff).readWriteMem(soundRam.io.portA)
     memMap(0xe000 to 0xFFFF).readMem(soundRam.io.portB)
-    //memMap(0xe000 to 0xfFFF).readWriteStub()
-
     ioMap(0x00).w { (_, _, data) => z80BankReg := data(4, 0)}
     ioMap(0x10).w { (_, _, data) => setAckLatchData(data)}
     ioMap(0x20).nopr() 
     ioMap(0x30).r { (_, _) => getLatch(false) }
     ioMap(0x40).r { (_, _) => getLatch(true) }
     ioMap(0x50 to 0x51).readWriteMem(ym2151.io.cpu) 
-    ioMap(0x60).readWriteMem(oki(0).io.cpu) //first ok
+    ioMap(0x60).readWriteMem(oki(0).io.cpu)
     ioMap(0x6f).nopr()
-    ioMap(0x70).w { (_, _, data) => setOkiBank(0, 0xf, data) } //oki1_bank_w
-    ioMap(0x80).readWriteMem(oki(1).io.cpu) //first ok
-    ioMap(0xc0).w { (_, _, data) => setOkiBank(1, 0xf, data) } //oki1_bank_w
+    ioMap(0x70).w { (_, _, data) => setOkiBank(0, 0xf, data) }
+    ioMap(0x80).readWriteMem(oki(1).io.cpu)
+    ioMap(0xc0).w { (_, _, data) => setOkiBank(1, 0xf, data) }
   }
 
   // Audio mixer
   io.audio := AudioMixer.sum(Config.AUDIO_SAMPLE_WIDTH,
-    //RegEnable(ymz280b.io.audio.bits.left, ymz280b.io.audio.valid) -> 1.0,
-    //RegEnable(ym2203.io.audio.bits.psg, ym2203.io.audio.valid) -> 1.0,
-    //RegEnable(ym2203.io.audio.bits.fm, ym2203.io.audio.valid) -> 1.0,
+    RegEnable(ymz280b.io.audio.bits.left, ymz280b.io.audio.valid) -> 1.0,
+    RegEnable(ym2203.io.audio.bits.psg, ym2203.io.audio.valid) -> 1.0,
+    RegEnable(ym2203.io.audio.bits.fm, ym2203.io.audio.valid) -> 1.0,
     RegEnable(ym2151.io.audio.bits.left, ym2151.io.audio.valid) -> 1.0,
     RegEnable(ym2151.io.audio.bits.right, ym2151.io.audio.valid) -> 1.0,
-    RegEnable(oki(0).io.audio.bits, true.B) -> 1.6,
-    RegEnable(oki(1).io.audio.bits, true.B) -> 1.0
-    //RegEnable(oki(0).io.audio.bits, oki(0).io.audio.valid) -> 1.6,
-    //RegEnable(oki(1).io.audio.bits, oki(1).io.audio.valid) -> 1.0
+    RegEnable(oki(0).io.audio.bits, oki(0).io.audio.valid) -> 1.6,
+    RegEnable(oki(1).io.audio.bits, oki(1).io.audio.valid) -> 1.0
   )
 }
 

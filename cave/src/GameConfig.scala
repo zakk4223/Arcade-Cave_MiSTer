@@ -46,6 +46,7 @@ class GameConfig extends Bundle {
   /** Fill palette */
   val fillPalette = UInt(Config.PALETTE_WIDTH.W)
   /** Sound configuration */
+
   val sound = Vec(Config.SOUND_ROM_COUNT, new Bundle {
     /** Sound device */
     val device = UInt(2.W)

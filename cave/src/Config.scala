@@ -234,10 +234,9 @@ object Config {
   /** YMZ280B configuration */
   val ymzConfig = YMZ280BConfig(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 88_200)
 
-  /** OKIM6295 configuration */
   val okiConfig = Seq(
-//    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 1_056_000),
-    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 2_112_000),
-    OKIM6295Config(clockFreq = CPU_CLOCK_FREQ, sampleFreq = 2_112_000)
+    OKIM6295Config(),
+    OKIM6295Config()
   )
+
 }

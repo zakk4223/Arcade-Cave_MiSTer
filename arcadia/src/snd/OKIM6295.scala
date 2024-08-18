@@ -40,17 +40,13 @@ import chisel3.util._
 /**
  * Represents the OKIM6295 configuration.
  *
- * @param clockFreq    The system clock frequency (Hz).
- * @param sampleFreq   The sample clock frequency (Hz).
  * @param sampleWidth  The width of the sample words.
  * @param memAddrWidth The width of the memory address bus.
  * @param memDataWidth The width of the memory data bus.
  * @param cpuAddrWidth The width of the CPU address bus.
  * @param cpuDataWidth The width of the CPU data bus.
  */
-case class OKIM6295Config(clockFreq: Double,
-                         sampleFreq: Double,
-                         sampleWidth: Int = 14,
+case class OKIM6295Config(sampleWidth: Int = 14,
                          memAddrWidth: Int = 18,
                          memDataWidth: Int = 8,
                          cpuAddrWidth: Int = 1,
@@ -72,6 +68,8 @@ class OKIM6295(config: OKIM6295Config) extends Module {
     val rom = AsyncReadMemIO(config.memAddrWidth, config.memDataWidth)
     /** Audio output port */
     val audio = ValidIO(SInt(config.sampleWidth.W))
+
+    val cen = Input(Bool())
   })
 
   class JT6295 extends BlackBox {
@@ -96,9 +94,8 @@ class OKIM6295(config: OKIM6295Config) extends Module {
   val adpcm = Module(new JT6295)
   adpcm.io.rst := reset.asBool
   adpcm.io.clk := clock.asBool
-  adpcm.io.cen := ClockDivider(config.clockFreq / config.sampleFreq)
+  adpcm.io.cen := io.cen
   adpcm.io.ss := true.B
-
   adpcm.io.wrn := !io.cpu.wr
   adpcm.io.din := io.cpu.din
   io.cpu.dout := adpcm.io.dout

@@ -264,7 +264,6 @@ class Main extends Module {
   val ackLatchReg = RegEnable(true.B, false.B, io.soundCtrl.ack)
 
   val ackDataReg = RegEnable(io.soundCtrl.ackData, 0xFF.U, io.soundCtrl.ack)
-  //val ackDataReg = RegInit(0x10.U)
 
   def getAckLatchFlag() : UInt = {
     ackLatchReg := false.B
@@ -290,7 +289,6 @@ class Main extends Module {
     vramMap(0x900000, vram8x8(2).io.portA, vram16x16(2).io.portA, lineRam(2).io.portA)
     vregMap(0xb80000)
     map(0xb8006e to 0xb8006f).rw ({ (_, _) => getAckLatch()}) ({(_, _, _) => io.soundCtrl.req := true.B })
-    //map(0xb8006c to 0xb8006d).rw ({ (_, _) => 0.U})({(_,_,_) => {} })
     map(0x110000 to 0x1fffff).noprw()
     map(0xb8006c to 0xb8006d).rw ({ (_, _) => getAckLatchFlag()  })({(_,_,_) => {}})
     map(0xa00000 to 0xa00005).readWriteMem(layerRegs(0).io.mem)
