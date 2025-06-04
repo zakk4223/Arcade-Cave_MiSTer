@@ -67,6 +67,7 @@ package object cave {
     val GFX_FORMAT_4BPP_MSB = 2
     /** 8BPP graphics format */
     val GFX_FORMAT_8BPP = 3
+    val GFX_FORMAT_6BPP2 = 4
   }
 
   /** Sound device enum */
