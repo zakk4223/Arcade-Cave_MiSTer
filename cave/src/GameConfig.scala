@@ -38,7 +38,6 @@ import chisel3.util._
 /** Represents a game configuration. */
 class GameConfig extends Bundle {
   /** The number of colors per palette */
-  val granularity = UInt(9.W)
   /** Program ROM offset */
   val progRomOffset = UInt(32.W)
   /** EEPROM offset */
@@ -60,6 +59,7 @@ class GameConfig extends Bundle {
     val romOffset = UInt(32.W)
     /** Palette bank */
     val paletteBank = UInt(2.W)
+    val granularity = UInt(9.W)
   })
   /** Sprite configuration */
   val sprite = new Bundle {
@@ -69,12 +69,13 @@ class GameConfig extends Bundle {
     val romOffset = UInt(32.W)
     /** Asserted when sprite scaling is enabled */
     val zoom = Bool()
+    val granularity = UInt(9.W)
   }
 }
 
 object GameConfig {
   /** The width of the graphics format value */
-  val GFX_FORMAT_WIDTH = 2
+  val GFX_FORMAT_WIDTH = 3 
 
   def apply() = new GameConfig
 
@@ -98,7 +99,6 @@ object GameConfig {
 
   private def agallet = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 16.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00080000.U
     wire.fillPalette := 0x7f.U
@@ -110,22 +110,26 @@ object GameConfig {
     wire.sound(2).romOffset := 0x00300080.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
-    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_6BPP2.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 64.U
+
     wire.layer(0).paletteBank := 1.U
-    wire.layer(1).paletteBank := 1.U
-    wire.layer(2).paletteBank := 1.U
+    wire.layer(1).paletteBank := 2.U
+    wire.layer(2).paletteBank := 3.U
     wire.layer(0).romOffset := 0x00500080.U
     wire.layer(1).romOffset := 0x00700080.U
     wire.layer(2).romOffset := 0x00900080.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.sprite.romOffset := 0x00D00080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
     wire
   }
 
   private def dfeveron = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 16.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x3f.U
@@ -141,18 +145,21 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 0.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 16.U
     wire.layer(0).romOffset := 0x00500080.U
     wire.layer(1).romOffset := 0x00700080.U
     wire.layer(2).romOffset := 0.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.sprite.romOffset := 0x00900080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
     wire
   }
 
   private def ddonpach = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 256.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x7f.U
@@ -165,6 +172,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
+    wire.layer(0).granularity := 256.U
+    wire.layer(1).granularity := 256.U
+    wire.layer(2).granularity := 256.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
@@ -174,12 +184,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP_MSB.U
     wire.sprite.romOffset := 0x00b00080.U
     wire.sprite.zoom := false.B
+    wire.sprite.granularity := 256.U
     wire
   }
 
   private def donpachi = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 16.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00080000.U
     wire.fillPalette := 0x7f.U
@@ -192,6 +202,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 16.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
@@ -201,12 +214,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP_MSB.U
     wire.sprite.romOffset := 0x005c0080.U
     wire.sprite.zoom := false.B
+    wire.sprite.granularity := 16.U
     wire
   }
 
   private def esprade = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 256.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x7f.U
@@ -215,10 +228,13 @@ object GameConfig {
     wire.sound(2).device := SoundDevice.DISABLED.U
     wire.sound(0).romOffset := 0x00100080.U
     wire.sound(1).romOffset := 0.U
-    wire.sound(2).romOffset := 0.U
+    wire.sound(2).romOffset := 0.U 
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
+    wire.layer(0).granularity := 256.U
+    wire.layer(1).granularity := 256.U
+    wire.layer(2).granularity := 256.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
@@ -228,12 +244,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.sprite.romOffset := 0x01900080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
     wire
   }
 
   private def gaia = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 256.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0.U // disabled
     wire.fillPalette := 0x7f.U
@@ -246,6 +262,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
+    wire.layer(0).granularity := 256.U
+    wire.layer(1).granularity := 256.U
+    wire.layer(2).granularity := 256.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
@@ -255,12 +274,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.sprite.romOffset := 0x01900000.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 256.U
     wire
   }
 
   private def guwange = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 256.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x7f.U
@@ -273,6 +292,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_8BPP.U
+    wire.layer(0).granularity := 256.U
+    wire.layer(1).granularity := 256.U
+    wire.layer(2).granularity := 256.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
@@ -282,12 +304,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.sprite.romOffset := 0x01500080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 256.U
     wire
   }
 
   private def hotdogst = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 16.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x7f.U
@@ -300,6 +322,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 16.U
     wire.layer(0).paletteBank := 0.U
     wire.layer(1).paletteBank := 0.U
     wire.layer(2).paletteBank := 0.U
@@ -309,12 +334,12 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.sprite.romOffset := 0x00340080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
     wire
   }
 
   private def uopoko = {
     val wire = Wire(new GameConfig)
-    wire.granularity := 256.U
     wire.progRomOffset := 0x00000000.U
     wire.eepromOffset := 0x00100000.U
     wire.fillPalette := 0x7f.U
@@ -327,6 +352,9 @@ object GameConfig {
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U
+    wire.layer(0).granularity := 256.U
+    wire.layer(1).granularity := 256.U
+    wire.layer(2).granularity := 256.U
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 0.U
     wire.layer(2).paletteBank := 0.U
@@ -336,6 +364,7 @@ object GameConfig {
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.sprite.romOffset := 0x00700080.U
     wire.sprite.zoom := true.B
+    wire.sprite.granularity := 256.U
     wire
   }
 }

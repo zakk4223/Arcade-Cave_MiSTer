@@ -87,6 +87,7 @@ class Main extends Module {
   val agalletIrq = RegInit(false.B)
   val unknownIrq = RegInit(false.B)
 
+
   // M68K CPU
   val cpu = Module(new CPU(Config.CPU_CLOCK_DIV))
   val map = new MemMap(cpu.io)
@@ -264,7 +265,7 @@ class Main extends Module {
   when(io.gameIndex === Game.AGALLET.U) {
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
-    map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(10, 0))
+    map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(13, 0))
     map(0x400000 to 0x407fff).readWriteStub()
     map(0x40c000 to 0x40ffff).readWriteStub()
     map(0x410000).readWriteStub()
@@ -275,7 +276,6 @@ class Main extends Module {
     vramMap(0x900000, vram8x8(2).io.portA, vram16x16(2).io.portA, lineRam(2).io.portA)
     vregMap(0xb80000)
     map(0xb8006e).w { (_, _, _) => io.soundCtrl.req := true.B }
-    //map(0xb8006e).readWriteStub()
     map(0xb8006c).readWriteStub();
     map(0xa00000 to 0xa00005).readWriteMem(layerRegs(0).io.mem)
     map(0xa80000 to 0xa80005).readWriteMem(layerRegs(1).io.mem)
