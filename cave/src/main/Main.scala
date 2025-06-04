@@ -87,6 +87,7 @@ class Main extends Module {
   val agalletIrq = RegInit(false.B)
   val unknownIrq = RegInit(false.B)
 
+
   // M68K CPU
   val cpu = Module(new CPU(Config.CPU_CLOCK_DIV))
   val map = new MemMap(cpu.io)
@@ -277,8 +278,8 @@ class Main extends Module {
 
   when(io.gameIndex === Game.AGALLET.U) {
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
-    map(0x100000 to 0x110001).readWriteMem(mainRam.io)
-    map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(10, 0))
+    map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
+    map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(13, 0))
     map(0x400000 to 0x407fff).readWriteStub()
     map(0x40c000 to 0x40ffff).readWriteStub()
     map(0x410000 to 0x410001).readWriteStub()
