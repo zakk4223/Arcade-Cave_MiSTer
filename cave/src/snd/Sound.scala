@@ -87,6 +87,7 @@ class Sound extends Module {
   cpu.io.din := DontCare
   cpu.io.int := irq
   cpu.io.nmi := reqReg
+  cpu.io.t2wait := false.B
   io.ctrl.ack := false.B
   io.ctrl.ackData := 0.U(8.W)
 
@@ -157,6 +158,13 @@ class Sound extends Module {
   progRom.default()
   bankRom.default()
 
+  when (io.gameIndex === Game.AGALLET.U)  {
+    irq := ym2151.io.irq
+  }.otherwise {
+    irq := ym2203.io.irq
+  }
+
+
   // Connect sound ROM port 0
   //
   val arbiter = Module(new AsyncReadMemArbiter(4, Config.SOUND_ROM_ADDR_WIDTH, Config.SOUND_ROM_DATA_WIDTH))
@@ -219,8 +227,8 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
 
   // Hotdog Storm
   when(io.gameIndex === Game.HOTDOGST.U) {
-    memMap(0x0000 to 0x3fff).readMem(progRom)
-    memMap(0x4000 to 0x7fff).readMemT(bankRom) { addr => z80BankReg ## addr(13, 0) }
+    memMap(0x0000 to 0x3fff).readMemA(progRom)
+    memMap(0x4000 to 0x7fff).readMemAT(bankRom) { addr => z80BankReg ## addr(13, 0) }
     memMap(0xe000 to 0xffff).readWriteMem(soundRam.io.portA)
     memMap(0xd000 to 0xdfff).readWriteStub()
 
@@ -231,8 +239,8 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
     ioMap(0x60).readWriteMem(oki(1).io.cpu)
     ioMap(0x70).w { (_, _, data) => setOkiBank(1, 0x3, data) }
   }.elsewhen (io.gameIndex === Game.AGALLET.U) {
-    memMap(0x0000 to 0x3fff).readMem(progRom)
-    memMap(0x4000 to 0x7fff).readMemT(bankRom) { addr => z80BankReg ## addr(13, 0) }
+    memMap(0x0000 to 0x3fff).readMemA(progRom)
+    memMap(0x4000 to 0x7fff).readMemAT(bankRom) { addr => z80BankReg ## addr(13, 0) }
     memMap(0x8000 to 0xbfff).readWriteStub()
     memMap(0xc000 to 0xdfff).readWriteMem(soundRam.io.portA)
     memMap(0xe000 to 0xFFFF).readMem(soundRam.io.portB)

@@ -299,6 +299,7 @@ class Main extends Module {
     map(0x600002).r { (_, _) => input1 }
     map(0x700000).writeMem(eepromMem)
     map(0x500000 to 0x50ffff).readWriteMem(spriteRam.io.portA)
+    map(0x110000 to 0x1fffff).readWriteStub()
   }.elsewhen(io.gameIndex === Game.DFEVERON.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
