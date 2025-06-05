@@ -119,6 +119,20 @@ class MemMap(cpu: CPUIO, addrMask: Int = 0xffff) {
       when(cs && cpu.mreq && cpu.rd) { cpu.din := mem.dout }
     }
 
+    def readMemA(mem: AsyncReadMemIO): Unit = readMemAT(mem)(identity)
+
+    def readMemAT(mem: AsyncReadMemIO)(f: UInt => UInt): Unit = {
+      when(cs && cpu.mreq && cpu.rd) { 
+        mem.rd := cs && !cpu.rfsh
+        mem.addr := f(addr)
+        cpu.t2wait := true.B
+      }
+      when(cs && cpu.mreq && cpu.rd && mem.valid) { 
+        cpu.din := mem.dout
+        cpu.t2wait := false.B
+      }
+    }
+
     /**
      * Maps an address range to the given write-only memory port.
      *
