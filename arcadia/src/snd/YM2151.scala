@@ -54,7 +54,7 @@ class YM2151(clockFreq: Double, sampleFreq: Double) extends Module {
   m.io.rst := reset.asBool
   m.io.clk := clock.asBool
   m.io.cen := ClockDivider(clockFreq / sampleFreq)
-  m.io.cen_p1 := ClockDivider(clockFreq / (sampleFreq*2))
+  m.io.cen_p1 := ClockDivider(clockFreq / (sampleFreq/2))
   m.io.cs_n := false.B
   m.io.wr_n := !io.cpu.wr
   m.io.a0 := io.cpu.addr(0)
@@ -62,8 +62,6 @@ class YM2151(clockFreq: Double, sampleFreq: Double) extends Module {
   io.cpu.dout := m.io.dout
   io.irq := !m.io.irq_n
   io.audio.valid := m.io.sample
-  io.audio.bits.left := m.io.left
-  io.audio.bits.right := m.io.right
-  io.audio.bits.left := m.io.left
-  io.audio.bits.right := m.io.right
+  io.audio.bits.left := m.io.xleft
+  io.audio.bits.right := m.io.xright
 }

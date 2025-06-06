@@ -224,6 +224,7 @@ object LayerProcessor {
     val pixels_4BPP = VecInit(decode4BPP(data,word))
     val pixels_8BPP = VecInit(decode8BPP(data))
     val pixels_6BPP2 = VecInit(decode6BPP2(data))
+
     MuxCase(pixels_8BPP, Seq(
       (format === GraphicsFormat.GFX_FORMAT_4BPP.U) -> pixels_4BPP,
       (format === GraphicsFormat.GFX_FORMAT_6BPP2.U) -> pixels_6BPP2,
@@ -233,13 +234,17 @@ object LayerProcessor {
 
   /**
    * Decodes a row of pixels for a 8x8x6_2BPP tile.
+   * These tiles are split into two roms. One of them contains 4 bits of tile data
+   * (each byte represents 2 pixels, each of them being a nibble).
+   * and the other rom contains the upper two bits. Each byte of this rom has 4 "pixels" in it.
+   * The MRA loads these roms like so:
+   * A0,B0,A1,B0,A2,B1,A3,B1 where 'A' is the 4 bit rom and 'B' is the two bit rom.
+   * This layout allows us to fit 8 pixels in 64 bits and still extract the full 6 bits
   */
 
   private def decode6BPP2(data: Bits): Seq[Bits] = {
-    Seq(0,1,4 ,2,3,5, 8,9,6, 10,11,7, 16,17,20, 18,19,21, 24,25,22, 26,27,23 ) 
-      // Decode data into nibbles
+    Seq(4,5,3 ,6,7,2, 12,13,9, 14,15,8, 20,21,19, 22,23,18, 28,29,25, 30,31,24 ) 
       .reverseIterator.map(Util.decode(data, 32, 2).apply)
-      // Join high/low nibbles into 8-bit pixels
       .grouped(3).map(Cat(_).pad(8)).toSeq
   }
 
