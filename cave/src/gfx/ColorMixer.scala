@@ -100,7 +100,7 @@ object ColorMixer {
     MuxLookup(granularity, bank ## pen.palette ## pen.color, Seq(
       16.U -> bank ## pen.palette ## pen.color(3, 0),
       32.U -> bank ## pen.palette ## pen.color(4, 0),
-      64.U -> bank ## pen.palette(3, 0) ## pen.color(5, 0),
+      64.U -> bank ## pen.palette(3,0) ## pen.color(5, 0),
     ))
 
   /**

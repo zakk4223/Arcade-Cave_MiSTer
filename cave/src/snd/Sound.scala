@@ -262,9 +262,9 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
     RegEnable(ymz280b.io.audio.bits.left, ymz280b.io.audio.valid) -> 1.0,
     RegEnable(ym2203.io.audio.bits.psg, ym2203.io.audio.valid) -> 1.0,
     RegEnable(ym2203.io.audio.bits.fm, ym2203.io.audio.valid) -> 1.0,
-    RegEnable(ym2151.io.audio.bits.left, ym2151.io.audio.valid) -> 1.0,
-    RegEnable(ym2151.io.audio.bits.right, ym2151.io.audio.valid) -> 1.0,
-    RegEnable(oki(0).io.audio.bits, oki(0).io.audio.valid) -> 1.6,
+    RegEnable(ym2151.io.audio.bits.left, ym2151.io.audio.valid) -> 0.1,
+    RegEnable(ym2151.io.audio.bits.right, ym2151.io.audio.valid) -> 0.1,
+    RegEnable(oki(0).io.audio.bits, oki(0).io.audio.valid) -> 1.0,
     RegEnable(oki(1).io.audio.bits, oki(1).io.audio.valid) -> 1.0
   )
 }
