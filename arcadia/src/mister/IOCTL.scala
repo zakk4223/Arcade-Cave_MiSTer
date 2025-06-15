@@ -74,6 +74,17 @@ class IOCTL extends Bundle {
     mem
   }
 
+  def spriteRom: AsyncWriteMemIO = {
+    val writeEnable = download && this.index === IOCTL.SPRITE_ROM_INDEX.U
+    val mem = Wire(AsyncWriteMemIO(IOCTL.ADDR_WIDTH, IOCTL.DATA_WIDTH))
+    mem.wr := writeEnable && wr
+    when(writeEnable) { wait_n := mem.wait_n }
+    mem.addr := addr
+    mem.mask := Fill(mem.maskWidth, 1.U)
+    mem.din := dout
+    mem
+  }
+
   /** Converts NVRAM data to an asynchronous read-write memory interface. */
   def nvram: AsyncMemIO = {
     val readEnable = upload && this.index === IOCTL.NVRAM_INDEX.U
@@ -131,6 +142,8 @@ object IOCTL {
   val VIDEO_INDEX = 3
   /** DIP switch index */
   val DIP_INDEX = 254
+  /** Sprite index */
+  val SPRITE_ROM_INDEX = 4
 
   def apply() = new IOCTL
 }

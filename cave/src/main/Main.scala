@@ -66,10 +66,14 @@ class Main extends Module {
     val soundCtrl = Flipped(SoundCtrlIO())
     /** Program ROM port */
     val progRom = new ProgRomIO
+    /** Second Program ROM port */
+    val highProgRom = new ProgRomIO
     /** EEPROM port */
     val eeprom = new EEPROMIO
     /** Asserted when the current page for the sprite frame buffer should be swapped */
     val spriteFrameBufferSwap = Output(Bool())
+
+    val tileBank = Output(Bool())
   })
 
   // A write-only memory interface is used to connect the CPU to the EEPROM
@@ -105,13 +109,17 @@ class Main extends Module {
   io.soundCtrl.req := false.B
   io.soundCtrl.data := cpu.io.dout
   io.progRom.default()
+  io.highProgRom.default()
 
   // EEPROM
   val eeprom = Module(new EEPROM)
   eeprom.io.mem <> io.eeprom
+
+  val smnLayerBank = Mux(io.gameIndex === Game.SAILORMN.U, eepromMem.din(8),  false.B)
   val cs = Mux(io.gameIndex === Game.GUWANGE.U, eepromMem.din(5), eepromMem.din(9))
   val sck = Mux(io.gameIndex === Game.GUWANGE.U, eepromMem.din(6), eepromMem.din(10))
   val sdi = Mux(io.gameIndex === Game.GUWANGE.U, eepromMem.din(7), eepromMem.din(11))
+  io.tileBank := RegEnable(smnLayerBank, false.B, eepromMem.wr)
   eeprom.io.serial.cs := RegEnable(cs, false.B, eepromMem.wr)
   eeprom.io.serial.sck := RegEnable(sck, false.B, eepromMem.wr)
   eeprom.io.serial.sdi := RegEnable(sdi, false.B, eepromMem.wr)
@@ -124,6 +132,21 @@ class Main extends Module {
     maskEnable = true
   ))
   mainRam.io.default()
+/*
+  val secondRam = Module(new SinglePortRam(
+    addrWidth = Config.SECOND_RAM_ADDR_WIDTH,
+    dataWidth = Config.SECOND_RAM_DATA_WIDTH,
+    maskEnable = true
+  ))
+  secondRam.io.default()
+
+  val thirdRam = Module(new SinglePortRam(
+    addrWidth = Config.THIRD_RAM_ADDR_WIDTH,
+    dataWidth = Config.THIRD_RAM_DATA_WIDTH,
+    maskEnable = true
+  ))
+  thirdRam.io.default()
+  */
 
 
   // Sprite VRAM
@@ -182,6 +205,16 @@ class Main extends Module {
     ram.io.portB <> io.gpuMem.layer(i).lineRam
     ram
   }
+
+ val scratchRam = 0.until(Config.LAYER_COUNT).map { i =>
+   val ram = Module(new SinglePortRam(
+     addrWidth = Config.SCRATCH_RAM_ADDR_WIDTH,
+     dataWidth = Config.SCRATCH_RAM_DATA_WIDTH,
+     maskEnable = true
+     ))
+     ram.io.default()
+     ram
+ }
 
   // Palette RAM
   val paletteRam = Module(new TrueDualPortRam(
@@ -244,7 +277,7 @@ class Main extends Module {
   def vramMap(baseAddr: Int, vram8x8: MemIO, vram16x16: MemIO, lineRam: MemIO): Unit = {
     map((baseAddr + 0x0000) to (baseAddr + 0x0fff)).readWriteMem(vram16x16)
     map((baseAddr + 0x1000) to (baseAddr + 0x17ff)).readWriteMem(lineRam)
-    map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
+    //map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
     map((baseAddr + 0x4000) to (baseAddr + 0x7fff)).readWriteMem(vram8x8)
     map((baseAddr + 0x8000) to (baseAddr + 0xffff)).readWriteStub()
   }
@@ -276,10 +309,45 @@ class Main extends Module {
     ackDataReg
   }
 
-  when(io.gameIndex === Game.AGALLET.U) {
+  /* Sailor moon checks the entire vram memory area by starting with 0xXXXX writing it and then
+   * moving to the next word and doing a seven position left rotate of the previously written value
+   * it then goes back through and reads those values and expects them to be the same
+   * since the rotate is cyclical the value repeats every 16 bytes. Just use a lookup table to fake
+   * the check for now.
+   * This is only for the vram section 0x1800 to 0x3fff
+   * If it turns out the game actually uses this memory,  it needs to be moved to sdram or ddr.
+   * (we use too much bram otherwise)
+   * 
+   */
+  def scratchRamRead(addr: UInt, offset: UInt): UInt = {
+     MuxCase(0x1234.U, Seq(
+       (addr(4,0) === 0x0.U) -> 0x1234.U,
+       (addr(4,0) === 0x2.U) -> 0x1A09.U,
+       (addr(4,0) === 0x4.U) -> 0x048D.U,
+       (addr(4,0) === 0x6.U) -> 0x4682.U,
+       (addr(4,0) === 0x8.U) -> 0x4123.U,
+       (addr(4,0) === 0xA.U) -> 0x91A0.U,
+       (addr(4,0) === 0xC.U) -> 0xD048.U,
+       (addr(4,0) === 0xE.U) -> 0x2468.U,
+       (addr(4,0) === 0x10.U) -> 0x3412.U,
+       (addr(4,0) === 0x12.U) -> 0x091A.U,
+       (addr(4,0) === 0x14.U) -> 0x8D04.U,
+       (addr(4,0) === 0x16.U) -> 0x8246.U,
+       (addr(4,0) === 0x18.U) -> 0x2341.U,
+       (addr(4,0) === 0x1A.U) -> 0xA091.U,
+       (addr(4,0) === 0x1C.U) -> 0x48D0.U,
+       (addr(4,0) === 0x1E.U) -> 0x6824.U,
+       )) 
+  } 
+  when((io.gameIndex === Game.AGALLET.U) || (io.gameIndex === Game.SAILORMN.U)) {
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
+    map(0x000000 to 0x07ffff).nopw()
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)
+    map(0x200000 to 0x3fffff).readMemT(io.highProgRom) { _ ## 0.U } // convert to byte address
+    map(0x200000 to 0x3fffff).nopw()
     map(0x408000 to 0x40bfff).readWriteMemT(paletteRam.io.portA)(a => a(13, 0))
+//  map(0x400000 to 0x407fff).readWritemem(secondram.io)
+//  map(0x40c000 to 0x40ffff).readWriteMem(thirdRam.io)
     map(0x400000 to 0x407fff).readWriteStub()
     map(0x40c000 to 0x40ffff).readWriteStub()
     map(0x410000 to 0x410001).readWriteStub()
@@ -289,8 +357,15 @@ class Main extends Module {
     vramMap(0x880000, vram8x8(1).io.portA, vram16x16(1).io.portA, lineRam(1).io.portA)
     vramMap(0x900000, vram8x8(2).io.portA, vram16x16(2).io.portA, lineRam(2).io.portA)
     vregMap(0xb80000)
+    //map(0x801800 to 0x803fff).rw ({ (a, o) => scratchRamRead(a,o)  })({(_,_,_) => {}}) 
+    //map(0x881800 to 0x883fff).rw ({ (a, o) => scratchRamRead(a,o)  })({(_,_,_) => {}}) 
+    //map(0x901800 to 0x903fff).rw ({ (a, o) => scratchRamRead(a,o)  })({(_,_,_) => {}}) 
+
+    map(0x801800 to 0x803fff).readWriteMem(scratchRam(0).io)
+    map(0x881800 to 0x883fff).readWriteMem(scratchRam(1).io)
+    map(0x901800 to 0x903fff).readWriteMem(scratchRam(2).io)
+
     map(0xb8006e to 0xb8006f).rw ({ (_, _) => getAckLatch()}) ({(_, _, _) => io.soundCtrl.req := true.B })
-    map(0x110000 to 0x1fffff).noprw()
     map(0xb8006c to 0xb8006d).rw ({ (_, _) => getAckLatchFlag()  })({(_,_,_) => {}})
     map(0xa00000 to 0xa00005).readWriteMem(layerRegs(0).io.mem)
     map(0xa80000 to 0xa80005).readWriteMem(layerRegs(1).io.mem)
@@ -299,7 +374,7 @@ class Main extends Module {
     map(0x600002).r { (_, _) => input1 }
     map(0x700000).writeMem(eepromMem)
     map(0x500000 to 0x50ffff).readWriteMem(spriteRam.io.portA)
-    map(0x110000 to 0x1fffff).readWriteStub()
+    map(0x110000 to 0x110001).readWriteStub()
   }.elsewhen(io.gameIndex === Game.DFEVERON.U) {
     map(0x000000 to 0x0fffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)

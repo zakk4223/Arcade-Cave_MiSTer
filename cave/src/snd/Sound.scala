@@ -79,6 +79,8 @@ class Sound extends Module {
   val z80BankReg = RegInit(0.U(5.W))
   val mainLatchReg = RegInit(0.U(8.W))
 
+  val isSailormn = (io.gameIndex === Game.AGALLET.U) || (io.gameIndex === Game.SAILORMN.U)
+
   // Sound CPU
   val cpu = Module(new CPU())
   val memMap = new MemMap(cpu.io)
@@ -91,7 +93,7 @@ class Sound extends Module {
   io.ctrl.ack := false.B
   io.ctrl.ackData := 0.U(8.W)
 
-  when(io.gameIndex === Game.AGALLET.U) {
+  when(isSailormn) {
     val (_, cen) = Counter.static(4)
     cpu.io.cen := cen
   }.otherwise {
@@ -124,7 +126,7 @@ class Sound extends Module {
     oki
   }
 
-  when (io.gameIndex === Game.AGALLET.U)  {
+  when (isSailormn) {
     oki(0).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 2_112_000)
     oki(1).io.cen := ClockDivider(Config.CPU_CLOCK_FREQ / 2_112_000)
   }.otherwise {
@@ -149,7 +151,6 @@ class Sound extends Module {
 
   val ym2151 = Module(new YM2151(clockFreq = Config.CPU_CLOCK_FREQ, sampleFreq = Sound.FM_SAMPLE_CLOCK_FREQ))
   ym2151.io.cpu.default()
-  irq := ym2151.io.irq
 
 
   // Program and bank ROM wires
@@ -158,7 +159,7 @@ class Sound extends Module {
   progRom.default()
   bankRom.default()
 
-  when (io.gameIndex === Game.AGALLET.U)  {
+  when (isSailormn) {
     irq := ym2151.io.irq
   }.otherwise {
     irq := ym2203.io.irq
@@ -238,7 +239,7 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
     ioMap(0x50 to 0x51).readWriteMem(ym2203.io.cpu) //ym2203_device
     ioMap(0x60).readWriteMem(oki(1).io.cpu)
     ioMap(0x70).w { (_, _, data) => setOkiBank(1, 0x3, data) }
-  }.elsewhen (io.gameIndex === Game.AGALLET.U) {
+  }.elsewhen (isSailormn) {
     memMap(0x0000 to 0x3fff).readMemA(progRom)
     memMap(0x4000 to 0x7fff).readMemAT(bankRom) { addr => z80BankReg ## addr(13, 0) }
     memMap(0x8000 to 0xbfff).readWriteStub()
