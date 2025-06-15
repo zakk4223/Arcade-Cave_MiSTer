@@ -201,11 +201,13 @@ object LayerProcessor {
     val format16x16x4 = ctrl.regs.tileSize && ctrl.format === GraphicsFormat.GFX_FORMAT_4BPP.U
     val format16x16x8 = ctrl.regs.tileSize && ctrl.format === GraphicsFormat.GFX_FORMAT_8BPP.U
     val format16x16x6_2 = ctrl.regs.tileSize && ctrl.format === GraphicsFormat.GFX_FORMAT_6BPP2.U
+    val format8x8x6_2_banked = format8x8x6_2 && ctrl.tileBank && code < 0x10000.U
 
     MuxCase(0.U, Seq(
       format8x8x4 -> code ## offset.y(2, 1) ## 0.U(3.W),
       format8x8x8 -> code ## offset.y(2, 0) ## 0.U(3.W),
-      format8x8x6_2 -> code ## offset.y(2,0) ## 0.U(3.W),
+      format8x8x6_2_banked -> 1.U ## code ## offset.y(2,0) ## 0.U(3.W),
+      format8x8x6_2 ->  code ## offset.y(2,0) ## 0.U(3.W),
       format16x16x4 -> code ## offset.y(3) ## ~offset.x(3) ## offset.y(2, 1) ## 0.U(3.W),
       format16x16x8 -> code ## offset.y(3) ## ~offset.x(3) ## offset.y(2, 0) ## 0.U(3.W),
       format16x16x6_2 -> code ## offset.y(3) ## ~offset.x(3) ## offset.y(2, 0) ## 0.U(3.W)

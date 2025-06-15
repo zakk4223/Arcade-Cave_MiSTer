@@ -34,6 +34,7 @@ package cave.gfx
 
 import arcadia.gfx.VideoIO
 import arcadia.util.Counter
+import arcadia.Util
 import cave._
 import chisel3._
 import chisel3.util._
@@ -116,7 +117,7 @@ class SpriteProcessor(maxSprites: Int = 1024) extends Module {
   val spriteRamAddr = io.ctrl.regs.bank ## spriteCounter.pad(10)
 
   // Set tile ROM address
-  val tileRomAddr = (spriteReg.code + tileCounter) << Mux(is8BPP, 8.U, 7.U)
+  val tileRomAddr = SpriteProcessor.spriteRomAddr(spriteReg.code, tileCounter, is8BPP)
 
   // Set tile ROM burst length
   val tileRomBurstLength = Mux(is8BPP, 32.U, 16.U)
@@ -127,6 +128,7 @@ class SpriteProcessor(maxSprites: Int = 1024) extends Module {
   }.elsewhen(effectiveRead) {
     readPendingReg := true.B
   }
+
 
   // Enqueue the blitter configuration when the blitter is ready
   when(stateReg === State.ready) {
@@ -209,4 +211,9 @@ class SpriteProcessor(maxSprites: Int = 1024) extends Module {
 object SpriteProcessor {
   /** The depth of the tile ROM FIFO in words */
   val FIFO_DEPTH = 64
+
+  private def spriteRomAddr(code: UInt, counter: UInt, is8BPP: Bool): UInt = {
+    (code + counter) << Mux(is8BPP, 8.U, 7.U)
+
+  }
 }

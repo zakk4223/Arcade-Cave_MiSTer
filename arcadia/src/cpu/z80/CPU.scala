@@ -104,7 +104,7 @@ class CPU() extends Module {
   cpu.io.RESET_n := !reset.asBool
   cpu.io.CLK := clock
   cpu.io.CEN := io.cen
-  cpu.io.WAIT_n := !io.t2wait;
+  cpu.io.WAIT_n := !io.t2wait
   cpu.io.INT_n := !io.int
   cpu.io.NMI_n := !io.nmi
   cpu.io.BUSRQ_n := true.B

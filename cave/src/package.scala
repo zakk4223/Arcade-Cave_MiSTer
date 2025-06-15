@@ -55,6 +55,8 @@ package object cave {
     val HOTDOGST = 7
     /** Air Gallet */
     val AGALLET = 8
+    /** Sailor Moon */
+    val SAILORMN = 9
   }
 
   /** Graphics format enum */
@@ -89,6 +91,8 @@ package object cave {
 
   /** EEPROM IO */
   class EEPROMIO extends AsyncMemIO(Config.EEPROM_ADDR_WIDTH, Config.EEPROM_DATA_WIDTH)
+
+  class ScratchRamIO extends AsyncMemIO(Config.SCRATCH_RAM_ADDR_WIDTH, Config.SCRATCH_RAM_DATA_WIDTH)
 
   /** Sprite ROM IO */
   class SpriteRomIO extends BurstReadMemIO(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH)

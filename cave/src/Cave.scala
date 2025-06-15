@@ -149,6 +149,7 @@ class Cave extends Module {
   main.io.player <> io.player
   main.io.video := videoSys.io.video
   main.io.progRom <> Crossing.freeze(io.cpuClock, memSys.io.progRom)
+  main.io.highProgRom <> Crossing.freeze(io.cpuClock, memSys.io.highProgRom)
   main.io.eeprom <> Crossing.freeze(io.cpuClock, memSys.io.eeprom)
 
   // Sound PCB
@@ -171,6 +172,7 @@ class Cave extends Module {
     gpu.io.layerCtrl(i).lineRam <> main.io.gpuMem.layer(i).lineRam
     gpu.io.layerCtrl(i).tileRom <> Crossing.syncronize(io.videoClock, memSys.io.layerTileRom(i))
     gpu.io.layerCtrl(i).regs := main.io.gpuMem.layer(i).regs
+    gpu.io.layerCtrl(i).tileBank := Mux(gameConfig.layer(i).tileBank, main.io.tileBank, false.B)
   }
   gpu.io.spriteCtrl.enable := io.options.sprite
   gpu.io.spriteCtrl.format := gameConfig.sprite.format

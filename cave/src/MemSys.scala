@@ -39,6 +39,8 @@ import arcadia.mem.buffer.BurstBuffer
 import arcadia.mem.cache.{Cache, ReadCache}
 import arcadia.mem.dma.BurstReadDMA
 import arcadia.mister._
+
+import cave.gfx.SpriteDescrambler
 import chisel3._
 
 /** The memory subsystem routes memory requests to either DDR or SDRAM. */
@@ -57,6 +59,7 @@ class MemSys extends Module {
     }
     /** Program ROM port */
     val progRom = Flipped(new ProgRomIO)
+    val highProgRom = Flipped(new ProgRomIO)
     /** EEPROM port */
     val eeprom = Flipped(new EEPROMIO)
     /** Sound ROM port */
@@ -116,6 +119,18 @@ class MemSys extends Module {
   progRomCache.io.enable := io.ready
   progRomCache.io.in <> io.progRom
 
+  val highProgRomCache = Module(new ReadCache(cache.Config(
+    inAddrWidth = Config.PROG_ROM_ADDR_WIDTH,
+    inDataWidth = Config.PROG_ROM_DATA_WIDTH,
+    outAddrWidth = Config.sdramConfig.addrWidth,
+    outDataWidth = Config.sdramConfig.dataWidth,
+    lineWidth = Config.sdramConfig.burstLength,
+    depth = 128,
+    wrapping = true
+  )))
+  highProgRomCache.io.enable := io.ready
+  highProgRomCache.io.in <> io.highProgRom
+
   // EEPROM cache
   val eepromCache = Module(new Cache(cache.Config(
     inAddrWidth = Config.EEPROM_ADDR_WIDTH,
@@ -160,21 +175,30 @@ class MemSys extends Module {
     c
   }
 
+  val doSpriteDescramble = io.gameConfig.sprite.descrambleStyle > 0.U
+  val spriteRomOffset = Mux(doSpriteDescramble, Config.SPRITE_DESCRAMBLE_BASE.U, Config.IOCTL_DOWNLOAD_BASE_ADDR.U + io.gameConfig.sprite.romOffset)
+  val spriteDescrambler = Module(new SpriteDescrambler(Config.TILE_ROM_ADDR_WIDTH, Config.TILE_ROM_DATA_WIDTH))
+  spriteDescrambler.io.start := Util.latchSync(Util.falling(copyDma.io.busy && doSpriteDescramble))
+  spriteDescrambler.io.gameConfig := io.gameConfig
+
   // DDR arbiter
-  val ddrArbiter = Module(new BurstMemArbiter(5, Config.ddrConfig.addrWidth, Config.ddrConfig.dataWidth))
+  val ddrArbiter = Module(new BurstMemArbiter(7, Config.ddrConfig.addrWidth, Config.ddrConfig.dataWidth))
   ddrArbiter.connect(
     ddrDownloadBuffer.io.out.mapAddr(_ + Config.IOCTL_DOWNLOAD_BASE_ADDR.U),
     copyDma.io.in.mapAddr(_ + Config.IOCTL_DOWNLOAD_BASE_ADDR.U),
     io.systemFrameBuffer,
     io.spriteFrameBuffer,
-    io.spriteTileRom.mapAddr(_ + io.gameConfig.sprite.romOffset + Config.IOCTL_DOWNLOAD_BASE_ADDR.U)
+    io.spriteTileRom.mapAddr(_ +  spriteRomOffset),
+    spriteDescrambler.io.in.mapAddr(_ + Config.IOCTL_DOWNLOAD_BASE_ADDR.U + io.gameConfig.sprite.romOffset),
+    spriteDescrambler.io.out.mapAddr(_ + Config.SPRITE_DESCRAMBLE_BASE.U)
   ) <> io.ddr
 
   // SDRAM arbiter
-  val sdramArbiter = Module(new BurstMemArbiter(9, Config.sdramConfig.addrWidth, Config.sdramConfig.dataWidth))
+  val sdramArbiter = Module(new BurstMemArbiter(10, Config.sdramConfig.addrWidth, Config.sdramConfig.dataWidth))
   sdramArbiter.connect(
     sdramDownloadBuffer.io.out,
     progRomCache.io.out.mapAddr(_ + io.gameConfig.progRomOffset),
+    highProgRomCache.io.out.mapAddr(_ + io.gameConfig.progRomOffset),
     eepromCache.io.out.mapAddr(_ + io.gameConfig.eepromOffset),
     soundRomCache(0).io.out.mapAddr(_ + io.gameConfig.sound(0).romOffset),
     soundRomCache(1).io.out.mapAddr(_ + io.gameConfig.sound(1).romOffset),
@@ -188,6 +212,6 @@ class MemSys extends Module {
   val nvramArbiter = Module(new AsyncMemArbiter(2, Config.EEPROM_ADDR_WIDTH, Config.EEPROM_DATA_WIDTH))
   nvramArbiter.connect(io.prog.nvram, io.eeprom) <> eepromCache.io.in
 
-  // Latch ready flag when the copy DMA has finished
-  io.ready := Util.latchSync(Util.falling(copyDma.io.busy))
+  // Latch ready flag when the copy DMA/sprite descramble has finished
+  io.ready := Mux(doSpriteDescramble, Util.latchSync(Util.rising(spriteDescrambler.io.done)), Util.latchSync(Util.falling(copyDma.io.busy)))
 }

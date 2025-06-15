@@ -62,6 +62,7 @@ class GameConfig extends Bundle {
     /** Palette bank */
     val paletteBank = UInt(2.W)
     val granularity = UInt(9.W)
+    val tileBank = Bool()
   })
   /** Sprite configuration */
   val sprite = new Bundle {
@@ -72,6 +73,8 @@ class GameConfig extends Bundle {
     /** Asserted when sprite scaling is enabled */
     val zoom = Bool()
     val granularity = UInt(9.W)
+    val romSize = UInt(32.W)
+    val descrambleStyle = UInt(3.W)
   }
 }
 
@@ -95,6 +98,7 @@ object GameConfig {
       Game.GAIA.U -> gaia,
       Game.GUWANGE.U -> guwange,
       Game.HOTDOGST.U -> hotdogst,
+      Game.SAILORMN.U -> sailormn,
       Game.UOPOKO.U -> uopoko
     ))
   }
@@ -102,31 +106,37 @@ object GameConfig {
   private def agallet = {
     val wire = Wire(new GameConfig)
     wire.progRomOffset := 0x00000000.U
-    wire.eepromOffset := 0x00080000.U
+    wire.eepromOffset := 0x00400000.U
     wire.fillPalette := 0x7f.U
     wire.sound(0).device := SoundDevice.Z80.U
     wire.sound(1).device := SoundDevice.OKIM6259.U
     wire.sound(2).device := SoundDevice.OKIM6259.U
-    wire.sound(0).romOffset := 0x00080080.U
-    wire.sound(1).romOffset := 0x00100080.U
-    wire.sound(2).romOffset := 0x00300080.U
+    wire.sound(0).romOffset := 0x00400080.U
+    wire.sound(1).romOffset := 0x00480080.U
+    wire.sound(2).romOffset := 0x00680080.U
     wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
     wire.layer(2).format := GraphicsFormat.GFX_FORMAT_6BPP2.U
     wire.layer(0).granularity := 16.U
     wire.layer(1).granularity := 16.U
     wire.layer(2).granularity := 64.U
-
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 2.U
     wire.layer(2).paletteBank := 3.U
-    wire.layer(0).romOffset := 0x00500080.U
-    wire.layer(1).romOffset := 0x00700080.U
-    wire.layer(2).romOffset := 0x00900080.U
+
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := true.B
+
+    wire.layer(0).romOffset := 0x0880080.U
+    wire.layer(1).romOffset := 0x0A80080.U
+    wire.layer(2).romOffset := 0x0C80080.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
-    wire.sprite.romOffset := 0x00D00080.U
+    wire.sprite.romOffset := 0x02080080.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x400000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -147,6 +157,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 0.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).granularity := 16.U
     wire.layer(1).granularity := 16.U
     wire.layer(2).granularity := 16.U
@@ -157,6 +170,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x00900080.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x800000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -180,6 +195,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00500080.U
     wire.layer(1).romOffset := 0x00700080.U
     wire.layer(2).romOffset := 0x00900080.U
@@ -187,6 +205,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x00b00080.U
     wire.sprite.zoom := false.B
     wire.sprite.granularity := 256.U
+    wire.sprite.romSize := 0x800000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -210,6 +230,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00380080.U
     wire.layer(1).romOffset := 0x00480080.U
     wire.layer(2).romOffset := 0x00580080.U
@@ -217,6 +240,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x005c0080.U
     wire.sprite.zoom := false.B
     wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x400000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -240,13 +265,18 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00500080.U
     wire.layer(1).romOffset := 0x00d00080.U
     wire.layer(2).romOffset := 0x01500080.U
     wire.sprite.format := GraphicsFormat.GFX_FORMAT_8BPP.U
     wire.sprite.romOffset := 0x01900080.U
     wire.sprite.zoom := true.B
-    wire.sprite.granularity := 16.U
+    wire.sprite.granularity := 256.U
+    wire.sprite.romSize := 0x1000000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -270,6 +300,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00d00000.U
     wire.layer(1).romOffset := 0x01100000.U
     wire.layer(2).romOffset := 0x01500000.U
@@ -277,6 +310,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x01900000.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 256.U
+    wire.sprite.romSize := 0x800000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -300,6 +335,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 1.U
     wire.layer(2).paletteBank := 1.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00500080.U
     wire.layer(1).romOffset := 0x00d00080.U
     wire.layer(2).romOffset := 0x01100080.U
@@ -307,6 +345,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x01500080.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 256.U
+    wire.sprite.romSize := 0x2000000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 
@@ -330,6 +370,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 0.U
     wire.layer(1).paletteBank := 0.U
     wire.layer(2).paletteBank := 0.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x001c0080.U
     wire.layer(1).romOffset := 0x00240080.U
     wire.layer(2).romOffset := 0x002c0080.U
@@ -337,6 +380,45 @@ object GameConfig {
     wire.sprite.romOffset := 0x00340080.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x400000.U
+    wire.sprite.descrambleStyle := 0.U
+    wire
+  }
+
+  private def sailormn = {
+    val wire = Wire(new GameConfig)
+    wire.progRomOffset := 0x00000000.U
+    wire.eepromOffset := 0x00400000.U
+    wire.fillPalette := 0x7f.U
+    wire.sound(0).device := SoundDevice.Z80.U
+    wire.sound(1).device := SoundDevice.OKIM6259.U
+    wire.sound(2).device := SoundDevice.OKIM6259.U
+    wire.sound(0).romOffset := 0x00400080.U
+    wire.sound(1).romOffset := 0x00480080.U
+    wire.sound(2).romOffset := 0x00680080.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_6BPP2.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 64.U
+    wire.layer(0).paletteBank := 1.U
+    wire.layer(1).paletteBank := 2.U
+    wire.layer(2).paletteBank := 3.U
+
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := true.B
+
+    wire.layer(0).romOffset := 0x0880080.U
+    wire.layer(1).romOffset := 0x0A80080.U
+    wire.layer(2).romOffset := 0x0C80080.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.sprite.romOffset := 0x02080080.U
+    wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x400000.U
+    wire.sprite.descrambleStyle := 1.U
     wire
   }
 
@@ -360,6 +442,9 @@ object GameConfig {
     wire.layer(0).paletteBank := 1.U
     wire.layer(1).paletteBank := 0.U
     wire.layer(2).paletteBank := 0.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
     wire.layer(0).romOffset := 0x00300080.U
     wire.layer(1).romOffset := 0.U
     wire.layer(2).romOffset := 0.U
@@ -367,6 +452,8 @@ object GameConfig {
     wire.sprite.romOffset := 0x00700080.U
     wire.sprite.zoom := true.B
     wire.sprite.granularity := 256.U
+    wire.sprite.romSize := 0x400000.U
+    wire.sprite.descrambleStyle := 0.U
     wire
   }
 }

@@ -78,7 +78,7 @@ object Config {
   val SERVICE_PULSE_WIDTH = (2_500_000_000D / CPU_CLOCK_PERIOD).ceil.toInt // 2500 ms
 
   /** The width of the program ROM address bus */
-  val PROG_ROM_ADDR_WIDTH = 20 // 1MB
+  val PROG_ROM_ADDR_WIDTH = 22
   /** The width of the program ROM data bus */
   val PROG_ROM_DATA_WIDTH = 16
 
@@ -103,6 +103,16 @@ object Config {
   val MAIN_RAM_ADDR_WIDTH = 16
   /** The width of the main RAM address bus */
   val MAIN_RAM_DATA_WIDTH = 16
+
+  /** The width of the second RAM address bus (Sailor Moon) */
+  val SECOND_RAM_ADDR_WIDTH = 15
+  /** The width of the second RAM address bus. (Sailor Moon) */
+  val SECOND_RAM_DATA_WIDTH = 16
+
+  /** The width of the second RAM address bus (Sailor Moon) */
+  val THIRD_RAM_ADDR_WIDTH = 14
+  /** The width of the second RAM address bus. (Sailor Moon) */
+  val THIRD_RAM_DATA_WIDTH = 16
 
   /** The width of the sprite RAM address bus (CPU-side) */
   val SPRITE_RAM_ADDR_WIDTH = 15
@@ -134,6 +144,9 @@ object Config {
   val LINE_RAM_GPU_ADDR_WIDTH = 9
   /** The width of the line RAM data bus (GPU-side) */
   val LINE_RAM_GPU_DATA_WIDTH = 32
+
+  val SCRATCH_RAM_ADDR_WIDTH = 14
+  val SCRATCH_RAM_DATA_WIDTH = 16
 
   /** The width of the palette RAM address bus (CPU-side) */
   val PALETTE_RAM_ADDR_WIDTH = 15
@@ -176,6 +189,10 @@ object Config {
   val SPRITE_FRAME_BUFFER_REQUEST_QUEUE_DEPTH = 16
   /** The width of the sprite frame buffer in bytes */
   val SPRITE_FRAME_BUFFER_STRIDE = FRAME_BUFFER_WIDTH * SPRITE_FRAME_BUFFER_DATA_WIDTH / 8
+
+  /** Base address to use for placing descrambled sprite data */
+
+  val SPRITE_DESCRAMBLE_BASE = 0x34000000
 
   /** The width of a priority value */
   val PRIO_WIDTH = 2
