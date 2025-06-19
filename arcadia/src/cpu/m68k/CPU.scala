@@ -62,6 +62,8 @@ class CPUIO extends Bundle {
   val din = Input(Bits(CPU.DATA_WIDTH.W))
   /** Data output bus */
   val dout = Output(Bits(CPU.DATA_WIDTH.W))
+  /** extReset */
+  val extReset = Input(Bool())
 }
 
 /** M68000 CPU */

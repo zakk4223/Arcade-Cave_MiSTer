@@ -188,7 +188,7 @@ class MemSys extends Module {
     copyDma.io.in.mapAddr(_ + Config.IOCTL_DOWNLOAD_BASE_ADDR.U),
     io.systemFrameBuffer,
     io.spriteFrameBuffer,
-    io.spriteTileRom.mapAddr(_ +  spriteRomOffset),
+    io.spriteTileRom.mapAddr(_ + spriteRomOffset), 
     spriteDescrambler.io.in.mapAddr(_ + Config.IOCTL_DOWNLOAD_BASE_ADDR.U + io.gameConfig.sprite.romOffset),
     spriteDescrambler.io.out.mapAddr(_ + Config.SPRITE_DESCRAMBLE_BASE.U)
   ) <> io.ddr
@@ -214,4 +214,5 @@ class MemSys extends Module {
 
   // Latch ready flag when the copy DMA/sprite descramble has finished
   io.ready := Mux(doSpriteDescramble, Util.latchSync(Util.rising(spriteDescrambler.io.done)), Util.latchSync(Util.falling(copyDma.io.busy)))
+  //io.ready := Util.latchSync(Util.falling(copyDma.io.busy))
 }

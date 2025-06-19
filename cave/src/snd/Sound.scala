@@ -256,6 +256,19 @@ when(io.gameConfig.sound(2).device === SoundDevice.OKIM6259.U) {
     ioMap(0x70).w { (_, _, data) => setOkiBank(0, 0xf, data) }
     ioMap(0x80).readWriteMem(oki(1).io.cpu)
     ioMap(0xc0).w { (_, _, data) => setOkiBank(1, 0xf, data) }
+  }.elsewhen(io.gameIndex === Game.MAZINGERZ.U) {
+    memMap(0x0000 to 0x3fff).readMemA(progRom)
+    memMap(0x4000 to 0x7fff).readMemAT(bankRom) { addr => z80BankReg ## addr(13, 0) }
+    memMap(0xc000 to 0xc7ff).readWriteMem(soundRam.io.portA)
+    memMap(0xf800 to 0xffff).readWriteMemT(soundRam.io.portA) { addr => 1.U ## addr(10,0) }
+
+    ioMap(0x00).w { (_, _, data) => z80BankReg := data(3, 0) }
+    ioMap(0x10).w { (_, _, data) => setAckLatchData(data)}
+    ioMap(0x30).r { (_, _) => getLatch(false) }
+    ioMap(0x50 to 0x53).readWriteMem(ym2203.io.cpu) //ym2203_device
+    ioMap(0x70).readWriteMem(oki(0).io.cpu)
+    ioMap(0x74).w { (_, _, data) => setOkiBank(0, 0x3, data) }
+
   }
 
   // Audio mixer

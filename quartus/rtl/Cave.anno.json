@@ -3,367 +3,331 @@
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|Queue",
     "duplicate":"~Cave|Cave/memSys:MemSys/copyDma:BurstReadDMA/fifo:Queue",
-    "index":0.03787878787878788
+    "index":0.03968253968253968
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache",
     "duplicate":"~Cave|Cave/memSys:MemSys/progRomCache:ReadCache",
-    "index":0.05303030303030303
+    "index":0.05555555555555555
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_1",
     "duplicate":"~Cave|Cave/memSys:MemSys/highProgRomCache:ReadCache",
-    "index":0.06060606060606061
+    "index":0.06349206349206349
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_2",
     "duplicate":"~Cave|Cave/memSys:MemSys/soundRomCache_0:ReadCache_2",
-    "index":0.07575757575757576
+    "index":0.07936507936507936
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_3",
     "duplicate":"~Cave|Cave/memSys:MemSys/soundRomCache_1:ReadCache_2",
-    "index":0.08333333333333333
+    "index":0.0873015873015873
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_4",
     "duplicate":"~Cave|Cave/memSys:MemSys/soundRomCache_2:ReadCache_2",
-    "index":0.09090909090909091
+    "index":0.09523809523809523
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_5",
     "duplicate":"~Cave|Cave/memSys:MemSys/layerRomCache_0:ReadCache_5",
-    "index":0.09848484848484848
+    "index":0.10317460317460317
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_6",
     "duplicate":"~Cave|Cave/memSys:MemSys/layerRomCache_1:ReadCache_5",
-    "index":0.10606060606060606
+    "index":0.1111111111111111
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadCache_7",
     "duplicate":"~Cave|Cave/memSys:MemSys/layerRomCache_2:ReadCache_5",
-    "index":0.11363636363636363
+    "index":0.11904761904761904
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_1",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_0:TrueDualPortRam_1/ram:true_dual_port_ram_1",
-    "index":0.24242424242424243
+    "index":0.25396825396825395
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_1",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_0:TrueDualPortRam_1",
-    "index":0.25
+    "index":0.2619047619047619
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_2",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_1:TrueDualPortRam_1/ram:true_dual_port_ram_1",
-    "index":0.25757575757575757
+    "index":0.2698412698412698
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_2",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_1:TrueDualPortRam_1",
-    "index":0.26515151515151514
+    "index":0.2777777777777778
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_3",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_2:TrueDualPortRam_1/ram:true_dual_port_ram_1",
-    "index":0.2727272727272727
+    "index":0.2857142857142857
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_3",
     "duplicate":"~Cave|Cave/main:Main/vram8x8_2:TrueDualPortRam_1",
-    "index":0.2803030303030303
+    "index":0.29365079365079366
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_4",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_0:TrueDualPortRam_4/ram:true_dual_port_ram_4",
-    "index":0.2878787878787879
+    "index":0.30158730158730157
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_4",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_0:TrueDualPortRam_4",
-    "index":0.29545454545454547
+    "index":0.30952380952380953
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_5",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_1:TrueDualPortRam_4/ram:true_dual_port_ram_4",
-    "index":0.30303030303030304
+    "index":0.31746031746031744
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_5",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_1:TrueDualPortRam_4",
-    "index":0.3106060606060606
+    "index":0.3253968253968254
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_6",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_2:TrueDualPortRam_4/ram:true_dual_port_ram_4",
-    "index":0.3181818181818182
+    "index":0.3333333333333333
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_6",
     "duplicate":"~Cave|Cave/main:Main/vram16x16_2:TrueDualPortRam_4",
-    "index":0.32575757575757575
+    "index":0.3412698412698413
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_7",
     "duplicate":"~Cave|Cave/main:Main/lineRam_0:TrueDualPortRam_7/ram:true_dual_port_ram_7",
-    "index":0.3333333333333333
+    "index":0.3492063492063492
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_7",
     "duplicate":"~Cave|Cave/main:Main/lineRam_0:TrueDualPortRam_7",
-    "index":0.3409090909090909
+    "index":0.35714285714285715
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_8",
     "duplicate":"~Cave|Cave/main:Main/lineRam_1:TrueDualPortRam_7/ram:true_dual_port_ram_7",
-    "index":0.3484848484848485
+    "index":0.36507936507936506
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_8",
     "duplicate":"~Cave|Cave/main:Main/lineRam_1:TrueDualPortRam_7",
-    "index":0.3560606060606061
+    "index":0.373015873015873
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|true_dual_port_ram_9",
     "duplicate":"~Cave|Cave/main:Main/lineRam_2:TrueDualPortRam_7/ram:true_dual_port_ram_7",
-    "index":0.36363636363636365
+    "index":0.38095238095238093
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|TrueDualPortRam_9",
     "duplicate":"~Cave|Cave/main:Main/lineRam_2:TrueDualPortRam_7",
-    "index":0.3712121212121212
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|single_port_ram_1",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_0:SinglePortRam_1/ram:single_port_ram_1",
-    "index":0.3787878787878788
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|SinglePortRam_1",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_0:SinglePortRam_1",
-    "index":0.38636363636363635
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|single_port_ram_2",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_1:SinglePortRam_1/ram:single_port_ram_1",
-    "index":0.3939393939393939
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|SinglePortRam_2",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_1:SinglePortRam_1",
-    "index":0.4015151515151515
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|single_port_ram_3",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_2:SinglePortRam_1/ram:single_port_ram_1",
-    "index":0.4090909090909091
-  },
-  {
-    "class":"firrtl.transforms.DedupedResult",
-    "original":"~Cave|SinglePortRam_3",
-    "duplicate":"~Cave|Cave/main:Main/scratchRam_2:SinglePortRam_1",
-    "index":0.4166666666666667
+    "index":0.3888888888888889
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|RegisterFile_2",
     "duplicate":"~Cave|Cave/main:Main/layerRegs_0:RegisterFile_2",
-    "index":0.4393939393939394
+    "index":0.4126984126984127
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|RegisterFile_3",
     "duplicate":"~Cave|Cave/main:Main/layerRegs_1:RegisterFile_2",
-    "index":0.44696969696969696
+    "index":0.42063492063492064
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|RegisterFile_4",
     "duplicate":"~Cave|Cave/main:Main/layerRegs_2:RegisterFile_2",
-    "index":0.45454545454545453
+    "index":0.42857142857142855
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadDataFreezer",
     "duplicate":"~Cave|Cave/main_io_progRom_freezer:ReadDataFreezer",
-    "index":0.4772727272727273
+    "index":0.4523809523809524
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadDataFreezer_1",
     "duplicate":"~Cave|Cave/main_io_highProgRom_freezer:ReadDataFreezer",
-    "index":0.48484848484848486
+    "index":0.4603174603174603
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|jt6295",
     "duplicate":"~Cave|Cave/sound:Sound/oki_0:OKIM6295/adpcm:jt6295",
-    "index":0.5378787878787878
+    "index":0.5158730158730159
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|OKIM6295",
     "duplicate":"~Cave|Cave/sound:Sound/oki_0:OKIM6295",
-    "index":0.5454545454545454
+    "index":0.5238095238095238
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|jt6295_1",
     "duplicate":"~Cave|Cave/sound:Sound/oki_1:OKIM6295/adpcm:jt6295",
-    "index":0.553030303030303
+    "index":0.5317460317460317
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|OKIM6295_1",
     "duplicate":"~Cave|Cave/sound:Sound/oki_1:OKIM6295",
-    "index":0.5606060606060606
+    "index":0.5396825396825397
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadDataFreezer_2",
     "duplicate":"~Cave|Cave/sound_io_rom_0_freezer:ReadDataFreezer_2",
-    "index":0.6590909090909091
+    "index":0.6428571428571429
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadDataFreezer_3",
     "duplicate":"~Cave|Cave/sound_io_rom_1_freezer:ReadDataFreezer_2",
-    "index":0.6666666666666666
+    "index":0.6507936507936508
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|ReadDataFreezer_4",
     "duplicate":"~Cave|Cave/sound_io_rom_2_freezer:ReadDataFreezer_2",
-    "index":0.6742424242424242
+    "index":0.6587301587301587
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_0_tileRom_crossing:Crossing/addrFifo:DualClockFIFO/fifo:dual_clock_fifo",
-    "index":0.7575757575757576
+    "index":0.746031746031746
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_0_tileRom_crossing:Crossing/addrFifo:DualClockFIFO",
-    "index":0.7651515151515151
+    "index":0.753968253968254
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo_1",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_0_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1/fifo:dual_clock_fifo_1",
-    "index":0.7727272727272727
+    "index":0.7619047619047619
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO_1",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_0_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1",
-    "index":0.7803030303030303
+    "index":0.7698412698412699
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|Crossing",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_0_tileRom_crossing:Crossing",
-    "index":0.7878787878787878
+    "index":0.7777777777777778
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo_2",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_1_tileRom_crossing:Crossing/addrFifo:DualClockFIFO/fifo:dual_clock_fifo",
-    "index":0.7954545454545454
+    "index":0.7857142857142857
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO_2",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_1_tileRom_crossing:Crossing/addrFifo:DualClockFIFO",
-    "index":0.803030303030303
+    "index":0.7936507936507936
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo_3",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_1_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1/fifo:dual_clock_fifo_1",
-    "index":0.8106060606060606
+    "index":0.8015873015873016
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO_3",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_1_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1",
-    "index":0.8181818181818182
+    "index":0.8095238095238095
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|Crossing_1",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_1_tileRom_crossing:Crossing",
-    "index":0.8257575757575758
+    "index":0.8174603174603174
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo_4",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_2_tileRom_crossing:Crossing/addrFifo:DualClockFIFO/fifo:dual_clock_fifo",
-    "index":0.8333333333333334
+    "index":0.8253968253968254
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO_4",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_2_tileRom_crossing:Crossing/addrFifo:DualClockFIFO",
-    "index":0.8409090909090909
+    "index":0.8333333333333334
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|dual_clock_fifo_5",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_2_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1/fifo:dual_clock_fifo_1",
-    "index":0.8484848484848485
+    "index":0.8412698412698413
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|DualClockFIFO_5",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_2_tileRom_crossing:Crossing/dataFifo:DualClockFIFO_1",
-    "index":0.8560606060606061
+    "index":0.8492063492063492
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|Crossing_2",
     "duplicate":"~Cave|Cave/gpu_io_layerCtrl_2_tileRom_crossing:Crossing",
-    "index":0.8636363636363636
+    "index":0.8571428571428571
   },
   {
     "class":"firrtl.transforms.DedupedResult",
     "original":"~Cave|Queue_2",
     "duplicate":"~Cave|Cave/spriteFrameBuffer:SpriteFrameBuffer/lineBufferDma:BurstReadDMA_1/fifo:Queue",
-    "index":0.8939393939393939
+    "index":0.8888888888888888
   },
   {
     "class":"firrtl.EmitCircuitAnnotation",

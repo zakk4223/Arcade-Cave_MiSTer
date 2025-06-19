@@ -98,6 +98,7 @@ object GameConfig {
       Game.GAIA.U -> gaia,
       Game.GUWANGE.U -> guwange,
       Game.HOTDOGST.U -> hotdogst,
+      Game.MAZINGERZ.U -> mazingerz,
       Game.SAILORMN.U -> sailormn,
       Game.UOPOKO.U -> uopoko
     ))
@@ -382,6 +383,41 @@ object GameConfig {
     wire.sprite.granularity := 16.U
     wire.sprite.romSize := 0x400000.U
     wire.sprite.descrambleStyle := 0.U
+    wire
+  }
+
+  private def mazingerz = {
+    val wire = Wire(new GameConfig)
+    wire.progRomOffset := 0x00000000.U
+    wire.eepromOffset := 0x00D80000.U
+    wire.fillPalette := 0x7f.U
+    wire.sound(0).device := SoundDevice.Z80.U
+    wire.sound(1).device := SoundDevice.OKIM6259.U
+    wire.sound(2).device := SoundDevice.DISABLED.U
+    wire.sound(0).romOffset := 0x00D80080.U
+    wire.sound(1).romOffset := 0x00DA0080.U
+    wire.sound(2).romOffset := 0.U
+    wire.layer(0).format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.layer(1).format := GraphicsFormat.GFX_FORMAT_8BPP.U
+    wire.layer(2).format := GraphicsFormat.GFX_FORMAT_UNKNOWN.U
+    wire.layer(0).granularity := 16.U
+    wire.layer(1).granularity := 16.U
+    wire.layer(2).granularity := 16.U
+    wire.layer(0).paletteBank := 0.U
+    wire.layer(1).paletteBank := 0.U
+    wire.layer(2).paletteBank := 0.U
+    wire.layer(0).tileBank := false.B
+    wire.layer(1).tileBank := false.B
+    wire.layer(2).tileBank := false.B
+    wire.layer(0).romOffset := 0x00E20080.U
+    wire.layer(1).romOffset := 0x01020080.U
+    wire.layer(2).romOffset := 0.U
+    wire.sprite.format := GraphicsFormat.GFX_FORMAT_4BPP.U
+    wire.sprite.romOffset := 0x01220080.U
+    wire.sprite.zoom := true.B
+    wire.sprite.granularity := 16.U
+    wire.sprite.romSize := 0x280000.U
+    wire.sprite.descrambleStyle := 2.U
     wire
   }
 

@@ -37,6 +37,7 @@ import arcadia.cpu.m68k._
 import arcadia.gfx._
 import arcadia.mem._
 import arcadia.mister._
+import arcadia.util.Counter
 import cave._
 import cave.gfx._
 import cave.snd.SoundCtrlIO
@@ -206,6 +207,7 @@ class Main extends Module {
     ram
   }
 
+  /*
  val scratchRam = 0.until(Config.LAYER_COUNT).map { i =>
    val ram = Module(new SinglePortRam(
      addrWidth = Config.SCRATCH_RAM_ADDR_WIDTH,
@@ -215,6 +217,7 @@ class Main extends Module {
      ram.io.default()
      ram
  }
+ */
 
   // Palette RAM
   val paletteRam = Module(new TrueDualPortRam(
@@ -247,11 +250,12 @@ class Main extends Module {
     agalletIrq := true.B
   }.elsewhen(Util.falling(vBlank)) {
     agalletIrq := false.B
+    unknownIrq := true.B
   }
 
   // IRQ cause handler
   val irqCause = { (_: UInt, offset: UInt) =>
-    val a = offset === 0.U && agalletIrq
+    val a = false.B //offset === 0.U && agalletIrq
     val b = unknownIrq
     val c = videoIrq
     when(offset === 4.U) { videoIrq := false.B }
@@ -277,7 +281,7 @@ class Main extends Module {
   def vramMap(baseAddr: Int, vram8x8: MemIO, vram16x16: MemIO, lineRam: MemIO): Unit = {
     map((baseAddr + 0x0000) to (baseAddr + 0x0fff)).readWriteMem(vram16x16)
     map((baseAddr + 0x1000) to (baseAddr + 0x17ff)).readWriteMem(lineRam)
-    //map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
+    map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
     map((baseAddr + 0x4000) to (baseAddr + 0x7fff)).readWriteMem(vram8x8)
     map((baseAddr + 0x8000) to (baseAddr + 0xffff)).readWriteStub()
   }
@@ -295,6 +299,20 @@ class Main extends Module {
   }
 
 
+  val watchdogResetReg = RegInit(false.B)
+
+  def watchdogWrite() : Unit = {
+    watchdogResetReg := true.B
+  }
+
+  val (watchdogCounter, watchdogCounterWrap) = Counter.static(0x2DC6C00, reset = watchdogResetReg) 
+
+  cpu.io.extReset := watchdogCounterWrap === true.B
+
+  when (watchdogResetReg) {
+    watchdogResetReg := false.B
+  }
+
   val ackLatchReg = RegEnable(true.B, false.B, io.soundCtrl.ack)
 
   val ackDataReg = RegEnable(io.soundCtrl.ackData, 0xFF.U, io.soundCtrl.ack)
@@ -309,36 +327,6 @@ class Main extends Module {
     ackDataReg
   }
 
-  /* Sailor moon checks the entire vram memory area by starting with 0xXXXX writing it and then
-   * moving to the next word and doing a seven position left rotate of the previously written value
-   * it then goes back through and reads those values and expects them to be the same
-   * since the rotate is cyclical the value repeats every 16 bytes. Just use a lookup table to fake
-   * the check for now.
-   * This is only for the vram section 0x1800 to 0x3fff
-   * If it turns out the game actually uses this memory,  it needs to be moved to sdram or ddr.
-   * (we use too much bram otherwise)
-   * 
-   */
-  def scratchRamRead(addr: UInt, offset: UInt): UInt = {
-     MuxCase(0x1234.U, Seq(
-       (addr(4,0) === 0x0.U) -> 0x1234.U,
-       (addr(4,0) === 0x2.U) -> 0x1A09.U,
-       (addr(4,0) === 0x4.U) -> 0x048D.U,
-       (addr(4,0) === 0x6.U) -> 0x4682.U,
-       (addr(4,0) === 0x8.U) -> 0x4123.U,
-       (addr(4,0) === 0xA.U) -> 0x91A0.U,
-       (addr(4,0) === 0xC.U) -> 0xD048.U,
-       (addr(4,0) === 0xE.U) -> 0x2468.U,
-       (addr(4,0) === 0x10.U) -> 0x3412.U,
-       (addr(4,0) === 0x12.U) -> 0x091A.U,
-       (addr(4,0) === 0x14.U) -> 0x8D04.U,
-       (addr(4,0) === 0x16.U) -> 0x8246.U,
-       (addr(4,0) === 0x18.U) -> 0x2341.U,
-       (addr(4,0) === 0x1A.U) -> 0xA091.U,
-       (addr(4,0) === 0x1C.U) -> 0x48D0.U,
-       (addr(4,0) === 0x1E.U) -> 0x6824.U,
-       )) 
-  } 
   when((io.gameIndex === Game.AGALLET.U) || (io.gameIndex === Game.SAILORMN.U)) {
     map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U } // convert to byte address
     map(0x000000 to 0x07ffff).nopw()
@@ -361,9 +349,9 @@ class Main extends Module {
     //map(0x881800 to 0x883fff).rw ({ (a, o) => scratchRamRead(a,o)  })({(_,_,_) => {}}) 
     //map(0x901800 to 0x903fff).rw ({ (a, o) => scratchRamRead(a,o)  })({(_,_,_) => {}}) 
 
-    map(0x801800 to 0x803fff).readWriteMem(scratchRam(0).io)
-    map(0x881800 to 0x883fff).readWriteMem(scratchRam(1).io)
-    map(0x901800 to 0x903fff).readWriteMem(scratchRam(2).io)
+    //map(0x801800 to 0x803fff).readWriteMem(scratchRam(0).io)
+    //map(0x881800 to 0x883fff).readWriteMem(scratchRam(1).io)
+    //map(0x901800 to 0x903fff).readWriteMem(scratchRam(2).io)
 
     map(0xb8006e to 0xb8006f).rw ({ (_, _) => getAckLatch()}) ({(_, _, _) => io.soundCtrl.req := true.B })
     map(0xb8006c to 0xb8006d).rw ({ (_, _) => getAckLatchFlag()  })({(_,_,_) => {}})
@@ -521,6 +509,22 @@ class Main extends Module {
     map(0x900002).r { (_, _) => input1 }
     map(0xa00000).writeMem(eepromMem)
     map(0x110000 to 0x1fffff).noprw()
+  }.elsewhen(io.gameIndex === Game.MAZINGERZ.U) {
+    map(0x000000 to 0x07ffff).readMemT(io.progRom) { _ ## 0.U }                                                                                // ROM
+    map(0xd00000 to 0xd7ffff).readMemT(io.highProgRom) {a => (1.U ## a(18,1)) ## 0.U }                                                                                // ROM
+    map(0x100000 to 0x10ffff).readWriteMem(mainRam.io)                                                                                // RAM
+    map(0x200000 to 0x20ffff).readWriteMem(spriteRam.io.portA)
+    vregMap(0x300000)
+    map(0x300068 to 0x300069).w { (_, _, data) => watchdogWrite()}
+    map(0x30006e to 0x30006f).rw ({ (_, _) => getAckLatch()}) ({(_ , _, _) => io.soundCtrl.req := true.B})
+    map(0xc08000 to 0xc0ffff).readWriteMemT(paletteRam.io.portA)(a => a(14, 0))
+    map(0x500000 to 0x507fff).readWriteMemT(vram8x8(0).io.portA)(a => a(13, 0)) // layer 0 is 8x8 only
+    map(0x400000 to 0x407fff).readWriteMemT(vram8x8(1).io.portA)(a => a(13, 0)) // layer 1 is 8x8 only
+    map(0x700000 to 0x700005).readWriteMem(layerRegs(0).io.mem)
+    map(0x600000 to 0x600005).readWriteMem(layerRegs(1).io.mem)
+    map(0x800000).r { (_, _) => input0 }
+    map(0x800002).r { (_, _) => input1 }
+    map(0x900000).writeMem(eepromMem)
   }
 }
 

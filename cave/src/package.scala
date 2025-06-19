@@ -54,9 +54,11 @@ package object cave {
     /** Hotdog Storm */
     val HOTDOGST = 7
     /** Air Gallet */
-    val AGALLET = 8
+    val AGALLET = 10 
     /** Sailor Moon */
     val SAILORMN = 9
+    /** Mazinger Z */
+    val MAZINGERZ = 8 
   }
 
   /** Graphics format enum */

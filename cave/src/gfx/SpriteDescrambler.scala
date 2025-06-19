@@ -41,13 +41,18 @@ class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
 
   val readAddr = {
     val descramble_0 =  writeOffset + readOffset 
-    val xorRes = descramble_0 ^ 0x950c4.U(32.W)
+    val xorRes_1 = descramble_0 ^ 0x950c4.U(32.W)
     val descramble_1 = Cat(Seq(23,22,21,20,15,10,12,6,11,1,13,3,16,17,2,5,14,7,18,8,4,19,9,0)
-      .map(Util.decode(xorRes, 24, 1).apply).toSeq)
+      .map(Util.decode(xorRes_1, 24, 1).apply).toSeq)
+
+    val xorRes_2 = descramble_0 ^ 0xdf88.U(32.W)
+    val descramble_2 = Cat(Seq(23,22,21,20,19,9,7,3,15,4,17,14,18,2,16,5,11,8,6,13,1,10,12,0)
+      .map(Util.decode(xorRes_1, 24, 1).apply).toSeq)
 
     MuxCase(descramble_0, Seq(
       (io.gameConfig.sprite.descrambleStyle === 0.U) -> descramble_0,
-      (io.gameConfig.sprite.descrambleStyle === 1.U) -> descramble_1
+      (io.gameConfig.sprite.descrambleStyle === 1.U) -> descramble_1,
+      (io.gameConfig.sprite.descrambleStyle === 2.U) -> descramble_2
     ))
   }
 
