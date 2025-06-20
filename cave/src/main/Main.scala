@@ -277,7 +277,7 @@ class Main extends Module {
   def vramMap(baseAddr: Int, vram8x8: MemIO, vram16x16: MemIO, lineRam: MemIO): Unit = {
     map((baseAddr + 0x0000) to (baseAddr + 0x0fff)).readWriteMem(vram16x16)
     map((baseAddr + 0x1000) to (baseAddr + 0x17ff)).readWriteMem(lineRam)
-    //map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
+    map((baseAddr + 0x1800) to (baseAddr + 0x3fff)).readWriteStub()
     map((baseAddr + 0x4000) to (baseAddr + 0x7fff)).readWriteMem(vram8x8)
     map((baseAddr + 0x8000) to (baseAddr + 0xffff)).readWriteStub()
   }
