@@ -44,10 +44,12 @@ import arcadia.mem.BusConfig
  */
 case class Config(addrWidth: Int = 32,
                   dataWidth: Int = 64,
+                  useSyncReadMem: Boolean = true,
                   depth: Int,
                   burstLength: Int) extends BusConfig {
   /** The width of the DMA data bus in bytes. */
   val byteWidth = dataWidth / 8
   /** The number of bursts. */
   val numBursts = depth / burstLength
+
 }

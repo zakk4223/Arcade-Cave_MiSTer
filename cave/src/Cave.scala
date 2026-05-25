@@ -91,16 +91,12 @@ class Cave extends Module {
 
   // The game index register is latched when data is written to the IOCTL (i.e. the game index is
   // set by the MRA file), and falls back to the value in the options.
+
+
   val gameIndexReg = {
     val reg = Reg(UInt(4.W))
-    val latched = RegInit(false.B)
     when(io.ioctl.download && io.ioctl.wr && io.ioctl.index === IOCTL.GAME_INDEX.U) {
       reg := io.ioctl.dout(OptionsIO.GAME_INDEX_WIDTH - 1, 0)
-      latched := true.B
-    }
-    when(Util.falling(io.ioctl.download) && !latched) {
-      reg := io.options.gameIndex
-      latched := true.B
     }
     reg
   }
@@ -122,9 +118,10 @@ class Cave extends Module {
   val sdram = Module(new SDRAM(Config.sdramConfig))
   sdram.io.sdram <> io.sdram
 
+  val memGameConfig = RegNext(gameConfig)
   // Memory subsystem
   val memSys = Module(new MemSys)
-  memSys.io.gameConfig := gameConfig
+  memSys.io.gameConfig := memGameConfig
   memSys.io.prog.rom <> io.ioctl.rom
   memSys.io.prog.nvram <> io.ioctl.nvram
   memSys.io.prog.done := Util.falling(io.ioctl.download) && io.ioctl.index === IOCTL.ROM_INDEX.U
@@ -140,10 +137,12 @@ class Cave extends Module {
   videoSys.io.options := io.options
 
   // Main PCB
-  val main = withClockAndReset(io.cpuClock, io.cpuReset || !memSys.io.ready) { Module(new Main) }
+  val mainReady = RegNext(memSys.io.ready)
+  val main = withClockAndReset(io.cpuClock, io.cpuReset || !mainReady) { Module(new Main) }
+  val mainGameIndex = RegNext(gameIndexReg)
   main.io.videoClock := io.videoClock
   main.io.spriteClock := clock
-  main.io.gameIndex := gameIndexReg
+  main.io.gameIndex := mainGameIndex 
   main.io.options := io.options
   main.io.dips := dipsRegs.io.regs
   main.io.player <> io.player
@@ -152,44 +151,50 @@ class Cave extends Module {
   main.io.highProgRom <> Crossing.freeze(io.cpuClock, memSys.io.highProgRom)
   main.io.eeprom <> Crossing.freeze(io.cpuClock, memSys.io.eeprom)
 
+  val soundGameConfig = RegNext(gameConfig) 
+  val soundGameIndex = RegNext(gameIndexReg)
+  val soundReady = RegNext(memSys.io.ready)
   // Sound PCB
-  val sound = withClockAndReset(io.cpuClock, io.cpuReset || !memSys.io.ready) { Module(new Sound) }
-  sound.io.gameIndex := gameIndexReg
-  sound.io.gameConfig := gameConfig
+  val sound = withClockAndReset(io.cpuClock, io.cpuReset || !soundReady) { Module(new Sound) }
+  sound.io.gameIndex := soundGameIndex
+  sound.io.gameConfig := soundGameConfig 
   sound.io.ctrl <> main.io.soundCtrl
   sound.io.rom(0) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(0))
   sound.io.rom(1) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(1))
   sound.io.rom(2) <> Crossing.freeze(io.cpuClock, memSys.io.soundRom(2))
 
   // Graphics processor
+  //
+  val gpuGameConfig = RegNext(gameConfig)
   val gpu = Module(new GPU)
   gpu.io.videoClock := io.videoClock
   0.until(Config.LAYER_COUNT).foreach { i =>
     gpu.io.layerCtrl(i).enable := io.options.layer(i)
-    gpu.io.layerCtrl(i).format := gameConfig.layer(i).format
+    gpu.io.layerCtrl(i).format := gpuGameConfig.layer(i).format
     gpu.io.layerCtrl(i).vram8x8 <> main.io.gpuMem.layer(i).vram8x8
     gpu.io.layerCtrl(i).vram16x16 <> main.io.gpuMem.layer(i).vram16x16
     gpu.io.layerCtrl(i).lineRam <> main.io.gpuMem.layer(i).lineRam
     gpu.io.layerCtrl(i).tileRom <> Crossing.syncronize(io.videoClock, memSys.io.layerTileRom(i))
     gpu.io.layerCtrl(i).regs := main.io.gpuMem.layer(i).regs
-    gpu.io.layerCtrl(i).tileBank := Mux(gameConfig.layer(i).tileBank, main.io.tileBank, false.B)
+    gpu.io.layerCtrl(i).tileBank := Mux(gpuGameConfig.layer(i).tileBank, main.io.tileBank, false.B)
   }
   gpu.io.spriteCtrl.enable := io.options.sprite
-  gpu.io.spriteCtrl.format := gameConfig.sprite.format
+  gpu.io.spriteCtrl.format := gpuGameConfig.sprite.format
   gpu.io.spriteCtrl.start := vBlankFalling
-  gpu.io.spriteCtrl.zoom := gameConfig.sprite.zoom
+  gpu.io.spriteCtrl.zoom := gpuGameConfig.sprite.zoom
   gpu.io.spriteCtrl.vram <> main.io.gpuMem.sprite.vram
   gpu.io.spriteCtrl.tileRom <> memSys.io.spriteTileRom
   gpu.io.spriteCtrl.regs := main.io.gpuMem.sprite.regs
-  gpu.io.gameConfig := gameConfig
+  gpu.io.gameConfig := gpuGameConfig 
   gpu.io.options := io.options
   gpu.io.video := videoSys.io.video
   gpu.io.paletteRam <> main.io.gpuMem.paletteRam
 
   // Sprite frame buffer
+  val spriteFBReady = RegNext(memSys.io.ready)
   val spriteFrameBuffer = Module(new SpriteFrameBuffer)
   spriteFrameBuffer.io.videoClock := io.videoClock
-  spriteFrameBuffer.io.enable := memSys.io.ready
+  spriteFrameBuffer.io.enable := spriteFBReady
   spriteFrameBuffer.io.swap := main.io.spriteFrameBufferSwap
   spriteFrameBuffer.io.video := videoSys.io.video
   spriteFrameBuffer.io.lineBuffer <> gpu.io.spriteLineBuffer
@@ -198,10 +203,11 @@ class Cave extends Module {
 
   // System frame buffer
   val systemFrameBuffer = Module(new SystemFrameBuffer)
+  val sysFBReady = RegNext(memSys.io.ready)
   systemFrameBuffer.io.videoClock := io.videoClock
-  systemFrameBuffer.io.enable := memSys.io.ready
+  systemFrameBuffer.io.enable := sysFBReady
   systemFrameBuffer.io.rotate := io.options.rotate
-  systemFrameBuffer.io.forceBlank := !memSys.io.ready
+  systemFrameBuffer.io.forceBlank := !sysFBReady
   systemFrameBuffer.io.video := videoSys.io.video
   systemFrameBuffer.io.frameBufferCtrl <> io.frameBufferCtrl
   systemFrameBuffer.io.frameBuffer <> gpu.io.systemFrameBuffer

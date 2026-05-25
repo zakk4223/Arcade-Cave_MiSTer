@@ -31,12 +31,12 @@
  */
 
 package arcadia.mem.sdram
-
 import arcadia.mem.BurstMemIO
 import arcadia.mem.request.Request
 import arcadia.util.Counter
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.annotate
 
 /**
  * Handles reading/writing data to a SDRAM memory device.
@@ -74,16 +74,47 @@ class SDRAM(config: Config) extends Module {
     val mode :: refresh :: precharge :: active :: write :: read :: stop :: nop :: deselect :: Nil = Enum(9)
   }
 
+  class HotState extends Bundle {
+    val init = Bool()
+    val mode = Bool()
+    val idle = Bool()
+    val active = Bool()
+    val read = Bool()
+    val write = Bool()
+    val refresh = Bool()
+
+    def =/=(other: HotState): Bool = {
+      this.init =/= other.init || this.mode =/= other.mode ||
+      this.idle =/= other.idle || this.active =/= other.active ||
+      this.read =/= other.read || this.write =/= other.write ||
+      this.refresh =/= other.refresh
+    }
+  }
+
+  val nextState = Wire(new HotState)
+  val stateReg = RegNext(nextState, {
+    val s = Wire(new HotState)
+    s.init := true.B
+    s.mode := false.B
+    s.idle := false.B
+    s.active := false.B
+    s.read := false.B
+    s.write := false.B
+    s.refresh := false.B
+    s
+  })
+  nextState := stateReg
+
   // State register
-  val nextState = Wire(UInt())
-  val stateReg = RegNext(nextState, State.init)
+  //val nextState = Wire(UInt())
+  //val stateReg = RegNext(nextState, State.init)
 
   // Command register
   val nextCommand = Wire(UInt())
   val commandReg = RegNext(nextCommand, Command.nop)
 
   // Assert the latch signal when a request should be latched
-  val latch = stateReg =/= State.active && nextState === State.active
+  val latch = !stateReg.active && nextState.active
 
   // Asserted when there is a read or write request
   val isReadWrite = io.mem.rd || io.mem.wr
@@ -104,35 +135,53 @@ class SDRAM(config: Config) extends Module {
   // Counters
   val (waitCounter, _) = Counter.static(config.waitCounterMax, reset = nextState =/= stateReg)
   val (refreshCounter, _) = Counter.static(config.refreshCounterMax,
-    enable = stateReg =/= State.init && stateReg =/= State.mode,
-    reset = stateReg === State.refresh && waitCounter === 0.U
+    enable = !stateReg.init && !stateReg.mode,
+    reset = stateReg.refresh && waitCounter === 0.U
   )
 
+  val waitCounter_dup =  WireDefault(waitCounter)
+  val waitCounter_dup1 = WireDefault(waitCounter)
+  val waitCounter_dup2 = WireDefault(waitCounter)
+  val waitCounter_dup3 = WireDefault(waitCounter)
+  val waitCounter_dup4 = WireDefault(waitCounter)
+  val waitCounter_dup5 = WireDefault(waitCounter)
+  val waitCounter_dup6 = WireDefault(waitCounter)
+  val waitCounter_dup7 = WireDefault(waitCounter)
+
+  dontTouch(waitCounter_dup)
+  dontTouch(waitCounter_dup1)
+  dontTouch(waitCounter_dup2)
+  dontTouch(waitCounter_dup3)
+  dontTouch(waitCounter_dup4)
+  dontTouch(waitCounter_dup5)
+  dontTouch(waitCounter_dup6)
+  dontTouch(waitCounter_dup7)
+
   // Control signals
-  val modeDone = waitCounter === (config.modeWait - 1).U
-  val activeDone = waitCounter === (config.activeWait - 1).U
-  val readDone = waitCounter === (config.readWait - 1).U
-  val writeDone = waitCounter === (config.writeWait - 1).U
-  val refreshDone = waitCounter === (config.refreshWait - 1).U
+  val modeDone = waitCounter_dup1 === (config.modeWait - 1).U
+  val activeDone = waitCounter_dup2 === (config.activeWait - 1).U
+  val readDone = RegNext(waitCounter_dup === (config.readWait - 1).U, false.B)
+  val writeDone = waitCounter_dup3 === (config.writeWait - 1).U
+  val refreshDone = waitCounter_dup4 === (config.refreshWait - 1).U
   val triggerRefresh = refreshCounter >= (config.refreshInterval - 1).U
-  val burstBusy = waitCounter < (config.burstLength - 1).U
-  val burstDone = waitCounter === (config.burstLength - 1).U
+  val burstBusy = waitCounter_dup5 < (config.burstLength - 1).U
+  val burstDone = waitCounter_dup6 === (config.burstLength - 1).U
 
   // Deassert the wait signal at the start of a read request, or during a write request
   val wait_n = {
-    val idle = stateReg === State.idle && !isReadWrite
+    val idle = stateReg.idle && !isReadWrite
     val read = latch && request.rd
-    val write = (stateReg === State.active && activeDone && requestReg.wr) || (stateReg === State.write && burstBusy)
+    val write = (stateReg.active && activeDone && requestReg.wr) || (stateReg.write && burstBusy)
     idle || read || write
   }
 
   // Assert the valid signal after the first word has been bursted during a read
-  val validReg = RegNext(stateReg === State.read && waitCounter > (config.casLatency - 1).U, false.B)
+  val validReg = RegNext(stateReg.read && waitCounter_dup > (config.casLatency - 1).U, false.B)
 
   // Assert the burst done signal when a read/write burst has completed
   val memBurstDone = {
-    val readBurstDone = stateReg === State.read && readDone
-    val writeBurstDone = stateReg === State.write && burstDone
+    val readBurstDone = stateReg.read && readDone
+    val writeBurstDone = stateReg.write && burstDone
     RegNext(readBurstDone, false.B) || writeBurstDone
   }
 
@@ -143,97 +192,117 @@ class SDRAM(config: Config) extends Module {
   nextCommand := Command.nop
 
   def mode() = {
+    nextState.init := false.B
+    nextState.mode := true.B
+    nextState.idle := false.B
+    nextState.active := false.B
+    nextState.read := false.B
+    nextState.write := false.B
+    nextState.refresh := false.B
     nextCommand := Command.mode
-    nextState := State.mode
     addrReg := config.opcode
   }
 
   def idle() = {
-    nextState := State.idle
+    nextState.init := false.B
+    nextState.mode := false.B
+    nextState.idle := true.B
+    nextState.active := false.B
+    nextState.read := false.B
+    nextState.write := false.B
+    nextState.refresh := false.B
   }
 
   def active() = {
+    nextState.init := false.B
+    nextState.mode := false.B
+    nextState.idle := false.B
+    nextState.active := true.B
+    nextState.read := false.B
+    nextState.write := false.B
+    nextState.refresh := false.B
     nextCommand := Command.active
-    nextState := State.active
     bankReg := request.addr.bank
     addrReg := request.addr.row
   }
 
   def read() = {
+    nextState.init := false.B
+    nextState.mode := false.B
+    nextState.idle := false.B
+    nextState.active := false.B
+    nextState.read := true.B
+    nextState.write := false.B
+    nextState.refresh := false.B
     nextCommand := Command.read
-    nextState := State.read
     bankReg := requestReg.addr.bank
     addrReg := "b001".U ## requestReg.addr.col.pad(10)
   }
 
   def write() = {
+    nextState.init := false.B
+    nextState.mode := false.B
+    nextState.idle := false.B
+    nextState.active := false.B
+    nextState.read := false.B
+    nextState.write := true.B
+    nextState.refresh := false.B
     nextCommand := Command.write
-    nextState := State.write
     bankReg := requestReg.addr.bank
     addrReg := "b001".U ## requestReg.addr.col.pad(10)
   }
 
   def refresh() = {
+    nextState.init := false.B
+    nextState.mode := false.B
+    nextState.idle := false.B
+    nextState.active := false.B
+    nextState.read := false.B
+    nextState.write := false.B
+    nextState.refresh := true.B
     nextCommand := Command.refresh
-    nextState := State.refresh
   }
 
   // FSM
-  switch(stateReg) {
     // Initialize device
-    is(State.init) {
+    when(stateReg.init) {
       addrReg := "b0010000000000".U
-      when(waitCounter === 0.U) {
+      when(waitCounter_dup7 === 0.U) {
         nextCommand := Command.deselect
-      }.elsewhen(waitCounter === (config.deselectWait - 1).U) {
+      }.elsewhen(waitCounter_dup7 === (config.deselectWait - 1).U) {
         nextCommand := Command.precharge
-      }.elsewhen(waitCounter === (config.deselectWait + config.prechargeWait - 1).U) {
+      }.elsewhen(waitCounter_dup7 === (config.deselectWait + config.prechargeWait - 1).U) {
         nextCommand := Command.refresh
-      }.elsewhen(waitCounter === (config.deselectWait + config.prechargeWait + config.refreshWait - 1).U) {
+      }.elsewhen(waitCounter_dup7 === (config.deselectWait + config.prechargeWait + config.refreshWait - 1).U) {
         nextCommand := Command.refresh
-      }.elsewhen(waitCounter === (config.deselectWait + config.prechargeWait + config.refreshWait + config.refreshWait - 1).U) {
+      }.elsewhen(waitCounter_dup7 === (config.deselectWait + config.prechargeWait + config.refreshWait + config.refreshWait - 1).U) {
         mode()
       }
-    }
-
-    // Set mode register
-    is(State.mode) {
+    }.elsewhen(stateReg.mode) {
       when(modeDone) { idle() }
-    }
-
+    }.elsewhen(stateReg.idle) {
     // Wait for request
-    is(State.idle) {
       when(triggerRefresh) { refresh() }.elsewhen(isReadWrite) { active() }
-    }
-
-    // Activate row
-    is(State.active) {
+    }.elsewhen(stateReg.active) { 
       when(activeDone) {
         when(requestReg.wr) { write() }.otherwise { read() }
       }
-    }
-
+    }.elsewhen(stateReg.read) {
     // Execute read command
-    is(State.read) {
       when(readDone) {
         when(triggerRefresh) { refresh() }.elsewhen(isReadWrite) { active() }.otherwise { idle() }
       }
-    }
-
+    }.elsewhen(stateReg.write) {
     // Execute write command
-    is(State.write) {
       when(writeDone) {
         when(triggerRefresh) { refresh() }.elsewhen(isReadWrite) { active() }.otherwise { idle() }
       }
-    }
-
+    }.elsewhen(stateReg.refresh) {
     // Execute refresh command
-    is(State.refresh) {
       when(refreshDone) {
         when(isReadWrite) { active() }.otherwise { idle() }
       }
     }
-  }
 
   // Outputs
   io.mem.wait_n := wait_n
@@ -245,17 +314,17 @@ class SDRAM(config: Config) extends Module {
   io.sdram.ras_n := commandReg(2)
   io.sdram.cas_n := commandReg(1)
   io.sdram.we_n := commandReg(0)
-  io.sdram.oe_n := stateReg =/= State.read
+  io.sdram.oe_n := !stateReg.read
   io.sdram.bank := bankReg
   io.sdram.addr := addrReg
   io.sdram.din := dinReg
-  io.debug.init := stateReg === State.init
-  io.debug.mode := stateReg === State.mode
-  io.debug.idle := stateReg === State.idle
-  io.debug.active := stateReg === State.active
-  io.debug.read := stateReg === State.read
-  io.debug.write := stateReg === State.write
-  io.debug.refresh := stateReg === State.refresh
+  io.debug.init := stateReg.init
+  io.debug.mode := stateReg.mode
+  io.debug.idle := stateReg.idle
+  io.debug.active := stateReg.active
+  io.debug.read := stateReg.read
+  io.debug.write := stateReg.write
+  io.debug.refresh := stateReg.refresh
 
   // Debug
   if (sys.env.get("DEBUG").contains("1")) {

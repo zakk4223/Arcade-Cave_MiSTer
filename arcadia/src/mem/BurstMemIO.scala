@@ -312,6 +312,7 @@ object BurstMemIO {
    *
    * @param in A list of enable-interface pairs.
    */
+  /*
   def mux1H(in: Seq[(Bool, BurstMemIO)]): BurstMemIO = {
     val anySelected = in.map(_._1).reduce(_ || _)
     val mem = Wire(chiselTypeOf(in.head._2))
@@ -321,11 +322,36 @@ object BurstMemIO {
     mem.addr := Mux1H(in.map(a => a._1 -> a._2.addr))
     mem.mask := Mux1H(in.map(a => a._1 -> a._2.mask))
     mem.din := Mux1H(in.map(a => a._1 -> a._2.din))
-    for ((selected, port) <- in) {
-      port.wait_n := (!anySelected || selected) && mem.wait_n
+    val wait_n_dups = Seq.fill(in.length)(Wire(Bool()))
+    wait_n_dups.foreach(_ := mem.wait_n)
+    for(((selected, port), i) <- in.zipWithIndex) {
+      port.wait_n := (!anySelected || selected) && wait_n_dups(i)
       port.valid := selected && mem.valid
       port.burstDone := selected && mem.burstDone
       port.dout := mem.dout
+    }
+    mem
+  }
+  */
+
+def mux1H(in: Seq[(Bool, BurstMemIO)]): BurstMemIO = {
+    val anySelected = in.map(_._1).reduce(_ || _)
+    val mem = Wire(chiselTypeOf(in.head._2))
+    mem.rd := Mux1H(in.map(a => a._1 -> a._2.rd))
+    mem.wr := Mux1H(in.map(a => a._1 -> a._2.wr))
+    mem.burstLength := Mux1H(in.map(a => a._1 -> a._2.burstLength))
+    mem.addr := Mux1H(in.map(a => a._1 -> a._2.addr))
+    mem.mask := Mux1H(in.map(a => a._1 -> a._2.mask))
+    mem.din := Mux1H(in.map(a => a._1 -> a._2.din))
+    val wait_n_dups = VecInit(Seq.fill(in.length)(mem.wait_n)) 
+    val valid_dups = VecInit(Seq.fill(in.length)(mem.valid)) 
+    val burstDone_dups = VecInit(Seq.fill(in.length)(mem.burstDone)) 
+    val dout_dups = VecInit(Seq.fill(in.length)(mem.dout)) 
+    for (((selected, port), i) <- in.zipWithIndex) {
+      port.wait_n := (!anySelected || selected) && wait_n_dups(i)
+      port.valid := selected && valid_dups(i)
+      port.burstDone := selected && burstDone_dups(i)
+      port.dout := dout_dups(i)
     }
     mem
   }

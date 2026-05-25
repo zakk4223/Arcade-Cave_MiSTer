@@ -83,6 +83,12 @@ class ReadCache(config: Config) extends Module {
   // State register
   val stateReg = RegInit(State.init)
 
+  val isInit = RegInit(true.B)
+  val isIdle = RegInit(false.B)
+  val isCheck = RegInit(false.B) 
+  val isFill = RegInit(false.B) 
+  val isFillwait = RegInit(false.B)
+  val isWrite = RegInit(false.B) 
   // Start request flag
   val start = Wire(Bool())
 
@@ -118,29 +124,29 @@ class ReadCache(config: Config) extends Module {
 
   // Latch cache entry for the current way during the check state. This prevents the cache entry
   // register from changing during a request.
-  val cacheEntryReg = RegEnable(Mux(nextWay, cacheEntryB, cacheEntryA), stateReg === State.check)
+  val cacheEntryReg = RegEnable(Mux(nextWay, cacheEntryB, cacheEntryA), isCheck)
 
   // Write the cache entry
-  val nextCacheEntry = Mux(stateReg === State.write, cacheEntryReg, Entry.zero(config))
+  val nextCacheEntry = Mux(isWrite, cacheEntryReg, Entry.zero(config))
 
-  when(stateReg === State.init || (stateReg === State.write && !wayReg)) {
+  when(isInit || (isWrite && !wayReg)) {
     cacheEntryMemA.write(requestReg.addr.index, nextCacheEntry)
   }
 
-  when(stateReg === State.init || (stateReg === State.write && wayReg)) {
+  when(isInit || (isWrite && wayReg)) {
     cacheEntryMemB.write(requestReg.addr.index, nextCacheEntry)
   }
 
   // Assert the burst counter enable signal as words are bursted from memory
-  val burstCounterEnable = stateReg === State.fillWait && io.out.valid
+  val burstCounterEnable = isFillwait && io.out.valid
 
   // Counters
-  val (initCounter, initCounterWrap) = Counter(stateReg === State.init, config.depth)
+  val (initCounter, initCounterWrap) = Counter(isInit, config.depth)
   val (burstCounter, burstCounterWrap) = Counter(burstCounterEnable, config.lineWidth)
 
   // Control signals
-  start := io.enable && request.rd && stateReg === State.idle
-  val wait_n = io.enable && stateReg === State.idle
+  start := io.enable && request.rd && isIdle 
+  val wait_n = io.enable && isIdle 
   val hitA = cacheEntryA.isHit(requestReg.addr)
   val hitB = cacheEntryB.isHit(requestReg.addr)
   val hit = hitA || hitB
@@ -169,7 +175,7 @@ class ReadCache(config: Config) extends Module {
   nextWay := Mux(start, lruReg(request.addr.index), wayReg)
 
   // Fill the cache line as words are bursted from memory
-  when(stateReg === State.fillWait && io.out.valid) {
+  when(isFillwait && io.out.valid) {
     val n = if (config.wrapping) requestReg.addr.offset + burstCounter else burstCounter
     val entry = cacheEntryReg.fill(requestReg.addr.tag, n, io.out.dout)
     cacheEntryReg := entry
@@ -178,7 +184,8 @@ class ReadCache(config: Config) extends Module {
   }
 
   def onHit() = {
-    stateReg := State.idle
+    isCheck := false.B
+    isIdle := true.B
     doutReg := Mux(hitA, cacheEntryA.inWord(offsetReg), cacheEntryB.inWord(offsetReg))
     validReg := true.B
     lruReg := lruReg.bitSet(requestReg.addr.index, hitA)
@@ -186,11 +193,37 @@ class ReadCache(config: Config) extends Module {
   }
 
   def onMiss() = {
-    stateReg := State.fill
+    isCheck := false.B
+    isFill := true.B
     lruReg := lruReg.bitSet(requestReg.addr.index, !wayReg)
   }
 
   // FSM
+
+  when(isInit && initCounterWrap) {
+    isInit := false.B
+    isIdle := true.B
+  }.elsewhen(isIdle && start) {
+    isIdle := false.B
+    isCheck := true.B
+  }.elsewhen(isCheck) {
+    when(hit) {
+      onHit()
+    }.elsewhen(miss) {
+      onMiss()
+    }
+  }.elsewhen(isFill && io.out.wait_n) {
+    isFill := false.B
+    isFillwait := true.B
+  }.elsewhen(isFillwait && burstCounterWrap) {
+    isFillwait := false.B
+    isWrite := true.B
+  }.elsewhen(isWrite) {
+    isWrite := false.B
+    isIdle := true.B
+  }
+   
+  /*
   switch(stateReg) {
     // Initialize cache
     is(State.init) {
@@ -220,19 +253,20 @@ class ReadCache(config: Config) extends Module {
     // Write cache entry
     is(State.write) { stateReg := State.idle }
   }
+  */
 
   // Outputs
   io.in.wait_n := wait_n
   io.in.valid := validReg
   io.in.dout := doutReg
-  io.out.rd := stateReg === State.fill
+  io.out.rd := isFill 
   io.out.burstLength := config.lineWidth.U
   io.out.addr := outAddr
-  io.debug.idle := stateReg === State.idle
-  io.debug.check := stateReg === State.check
-  io.debug.fill := stateReg === State.fill
-  io.debug.fillWait := stateReg === State.fillWait
-  io.debug.write := stateReg === State.write
+  io.debug.idle := isIdle
+  io.debug.check := isCheck 
+  io.debug.fill := isFill 
+  io.debug.fillWait := isFillwait 
+  io.debug.write := isWrite 
   io.debug.lru := lruReg
 
   // Debug

@@ -248,149 +248,368 @@ module SDRAM(
   reg [31:0] _RAND_10;
   reg [31:0] _RAND_11;
   reg [31:0] _RAND_12;
+  reg [31:0] _RAND_13;
+  reg [31:0] _RAND_14;
+  reg [31:0] _RAND_15;
+  reg [31:0] _RAND_16;
+  reg [31:0] _RAND_17;
+  reg [31:0] _RAND_18;
+  reg [31:0] _RAND_19;
 `endif // RANDOMIZE_REG_INIT
-  reg [2:0] stateReg; // @[SDRAM.scala 79:25]
-  reg [3:0] commandReg; // @[SDRAM.scala 83:27]
+  reg  stateReg_init; // @[SDRAM.scala 95:25]
+  reg  stateReg_mode; // @[SDRAM.scala 95:25]
+  reg  stateReg_idle; // @[SDRAM.scala 95:25]
+  reg  stateReg_active; // @[SDRAM.scala 95:25]
+  reg  stateReg_read; // @[SDRAM.scala 95:25]
+  reg  stateReg_write; // @[SDRAM.scala 95:25]
+  reg  stateReg_refresh; // @[SDRAM.scala 95:25]
+  reg [3:0] commandReg; // @[SDRAM.scala 114:27]
   reg [14:0] waitCounter; // @[Counter.scala 40:34]
-  wire  _T_1 = waitCounter == 15'h0; // @[SDRAM.scala 186:24]
-  wire [2:0] _GEN_16 = waitCounter == 15'h4b0d ? 3'h1 : stateReg; // @[SDRAM.scala 194:128 140:13 147:15]
-  wire [2:0] _GEN_19 = waitCounter == 15'h4b07 ? stateReg : _GEN_16; // @[SDRAM.scala 192:107 140:13]
-  wire [2:0] _GEN_22 = waitCounter == 15'h4b01 ? stateReg : _GEN_19; // @[SDRAM.scala 140:13 190:86]
-  wire [2:0] _GEN_25 = waitCounter == 15'h4aff ? stateReg : _GEN_22; // @[SDRAM.scala 140:13 188:63]
-  wire [2:0] _GEN_28 = waitCounter == 15'h0 ? stateReg : _GEN_25; // @[SDRAM.scala 140:13 186:33]
-  wire  modeDone = waitCounter == 15'h1; // @[SDRAM.scala 112:30]
-  wire [2:0] _GEN_30 = modeDone ? 3'h2 : stateReg; // @[SDRAM.scala 140:13 152:15 201:22]
+  wire [14:0] waitCounter_dup7 = waitCounter;
+  wire  _GEN_18 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_active; // @[SDRAM.scala 189:13 278:133 198:22]
+  wire  _GEN_28 = waitCounter_dup7 == 15'h4b07 ? stateReg_active : _GEN_18; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_37 = waitCounter_dup7 == 15'h4b01 ? stateReg_active : _GEN_28; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_46 = waitCounter_dup7 == 15'h4aff ? stateReg_active : _GEN_37; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_55 = waitCounter_dup7 == 15'h0 ? stateReg_active : _GEN_46; // @[SDRAM.scala 189:13 270:38]
+  wire [14:0] waitCounter_dup1 = waitCounter;
+  wire  modeDone = waitCounter_dup7 == 15'h1; // @[SDRAM.scala 161:35]
+  wire  _GEN_63 = modeDone ? 1'h0 : stateReg_active; // @[SDRAM.scala 189:13 210:22 282:22]
   reg [9:0] refreshCounter; // @[Counter.scala 40:34]
-  wire  triggerRefresh = refreshCounter >= 10'h2eb; // @[SDRAM.scala 117:39]
-  wire  isReadWrite = io_mem_rd | io_mem_wr; // @[SDRAM.scala 89:31]
-  wire [2:0] _GEN_32 = isReadWrite ? 3'h3 : stateReg; // @[SDRAM.scala 140:13 157:15 206:64]
-  wire [2:0] _GEN_36 = triggerRefresh ? 3'h6 : _GEN_32; // @[SDRAM.scala 178:15 206:28]
+  wire  triggerRefresh = refreshCounter >= 10'h2eb; // @[SDRAM.scala 166:39]
+  wire  isReadWrite = io_mem_rd | io_mem_wr; // @[SDRAM.scala 120:31]
+  wire  _GEN_70 = isReadWrite | stateReg_active; // @[SDRAM.scala 189:13 220:22 285:64]
+  wire  _GEN_80 = triggerRefresh ? 1'h0 : _GEN_70; // @[SDRAM.scala 259:22 285:28]
+  wire [14:0] waitCounter_dup2 = waitCounter;
   reg  requestReg_wr; // @[Reg.scala 19:16]
-  wire [2:0] _GEN_40 = requestReg_wr ? 3'h5 : 3'h4; // @[SDRAM.scala 164:15 171:15 212:29]
-  wire [2:0] _GEN_44 = modeDone ? _GEN_40 : stateReg; // @[SDRAM.scala 140:13 211:24]
-  wire  readDone = waitCounter == 15'h5; // @[SDRAM.scala 114:30]
-  wire [2:0] _GEN_47 = isReadWrite ? 3'h3 : 3'h2; // @[SDRAM.scala 152:15 157:15 219:66]
-  wire [2:0] _GEN_48 = triggerRefresh ? 3'h6 : _GEN_47; // @[SDRAM.scala 178:15 219:30]
-  wire [2:0] _GEN_50 = readDone ? _GEN_48 : stateReg; // @[SDRAM.scala 140:13 218:22]
-  wire  writeDone = waitCounter == 15'h6; // @[SDRAM.scala 115:31]
-  wire [2:0] _GEN_54 = writeDone ? _GEN_48 : stateReg; // @[SDRAM.scala 140:13 225:23]
-  wire [2:0] _GEN_58 = readDone ? _GEN_47 : stateReg; // @[SDRAM.scala 140:13 232:25]
-  wire [2:0] _GEN_62 = 3'h6 == stateReg ? _GEN_58 : stateReg; // @[SDRAM.scala 140:13 182:20]
-  wire [2:0] _GEN_66 = 3'h5 == stateReg ? _GEN_54 : _GEN_62; // @[SDRAM.scala 182:20]
-  wire [2:0] _GEN_70 = 3'h4 == stateReg ? _GEN_50 : _GEN_66; // @[SDRAM.scala 182:20]
-  wire [2:0] _GEN_74 = 3'h3 == stateReg ? _GEN_44 : _GEN_70; // @[SDRAM.scala 182:20]
-  wire [2:0] _GEN_78 = 3'h2 == stateReg ? _GEN_36 : _GEN_74; // @[SDRAM.scala 182:20]
-  wire [2:0] _GEN_81 = 3'h1 == stateReg ? _GEN_30 : _GEN_78; // @[SDRAM.scala 182:20]
-  wire [2:0] nextState = 3'h0 == stateReg ? _GEN_28 : _GEN_81; // @[SDRAM.scala 182:20]
-  wire  latch = stateReg != 3'h3 & nextState == 3'h3; // @[SDRAM.scala 86:41]
+  reg  readDone; // @[SDRAM.scala 163:25]
+  wire  _GEN_108 = triggerRefresh ? 1'h0 : isReadWrite; // @[SDRAM.scala 259:22 293:30]
+  wire  _GEN_113 = readDone ? _GEN_108 : stateReg_active; // @[SDRAM.scala 189:13 292:22]
+  wire [14:0] waitCounter_dup3 = waitCounter;
+  wire  writeDone = waitCounter_dup7 == 15'h6; // @[SDRAM.scala 164:36]
+  wire  _GEN_123 = writeDone ? _GEN_108 : stateReg_active; // @[SDRAM.scala 189:13 297:23]
+  wire [14:0] waitCounter_dup4 = waitCounter;
+  wire  refreshDone = waitCounter_dup7 == 15'h5; // @[SDRAM.scala 165:38]
+  wire  _GEN_133 = refreshDone ? isReadWrite : stateReg_active; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_143 = stateReg_refresh ? _GEN_133 : stateReg_active; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_153 = stateReg_write ? _GEN_123 : _GEN_143; // @[SDRAM.scala 295:32]
+  wire  _GEN_163 = stateReg_read ? _GEN_113 : _GEN_153; // @[SDRAM.scala 290:31]
+  wire  _GEN_173 = stateReg_active ? _GEN_63 : _GEN_163; // @[SDRAM.scala 286:33]
+  wire  _GEN_183 = stateReg_idle ? _GEN_80 : _GEN_173; // @[SDRAM.scala 283:31]
+  wire  _GEN_193 = stateReg_mode ? _GEN_63 : _GEN_183; // @[SDRAM.scala 281:31]
+  wire  nextState_active = stateReg_init ? _GEN_55 : _GEN_193; // @[SDRAM.scala 268:25]
+  wire  latch = ~stateReg_active & nextState_active; // @[SDRAM.scala 117:32]
   wire [8:0] request_addr_col = io_mem_addr[9:1]; // @[Address.scala 57:25]
   wire [12:0] request_addr_row = io_mem_addr[22:10]; // @[Address.scala 57:25]
   wire [1:0] request_addr_bank = io_mem_addr[24:23]; // @[Address.scala 57:25]
   reg [1:0] requestReg_addr_bank; // @[Reg.scala 19:16]
   reg [8:0] requestReg_addr_col; // @[Reg.scala 19:16]
-  reg [1:0] bankReg; // @[SDRAM.scala 99:20]
-  reg [12:0] addrReg; // @[SDRAM.scala 100:20]
-  reg [15:0] dinReg; // @[SDRAM.scala 101:23]
-  reg [15:0] doutReg; // @[SDRAM.scala 102:24]
-  wire  waitCounter_x2 = nextState != stateReg; // @[SDRAM.scala 105:82]
+  reg [1:0] bankReg; // @[SDRAM.scala 130:20]
+  reg [12:0] addrReg; // @[SDRAM.scala 131:20]
+  reg [15:0] dinReg; // @[SDRAM.scala 132:23]
+  reg [15:0] doutReg; // @[SDRAM.scala 133:24]
+  wire  _GEN_15 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 278:133 195:20]
+  wire  _GEN_25 = waitCounter_dup7 == 15'h4b07 ? stateReg_init : _GEN_15; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_34 = waitCounter_dup7 == 15'h4b01 ? stateReg_init : _GEN_25; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_43 = waitCounter_dup7 == 15'h4aff ? stateReg_init : _GEN_34; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_52 = waitCounter_dup7 == 15'h0 ? stateReg_init : _GEN_43; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_60 = modeDone ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 207:20 282:22]
+  wire  _GEN_67 = isReadWrite ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 217:20 285:64]
+  wire  _GEN_77 = triggerRefresh ? 1'h0 : _GEN_67; // @[SDRAM.scala 256:20 285:28]
+  wire  _GEN_110 = readDone ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_120 = writeDone ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_130 = refreshDone ? 1'h0 : stateReg_init; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_140 = stateReg_refresh ? _GEN_130 : stateReg_init; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_150 = stateReg_write ? _GEN_120 : _GEN_140; // @[SDRAM.scala 295:32]
+  wire  _GEN_160 = stateReg_read ? _GEN_110 : _GEN_150; // @[SDRAM.scala 290:31]
+  wire  _GEN_170 = stateReg_active ? _GEN_60 : _GEN_160; // @[SDRAM.scala 286:33]
+  wire  _GEN_180 = stateReg_idle ? _GEN_77 : _GEN_170; // @[SDRAM.scala 283:31]
+  wire  _GEN_190 = stateReg_mode ? _GEN_60 : _GEN_180; // @[SDRAM.scala 281:31]
+  wire  nextState_init = stateReg_init ? _GEN_52 : _GEN_190; // @[SDRAM.scala 268:25]
+  wire  _GEN_16 = waitCounter_dup7 == 15'h4b0d | stateReg_mode; // @[SDRAM.scala 189:13 278:133 196:20]
+  wire  _GEN_26 = waitCounter_dup7 == 15'h4b07 ? stateReg_mode : _GEN_16; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_35 = waitCounter_dup7 == 15'h4b01 ? stateReg_mode : _GEN_26; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_44 = waitCounter_dup7 == 15'h4aff ? stateReg_mode : _GEN_35; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_53 = waitCounter_dup7 == 15'h0 ? stateReg_mode : _GEN_44; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_61 = modeDone ? 1'h0 : stateReg_mode; // @[SDRAM.scala 189:13 208:20 282:22]
+  wire  _GEN_68 = isReadWrite ? 1'h0 : stateReg_mode; // @[SDRAM.scala 189:13 218:20 285:64]
+  wire  _GEN_78 = triggerRefresh ? 1'h0 : _GEN_68; // @[SDRAM.scala 257:20 285:28]
+  wire  _GEN_111 = readDone ? 1'h0 : stateReg_mode; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_121 = writeDone ? 1'h0 : stateReg_mode; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_131 = refreshDone ? 1'h0 : stateReg_mode; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_141 = stateReg_refresh ? _GEN_131 : stateReg_mode; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_151 = stateReg_write ? _GEN_121 : _GEN_141; // @[SDRAM.scala 295:32]
+  wire  _GEN_161 = stateReg_read ? _GEN_111 : _GEN_151; // @[SDRAM.scala 290:31]
+  wire  _GEN_171 = stateReg_active ? _GEN_61 : _GEN_161; // @[SDRAM.scala 286:33]
+  wire  _GEN_181 = stateReg_idle ? _GEN_78 : _GEN_171; // @[SDRAM.scala 283:31]
+  wire  _GEN_191 = stateReg_mode ? _GEN_61 : _GEN_181; // @[SDRAM.scala 281:31]
+  wire  nextState_mode = stateReg_init ? _GEN_53 : _GEN_191; // @[SDRAM.scala 268:25]
+  wire  _GEN_17 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_idle; // @[SDRAM.scala 189:13 278:133 197:20]
+  wire  _GEN_27 = waitCounter_dup7 == 15'h4b07 ? stateReg_idle : _GEN_17; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_36 = waitCounter_dup7 == 15'h4b01 ? stateReg_idle : _GEN_27; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_45 = waitCounter_dup7 == 15'h4aff ? stateReg_idle : _GEN_36; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_54 = waitCounter_dup7 == 15'h0 ? stateReg_idle : _GEN_45; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_62 = modeDone | stateReg_idle; // @[SDRAM.scala 189:13 209:20 282:22]
+  wire  _GEN_69 = isReadWrite ? 1'h0 : stateReg_idle; // @[SDRAM.scala 189:13 219:20 285:64]
+  wire  _GEN_79 = triggerRefresh ? 1'h0 : _GEN_69; // @[SDRAM.scala 258:20 285:28]
+  wire  _GEN_95 = modeDone ? 1'h0 : stateReg_idle; // @[SDRAM.scala 189:13 287:24]
+  wire  _GEN_104 = isReadWrite ? 1'h0 : 1'h1; // @[SDRAM.scala 209:20 219:20 293:66]
+  wire  _GEN_107 = triggerRefresh ? 1'h0 : _GEN_104; // @[SDRAM.scala 258:20 293:30]
+  wire  _GEN_112 = readDone ? _GEN_107 : stateReg_idle; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_122 = writeDone ? _GEN_107 : stateReg_idle; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_132 = refreshDone ? _GEN_104 : stateReg_idle; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_142 = stateReg_refresh ? _GEN_132 : stateReg_idle; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_152 = stateReg_write ? _GEN_122 : _GEN_142; // @[SDRAM.scala 295:32]
+  wire  _GEN_162 = stateReg_read ? _GEN_112 : _GEN_152; // @[SDRAM.scala 290:31]
+  wire  _GEN_172 = stateReg_active ? _GEN_95 : _GEN_162; // @[SDRAM.scala 286:33]
+  wire  _GEN_182 = stateReg_idle ? _GEN_79 : _GEN_172; // @[SDRAM.scala 283:31]
+  wire  _GEN_192 = stateReg_mode ? _GEN_62 : _GEN_182; // @[SDRAM.scala 281:31]
+  wire  nextState_idle = stateReg_init ? _GEN_54 : _GEN_192; // @[SDRAM.scala 268:25]
+  wire  _waitCounter_x2_T_3 = nextState_idle != stateReg_idle; // @[SDRAM.scala 88:17]
+  wire  _waitCounter_x2_T_4 = nextState_init != stateReg_init | nextState_mode != stateReg_mode | _waitCounter_x2_T_3; // @[SDRAM.scala 87:60]
+  wire  _GEN_19 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 278:133 199:20]
+  wire  _GEN_29 = waitCounter_dup7 == 15'h4b07 ? stateReg_read : _GEN_19; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_38 = waitCounter_dup7 == 15'h4b01 ? stateReg_read : _GEN_29; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_47 = waitCounter_dup7 == 15'h4aff ? stateReg_read : _GEN_38; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_56 = waitCounter_dup7 == 15'h0 ? stateReg_read : _GEN_47; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_64 = modeDone ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 211:20 282:22]
+  wire  _GEN_71 = isReadWrite ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 221:20 285:64]
+  wire  _GEN_81 = triggerRefresh ? 1'h0 : _GEN_71; // @[SDRAM.scala 260:20 285:28]
+  wire  _GEN_88 = requestReg_wr ? 1'h0 : 1'h1; // @[SDRAM.scala 234:20 247:20 288:29]
+  wire  _GEN_97 = modeDone ? _GEN_88 : stateReg_read; // @[SDRAM.scala 189:13 287:24]
+  wire  _GEN_114 = readDone ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_124 = writeDone ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_134 = refreshDone ? 1'h0 : stateReg_read; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_144 = stateReg_refresh ? _GEN_134 : stateReg_read; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_154 = stateReg_write ? _GEN_124 : _GEN_144; // @[SDRAM.scala 295:32]
+  wire  _GEN_164 = stateReg_read ? _GEN_114 : _GEN_154; // @[SDRAM.scala 290:31]
+  wire  _GEN_174 = stateReg_active ? _GEN_97 : _GEN_164; // @[SDRAM.scala 286:33]
+  wire  _GEN_184 = stateReg_idle ? _GEN_81 : _GEN_174; // @[SDRAM.scala 283:31]
+  wire  _GEN_194 = stateReg_mode ? _GEN_64 : _GEN_184; // @[SDRAM.scala 281:31]
+  wire  nextState_read = stateReg_init ? _GEN_56 : _GEN_194; // @[SDRAM.scala 268:25]
+  wire  _waitCounter_x2_T_7 = nextState_read != stateReg_read; // @[SDRAM.scala 89:17]
+  wire  _waitCounter_x2_T_8 = _waitCounter_x2_T_4 | nextState_active != stateReg_active | _waitCounter_x2_T_7; // @[SDRAM.scala 88:64]
+  wire  _GEN_20 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 278:133 200:21]
+  wire  _GEN_30 = waitCounter_dup7 == 15'h4b07 ? stateReg_write : _GEN_20; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_39 = waitCounter_dup7 == 15'h4b01 ? stateReg_write : _GEN_30; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_48 = waitCounter_dup7 == 15'h4aff ? stateReg_write : _GEN_39; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_57 = waitCounter_dup7 == 15'h0 ? stateReg_write : _GEN_48; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_65 = modeDone ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 212:21 282:22]
+  wire  _GEN_72 = isReadWrite ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 222:21 285:64]
+  wire  _GEN_82 = triggerRefresh ? 1'h0 : _GEN_72; // @[SDRAM.scala 261:21 285:28]
+  wire  _GEN_98 = modeDone ? requestReg_wr : stateReg_write; // @[SDRAM.scala 189:13 287:24]
+  wire  _GEN_115 = readDone ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_125 = writeDone ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_135 = refreshDone ? 1'h0 : stateReg_write; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_145 = stateReg_refresh ? _GEN_135 : stateReg_write; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_155 = stateReg_write ? _GEN_125 : _GEN_145; // @[SDRAM.scala 295:32]
+  wire  _GEN_165 = stateReg_read ? _GEN_115 : _GEN_155; // @[SDRAM.scala 290:31]
+  wire  _GEN_175 = stateReg_active ? _GEN_98 : _GEN_165; // @[SDRAM.scala 286:33]
+  wire  _GEN_185 = stateReg_idle ? _GEN_82 : _GEN_175; // @[SDRAM.scala 283:31]
+  wire  _GEN_195 = stateReg_mode ? _GEN_65 : _GEN_185; // @[SDRAM.scala 281:31]
+  wire  nextState_write = stateReg_init ? _GEN_57 : _GEN_195; // @[SDRAM.scala 268:25]
+  wire  _GEN_21 = waitCounter_dup7 == 15'h4b0d ? 1'h0 : stateReg_refresh; // @[SDRAM.scala 189:13 278:133 201:23]
+  wire  _GEN_31 = waitCounter_dup7 == 15'h4b07 ? stateReg_refresh : _GEN_21; // @[SDRAM.scala 276:112 189:13]
+  wire  _GEN_40 = waitCounter_dup7 == 15'h4b01 ? stateReg_refresh : _GEN_31; // @[SDRAM.scala 189:13 274:91]
+  wire  _GEN_49 = waitCounter_dup7 == 15'h4aff ? stateReg_refresh : _GEN_40; // @[SDRAM.scala 189:13 272:68]
+  wire  _GEN_58 = waitCounter_dup7 == 15'h0 ? stateReg_refresh : _GEN_49; // @[SDRAM.scala 189:13 270:38]
+  wire  _GEN_66 = modeDone ? 1'h0 : stateReg_refresh; // @[SDRAM.scala 189:13 282:22 213:23]
+  wire  _GEN_73 = isReadWrite ? 1'h0 : stateReg_refresh; // @[SDRAM.scala 189:13 223:23 285:64]
+  wire  _GEN_83 = triggerRefresh | _GEN_73; // @[SDRAM.scala 262:23 285:28]
+  wire  _GEN_116 = readDone ? triggerRefresh : stateReg_refresh; // @[SDRAM.scala 189:13 292:22]
+  wire  _GEN_126 = writeDone ? triggerRefresh : stateReg_refresh; // @[SDRAM.scala 189:13 297:23]
+  wire  _GEN_136 = refreshDone ? 1'h0 : stateReg_refresh; // @[SDRAM.scala 189:13 302:25]
+  wire  _GEN_146 = stateReg_refresh ? _GEN_136 : stateReg_refresh; // @[SDRAM.scala 189:13 300:34]
+  wire  _GEN_156 = stateReg_write ? _GEN_126 : _GEN_146; // @[SDRAM.scala 295:32]
+  wire  _GEN_166 = stateReg_read ? _GEN_116 : _GEN_156; // @[SDRAM.scala 290:31]
+  wire  _GEN_176 = stateReg_active ? _GEN_66 : _GEN_166; // @[SDRAM.scala 286:33]
+  wire  _GEN_186 = stateReg_idle ? _GEN_83 : _GEN_176; // @[SDRAM.scala 283:31]
+  wire  _GEN_196 = stateReg_mode ? _GEN_66 : _GEN_186; // @[SDRAM.scala 281:31]
+  wire  nextState_refresh = stateReg_init ? _GEN_58 : _GEN_196; // @[SDRAM.scala 268:25]
+  wire  _waitCounter_x2_T_11 = nextState_refresh != stateReg_refresh; // @[SDRAM.scala 90:20]
+  wire  waitCounter_x2 = _waitCounter_x2_T_8 | nextState_write != stateReg_write | _waitCounter_x2_T_11; // @[SDRAM.scala 89:62]
   wire [14:0] _waitCounter_wrap_value_T_1 = waitCounter + 15'h1; // @[Counter.scala 46:22]
-  wire  _refreshCounter_T_2 = stateReg != 3'h0 & stateReg != 3'h1; // @[SDRAM.scala 107:38]
-  wire  _refreshCounter_T_5 = stateReg == 3'h6 & _T_1; // @[SDRAM.scala 108:40]
+  wire  _refreshCounter_T_2 = ~stateReg_init & ~stateReg_mode; // @[SDRAM.scala 138:29]
+  wire  _refreshCounter_T_4 = stateReg_refresh & waitCounter == 15'h0; // @[SDRAM.scala 139:30]
   wire [9:0] _refreshCounter_wrap_value_T_1 = refreshCounter + 10'h1; // @[Counter.scala 46:22]
-  wire  burstBusy = waitCounter < 15'h3; // @[SDRAM.scala 118:31]
-  wire  burstDone = waitCounter == 15'h3; // @[SDRAM.scala 119:31]
-  wire  wait_n_idle = stateReg == 3'h2 & ~isReadWrite; // @[SDRAM.scala 123:40]
-  wire  wait_n_read = latch & io_mem_rd; // @[SDRAM.scala 124:22]
-  wire  _wait_n_write_T_3 = stateReg == 3'h5; // @[SDRAM.scala 125:89]
-  wire  wait_n_write = stateReg == 3'h3 & modeDone & requestReg_wr | stateReg == 3'h5 & burstBusy; // @[SDRAM.scala 125:76]
-  wire  _validReg_T = stateReg == 3'h4; // @[SDRAM.scala 130:35]
-  reg  validReg; // @[SDRAM.scala 130:25]
-  wire  memBurstDone_readBurstDone = _validReg_T & readDone; // @[SDRAM.scala 134:49]
-  wire  memBurstDone_writeBurstDone = _wait_n_write_T_3 & burstDone; // @[SDRAM.scala 135:51]
-  reg  memBurstDone_REG; // @[SDRAM.scala 136:12]
-  wire [3:0] _GEN_15 = waitCounter == 15'h4b0d ? 4'h0 : 4'h7; // @[SDRAM.scala 194:128 143:15 146:17]
-  wire [12:0] _GEN_17 = waitCounter == 15'h4b0d ? 13'h22 : 13'h400; // @[SDRAM.scala 194:128 148:13 185:15]
-  wire [3:0] _GEN_18 = waitCounter == 15'h4b07 ? 4'h1 : _GEN_15; // @[SDRAM.scala 192:107 193:21]
-  wire [12:0] _GEN_20 = waitCounter == 15'h4b07 ? 13'h400 : _GEN_17; // @[SDRAM.scala 192:107 185:15]
-  wire [3:0] _GEN_21 = waitCounter == 15'h4b01 ? 4'h1 : _GEN_18; // @[SDRAM.scala 190:86 191:21]
-  wire [3:0] _GEN_31 = isReadWrite ? 4'h3 : 4'h7; // @[SDRAM.scala 143:15 156:17 206:64]
-  wire [1:0] _GEN_33 = isReadWrite ? request_addr_bank : bankReg; // @[SDRAM.scala 158:13 206:64 99:20]
-  wire [12:0] _GEN_34 = isReadWrite ? request_addr_row : addrReg; // @[SDRAM.scala 159:13 100:20 206:64]
-  wire [3:0] _GEN_35 = triggerRefresh ? 4'h1 : _GEN_31; // @[SDRAM.scala 177:17 206:28]
-  wire [1:0] _GEN_37 = triggerRefresh ? bankReg : _GEN_33; // @[SDRAM.scala 206:28 99:20]
-  wire [12:0] _GEN_38 = triggerRefresh ? addrReg : _GEN_34; // @[SDRAM.scala 100:20 206:28]
-  wire [9:0] _addrReg_T_5 = {{1'd0}, requestReg_addr_col}; // @[SDRAM.scala 173:51]
-  wire [10:0] _addrReg_T_6 = {1'h1,_addrReg_T_5}; // @[SDRAM.scala 173:25]
-  wire [3:0] _GEN_39 = requestReg_wr ? 4'h4 : 4'h5; // @[SDRAM.scala 163:17 170:17 212:29]
-  wire [10:0] _GEN_42 = requestReg_wr ? _addrReg_T_6 : _addrReg_T_6; // @[SDRAM.scala 166:13 173:13 212:29]
-  wire [3:0] _GEN_43 = modeDone ? _GEN_39 : 4'h7; // @[SDRAM.scala 143:15 211:24]
-  wire [1:0] _GEN_45 = modeDone ? requestReg_addr_bank : bankReg; // @[SDRAM.scala 211:24 99:20]
-  wire [12:0] _GEN_46 = modeDone ? {{2'd0}, _GEN_42} : addrReg; // @[SDRAM.scala 100:20 211:24]
-  wire [3:0] _GEN_49 = readDone ? _GEN_35 : 4'h7; // @[SDRAM.scala 143:15 218:22]
-  wire [1:0] _GEN_51 = readDone ? _GEN_37 : bankReg; // @[SDRAM.scala 218:22 99:20]
-  wire [12:0] _GEN_52 = readDone ? _GEN_38 : addrReg; // @[SDRAM.scala 100:20 218:22]
-  wire [3:0] _GEN_53 = writeDone ? _GEN_35 : 4'h7; // @[SDRAM.scala 143:15 225:23]
-  wire [1:0] _GEN_55 = writeDone ? _GEN_37 : bankReg; // @[SDRAM.scala 225:23 99:20]
-  wire [12:0] _GEN_56 = writeDone ? _GEN_38 : addrReg; // @[SDRAM.scala 100:20 225:23]
-  wire [3:0] _GEN_57 = readDone ? _GEN_31 : 4'h7; // @[SDRAM.scala 143:15 232:25]
-  wire [1:0] _GEN_59 = readDone ? _GEN_33 : bankReg; // @[SDRAM.scala 232:25 99:20]
-  wire [12:0] _GEN_60 = readDone ? _GEN_34 : addrReg; // @[SDRAM.scala 100:20 232:25]
-  wire [3:0] _GEN_61 = 3'h6 == stateReg ? _GEN_57 : 4'h7; // @[SDRAM.scala 143:15 182:20]
-  wire [1:0] _GEN_63 = 3'h6 == stateReg ? _GEN_59 : bankReg; // @[SDRAM.scala 182:20 99:20]
-  wire [12:0] _GEN_64 = 3'h6 == stateReg ? _GEN_60 : addrReg; // @[SDRAM.scala 100:20 182:20]
-  wire [3:0] _GEN_65 = 3'h5 == stateReg ? _GEN_53 : _GEN_61; // @[SDRAM.scala 182:20]
-  wire [1:0] _GEN_67 = 3'h5 == stateReg ? _GEN_55 : _GEN_63; // @[SDRAM.scala 182:20]
-  wire [12:0] _GEN_68 = 3'h5 == stateReg ? _GEN_56 : _GEN_64; // @[SDRAM.scala 182:20]
-  wire [3:0] _GEN_69 = 3'h4 == stateReg ? _GEN_49 : _GEN_65; // @[SDRAM.scala 182:20]
-  wire [1:0] _GEN_71 = 3'h4 == stateReg ? _GEN_51 : _GEN_67; // @[SDRAM.scala 182:20]
-  wire [12:0] _GEN_72 = 3'h4 == stateReg ? _GEN_52 : _GEN_68; // @[SDRAM.scala 182:20]
-  wire [3:0] _GEN_73 = 3'h3 == stateReg ? _GEN_43 : _GEN_69; // @[SDRAM.scala 182:20]
-  assign io_mem_dout = doutReg; // @[SDRAM.scala 242:15]
-  assign io_mem_wait_n = wait_n_idle | wait_n_read | wait_n_write; // @[SDRAM.scala 126:18]
-  assign io_mem_valid = validReg; // @[SDRAM.scala 240:16]
-  assign io_mem_burstDone = memBurstDone_REG | memBurstDone_writeBurstDone; // @[SDRAM.scala 136:37]
-  assign io_sdram_cs_n = commandReg[3]; // @[SDRAM.scala 244:30]
-  assign io_sdram_ras_n = commandReg[2]; // @[SDRAM.scala 245:31]
-  assign io_sdram_cas_n = commandReg[1]; // @[SDRAM.scala 246:31]
-  assign io_sdram_we_n = commandReg[0]; // @[SDRAM.scala 247:30]
-  assign io_sdram_oe_n = stateReg != 3'h4; // @[SDRAM.scala 248:29]
-  assign io_sdram_bank = bankReg; // @[SDRAM.scala 249:17]
-  assign io_sdram_addr = addrReg; // @[SDRAM.scala 250:17]
-  assign io_sdram_din = dinReg; // @[SDRAM.scala 251:16]
+  wire [14:0] waitCounter_dup = waitCounter;
+  wire [14:0] waitCounter_dup5 = waitCounter;
+  wire  burstBusy = waitCounter_dup7 < 15'h3; // @[SDRAM.scala 167:36]
+  wire [14:0] waitCounter_dup6 = waitCounter;
+  wire  burstDone = waitCounter_dup7 == 15'h3; // @[SDRAM.scala 168:36]
+  wire  wait_n_idle = stateReg_idle & ~isReadWrite; // @[SDRAM.scala 172:30]
+  wire  wait_n_read = latch & io_mem_rd; // @[SDRAM.scala 173:22]
+  wire  wait_n_write = stateReg_active & modeDone & requestReg_wr | stateReg_write & burstBusy; // @[SDRAM.scala 174:66]
+  reg  validReg; // @[SDRAM.scala 179:25]
+  wire  memBurstDone_readBurstDone = stateReg_read & readDone; // @[SDRAM.scala 183:39]
+  wire  memBurstDone_writeBurstDone = stateReg_write & burstDone; // @[SDRAM.scala 184:41]
+  reg  memBurstDone_REG; // @[SDRAM.scala 185:12]
+  wire [3:0] _GEN_22 = waitCounter_dup7 == 15'h4b0d ? 4'h0 : 4'h7; // @[SDRAM.scala 278:133 192:15 202:17]
+  wire [12:0] _GEN_23 = waitCounter_dup7 == 15'h4b0d ? 13'h22 : 13'h400; // @[SDRAM.scala 203:13 278:133 269:15]
+  wire [3:0] _GEN_24 = waitCounter_dup7 == 15'h4b07 ? 4'h1 : _GEN_22; // @[SDRAM.scala 276:112 277:21]
+  wire [12:0] _GEN_32 = waitCounter_dup7 == 15'h4b07 ? 13'h400 : _GEN_23; // @[SDRAM.scala 276:112 269:15]
+  wire [3:0] _GEN_33 = waitCounter_dup7 == 15'h4b01 ? 4'h1 : _GEN_24; // @[SDRAM.scala 274:91 275:21]
+  wire [3:0] _GEN_74 = isReadWrite ? 4'h3 : 4'h7; // @[SDRAM.scala 192:15 224:17 285:64]
+  wire [1:0] _GEN_75 = isReadWrite ? request_addr_bank : bankReg; // @[SDRAM.scala 225:13 130:20 285:64]
+  wire [12:0] _GEN_76 = isReadWrite ? request_addr_row : addrReg; // @[SDRAM.scala 226:13 131:20 285:64]
+  wire [3:0] _GEN_84 = triggerRefresh ? 4'h1 : _GEN_74; // @[SDRAM.scala 263:17 285:28]
+  wire [1:0] _GEN_85 = triggerRefresh ? bankReg : _GEN_75; // @[SDRAM.scala 130:20 285:28]
+  wire [12:0] _GEN_86 = triggerRefresh ? addrReg : _GEN_76; // @[SDRAM.scala 131:20 285:28]
+  wire [9:0] _addrReg_T_5 = {{1'd0}, requestReg_addr_col}; // @[SDRAM.scala 252:51]
+  wire [10:0] _addrReg_T_6 = {1'h1,_addrReg_T_5}; // @[SDRAM.scala 252:25]
+  wire [3:0] _GEN_90 = requestReg_wr ? 4'h4 : 4'h5; // @[SDRAM.scala 237:17 250:17 288:29]
+  wire [10:0] _GEN_92 = requestReg_wr ? _addrReg_T_6 : _addrReg_T_6; // @[SDRAM.scala 239:13 252:13 288:29]
+  wire [3:0] _GEN_100 = modeDone ? _GEN_90 : 4'h7; // @[SDRAM.scala 192:15 287:24]
+  wire [1:0] _GEN_101 = modeDone ? requestReg_addr_bank : bankReg; // @[SDRAM.scala 130:20 287:24]
+  wire [12:0] _GEN_102 = modeDone ? {{2'd0}, _GEN_92} : addrReg; // @[SDRAM.scala 131:20 287:24]
+  wire [3:0] _GEN_117 = readDone ? _GEN_84 : 4'h7; // @[SDRAM.scala 192:15 292:22]
+  wire [1:0] _GEN_118 = readDone ? _GEN_85 : bankReg; // @[SDRAM.scala 130:20 292:22]
+  wire [12:0] _GEN_119 = readDone ? _GEN_86 : addrReg; // @[SDRAM.scala 131:20 292:22]
+  wire [3:0] _GEN_127 = writeDone ? _GEN_84 : 4'h7; // @[SDRAM.scala 192:15 297:23]
+  wire [1:0] _GEN_128 = writeDone ? _GEN_85 : bankReg; // @[SDRAM.scala 130:20 297:23]
+  wire [12:0] _GEN_129 = writeDone ? _GEN_86 : addrReg; // @[SDRAM.scala 131:20 297:23]
+  wire [3:0] _GEN_137 = refreshDone ? _GEN_74 : 4'h7; // @[SDRAM.scala 192:15 302:25]
+  wire [1:0] _GEN_138 = refreshDone ? _GEN_75 : bankReg; // @[SDRAM.scala 130:20 302:25]
+  wire [12:0] _GEN_139 = refreshDone ? _GEN_76 : addrReg; // @[SDRAM.scala 131:20 302:25]
+  wire [3:0] _GEN_147 = stateReg_refresh ? _GEN_137 : 4'h7; // @[SDRAM.scala 192:15 300:34]
+  wire [1:0] _GEN_148 = stateReg_refresh ? _GEN_138 : bankReg; // @[SDRAM.scala 130:20 300:34]
+  wire [12:0] _GEN_149 = stateReg_refresh ? _GEN_139 : addrReg; // @[SDRAM.scala 131:20 300:34]
+  wire [3:0] _GEN_157 = stateReg_write ? _GEN_127 : _GEN_147; // @[SDRAM.scala 295:32]
+  wire [1:0] _GEN_158 = stateReg_write ? _GEN_128 : _GEN_148; // @[SDRAM.scala 295:32]
+  wire [12:0] _GEN_159 = stateReg_write ? _GEN_129 : _GEN_149; // @[SDRAM.scala 295:32]
+  wire [3:0] _GEN_167 = stateReg_read ? _GEN_117 : _GEN_157; // @[SDRAM.scala 290:31]
+  wire [1:0] _GEN_168 = stateReg_read ? _GEN_118 : _GEN_158; // @[SDRAM.scala 290:31]
+  wire [12:0] _GEN_169 = stateReg_read ? _GEN_119 : _GEN_159; // @[SDRAM.scala 290:31]
+  wire [3:0] _GEN_177 = stateReg_active ? _GEN_100 : _GEN_167; // @[SDRAM.scala 286:33]
+  assign io_mem_dout = doutReg; // @[SDRAM.scala 311:15]
+  assign io_mem_wait_n = wait_n_idle | wait_n_read | wait_n_write; // @[SDRAM.scala 175:18]
+  assign io_mem_valid = validReg; // @[SDRAM.scala 309:16]
+  assign io_mem_burstDone = memBurstDone_REG | memBurstDone_writeBurstDone; // @[SDRAM.scala 185:37]
+  assign io_sdram_cs_n = commandReg[3]; // @[SDRAM.scala 313:30]
+  assign io_sdram_ras_n = commandReg[2]; // @[SDRAM.scala 314:31]
+  assign io_sdram_cas_n = commandReg[1]; // @[SDRAM.scala 315:31]
+  assign io_sdram_we_n = commandReg[0]; // @[SDRAM.scala 316:30]
+  assign io_sdram_oe_n = ~stateReg_read; // @[SDRAM.scala 317:20]
+  assign io_sdram_bank = bankReg; // @[SDRAM.scala 318:17]
+  assign io_sdram_addr = addrReg; // @[SDRAM.scala 319:17]
+  assign io_sdram_din = dinReg; // @[SDRAM.scala 320:16]
   always @(posedge clock) begin
-    if (reset) begin // @[SDRAM.scala 79:25]
-      stateReg <= 3'h0; // @[SDRAM.scala 79:25]
-    end else if (3'h0 == stateReg) begin // @[SDRAM.scala 182:20]
-      if (!(waitCounter == 15'h0)) begin // @[SDRAM.scala 186:33]
-        if (!(waitCounter == 15'h4aff)) begin // @[SDRAM.scala 188:63]
-          stateReg <= _GEN_22;
+    stateReg_init <= reset | nextState_init; // @[SDRAM.scala 95:{25,25,25}]
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_mode <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_mode <= _GEN_35;
         end
       end
-    end else if (3'h1 == stateReg) begin // @[SDRAM.scala 182:20]
-      if (modeDone) begin // @[SDRAM.scala 201:22]
-        stateReg <= 3'h2; // @[SDRAM.scala 152:15]
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      if (modeDone) begin // @[SDRAM.scala 282:22]
+        stateReg_mode <= 1'h0; // @[SDRAM.scala 208:20]
       end
-    end else if (3'h2 == stateReg) begin // @[SDRAM.scala 182:20]
-      stateReg <= _GEN_36;
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_mode <= _GEN_78;
     end else begin
-      stateReg <= _GEN_74;
+      stateReg_mode <= _GEN_171;
     end
-    if (reset) begin // @[SDRAM.scala 83:27]
-      commandReg <= 4'h7; // @[SDRAM.scala 83:27]
-    end else if (3'h0 == stateReg) begin // @[SDRAM.scala 182:20]
-      if (waitCounter == 15'h0) begin // @[SDRAM.scala 186:33]
-        commandReg <= 4'h8; // @[SDRAM.scala 187:21]
-      end else if (waitCounter == 15'h4aff) begin // @[SDRAM.scala 188:63]
-        commandReg <= 4'h2; // @[SDRAM.scala 189:21]
-      end else begin
-        commandReg <= _GEN_21;
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_idle <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_idle <= _GEN_36;
+        end
       end
-    end else if (3'h1 == stateReg) begin // @[SDRAM.scala 182:20]
-      commandReg <= 4'h7; // @[SDRAM.scala 143:15]
-    end else if (3'h2 == stateReg) begin // @[SDRAM.scala 182:20]
-      commandReg <= _GEN_35;
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      stateReg_idle <= _GEN_62;
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_idle <= _GEN_79;
     end else begin
-      commandReg <= _GEN_73;
+      stateReg_idle <= _GEN_172;
+    end
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_active <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_active <= _GEN_37;
+        end
+      end
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      if (modeDone) begin // @[SDRAM.scala 282:22]
+        stateReg_active <= 1'h0; // @[SDRAM.scala 210:22]
+      end
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_active <= _GEN_80;
+    end else begin
+      stateReg_active <= _GEN_173;
+    end
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_read <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_read <= _GEN_38;
+        end
+      end
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      if (modeDone) begin // @[SDRAM.scala 282:22]
+        stateReg_read <= 1'h0; // @[SDRAM.scala 211:20]
+      end
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_read <= _GEN_81;
+    end else begin
+      stateReg_read <= _GEN_174;
+    end
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_write <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_write <= _GEN_39;
+        end
+      end
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      if (modeDone) begin // @[SDRAM.scala 282:22]
+        stateReg_write <= 1'h0; // @[SDRAM.scala 212:21]
+      end
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_write <= _GEN_82;
+    end else begin
+      stateReg_write <= _GEN_175;
+    end
+    if (reset) begin // @[SDRAM.scala 95:25]
+      stateReg_refresh <= 1'h0; // @[SDRAM.scala 95:25]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (!(waitCounter_dup7 == 15'h0)) begin // @[SDRAM.scala 270:38]
+        if (!(waitCounter_dup7 == 15'h4aff)) begin // @[SDRAM.scala 272:68]
+          stateReg_refresh <= _GEN_40;
+        end
+      end
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      if (modeDone) begin // @[SDRAM.scala 282:22]
+        stateReg_refresh <= 1'h0; // @[SDRAM.scala 213:23]
+      end
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      stateReg_refresh <= _GEN_83;
+    end else begin
+      stateReg_refresh <= _GEN_176;
+    end
+    if (reset) begin // @[SDRAM.scala 114:27]
+      commandReg <= 4'h7; // @[SDRAM.scala 114:27]
+    end else if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (waitCounter_dup7 == 15'h0) begin // @[SDRAM.scala 270:38]
+        commandReg <= 4'h8; // @[SDRAM.scala 271:21]
+      end else if (waitCounter_dup7 == 15'h4aff) begin // @[SDRAM.scala 272:68]
+        commandReg <= 4'h2; // @[SDRAM.scala 273:21]
+      end else begin
+        commandReg <= _GEN_33;
+      end
+    end else if (stateReg_mode) begin // @[SDRAM.scala 281:31]
+      commandReg <= 4'h7; // @[SDRAM.scala 192:15]
+    end else if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+      commandReg <= _GEN_84;
+    end else begin
+      commandReg <= _GEN_177;
     end
     if (reset) begin // @[Counter.scala 40:34]
       waitCounter <= 15'h0; // @[Counter.scala 40:34]
@@ -401,7 +620,7 @@ module SDRAM(
     end
     if (reset) begin // @[Counter.scala 40:34]
       refreshCounter <= 10'h0; // @[Counter.scala 40:34]
-    end else if (_refreshCounter_T_5) begin // @[Counter.scala 86:17]
+    end else if (_refreshCounter_T_4) begin // @[Counter.scala 86:17]
       refreshCounter <= 10'h0; // @[Counter.scala 59:13]
     end else if (_refreshCounter_T_2) begin // @[Counter.scala 86:48]
       refreshCounter <= _refreshCounter_wrap_value_T_1; // @[Counter.scala 46:13]
@@ -409,57 +628,62 @@ module SDRAM(
     if (latch) begin // @[Reg.scala 20:18]
       requestReg_wr <= io_mem_wr; // @[Reg.scala 20:22]
     end
+    if (reset) begin // @[SDRAM.scala 163:25]
+      readDone <= 1'h0; // @[SDRAM.scala 163:25]
+    end else begin
+      readDone <= refreshDone; // @[SDRAM.scala 163:25]
+    end
     if (latch) begin // @[Reg.scala 20:18]
       requestReg_addr_bank <= request_addr_bank; // @[Reg.scala 20:22]
     end
     if (latch) begin // @[Reg.scala 20:18]
       requestReg_addr_col <= request_addr_col; // @[Reg.scala 20:22]
     end
-    if (!(3'h0 == stateReg)) begin // @[SDRAM.scala 182:20]
-      if (!(3'h1 == stateReg)) begin // @[SDRAM.scala 182:20]
-        if (3'h2 == stateReg) begin // @[SDRAM.scala 182:20]
-          if (!(triggerRefresh)) begin // @[SDRAM.scala 206:28]
-            bankReg <= _GEN_33;
+    if (!(stateReg_init)) begin // @[SDRAM.scala 268:25]
+      if (!(stateReg_mode)) begin // @[SDRAM.scala 281:31]
+        if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+          if (!(triggerRefresh)) begin // @[SDRAM.scala 285:28]
+            bankReg <= _GEN_75;
           end
-        end else if (3'h3 == stateReg) begin // @[SDRAM.scala 182:20]
-          bankReg <= _GEN_45;
+        end else if (stateReg_active) begin // @[SDRAM.scala 286:33]
+          bankReg <= _GEN_101;
         end else begin
-          bankReg <= _GEN_71;
+          bankReg <= _GEN_168;
         end
       end
     end
-    if (3'h0 == stateReg) begin // @[SDRAM.scala 182:20]
-      if (waitCounter == 15'h0) begin // @[SDRAM.scala 186:33]
-        addrReg <= 13'h400; // @[SDRAM.scala 185:15]
-      end else if (waitCounter == 15'h4aff) begin // @[SDRAM.scala 188:63]
-        addrReg <= 13'h400; // @[SDRAM.scala 185:15]
-      end else if (waitCounter == 15'h4b01) begin // @[SDRAM.scala 190:86]
-        addrReg <= 13'h400; // @[SDRAM.scala 185:15]
+    if (stateReg_init) begin // @[SDRAM.scala 268:25]
+      if (waitCounter_dup7 == 15'h0) begin // @[SDRAM.scala 270:38]
+        addrReg <= 13'h400; // @[SDRAM.scala 269:15]
+      end else if (waitCounter_dup7 == 15'h4aff) begin // @[SDRAM.scala 272:68]
+        addrReg <= 13'h400; // @[SDRAM.scala 269:15]
+      end else if (waitCounter_dup7 == 15'h4b01) begin // @[SDRAM.scala 274:91]
+        addrReg <= 13'h400; // @[SDRAM.scala 269:15]
       end else begin
-        addrReg <= _GEN_20;
+        addrReg <= _GEN_32;
       end
-    end else if (!(3'h1 == stateReg)) begin // @[SDRAM.scala 182:20]
-      if (3'h2 == stateReg) begin // @[SDRAM.scala 182:20]
-        if (!(triggerRefresh)) begin // @[SDRAM.scala 206:28]
-          addrReg <= _GEN_34;
+    end else if (!(stateReg_mode)) begin // @[SDRAM.scala 281:31]
+      if (stateReg_idle) begin // @[SDRAM.scala 283:31]
+        if (!(triggerRefresh)) begin // @[SDRAM.scala 285:28]
+          addrReg <= _GEN_76;
         end
-      end else if (3'h3 == stateReg) begin // @[SDRAM.scala 182:20]
-        addrReg <= _GEN_46;
+      end else if (stateReg_active) begin // @[SDRAM.scala 286:33]
+        addrReg <= _GEN_102;
       end else begin
-        addrReg <= _GEN_72;
+        addrReg <= _GEN_169;
       end
     end
-    dinReg <= io_mem_din; // @[SDRAM.scala 101:23]
-    doutReg <= io_sdram_dout; // @[SDRAM.scala 102:24]
-    if (reset) begin // @[SDRAM.scala 130:25]
-      validReg <= 1'h0; // @[SDRAM.scala 130:25]
+    dinReg <= io_mem_din; // @[SDRAM.scala 132:23]
+    doutReg <= io_sdram_dout; // @[SDRAM.scala 133:24]
+    if (reset) begin // @[SDRAM.scala 179:25]
+      validReg <= 1'h0; // @[SDRAM.scala 179:25]
     end else begin
-      validReg <= stateReg == 3'h4 & waitCounter > 15'h1; // @[SDRAM.scala 130:25]
+      validReg <= stateReg_read & waitCounter_dup7 > 15'h1; // @[SDRAM.scala 179:25]
     end
-    if (reset) begin // @[SDRAM.scala 136:12]
-      memBurstDone_REG <= 1'h0; // @[SDRAM.scala 136:12]
+    if (reset) begin // @[SDRAM.scala 185:12]
+      memBurstDone_REG <= 1'h0; // @[SDRAM.scala 185:12]
     end else begin
-      memBurstDone_REG <= memBurstDone_readBurstDone; // @[SDRAM.scala 136:12]
+      memBurstDone_REG <= memBurstDone_readBurstDone; // @[SDRAM.scala 185:12]
     end
   end
 // Register and memory initialization
@@ -499,31 +723,45 @@ initial begin
     `endif
 `ifdef RANDOMIZE_REG_INIT
   _RAND_0 = {1{`RANDOM}};
-  stateReg = _RAND_0[2:0];
+  stateReg_init = _RAND_0[0:0];
   _RAND_1 = {1{`RANDOM}};
-  commandReg = _RAND_1[3:0];
+  stateReg_mode = _RAND_1[0:0];
   _RAND_2 = {1{`RANDOM}};
-  waitCounter = _RAND_2[14:0];
+  stateReg_idle = _RAND_2[0:0];
   _RAND_3 = {1{`RANDOM}};
-  refreshCounter = _RAND_3[9:0];
+  stateReg_active = _RAND_3[0:0];
   _RAND_4 = {1{`RANDOM}};
-  requestReg_wr = _RAND_4[0:0];
+  stateReg_read = _RAND_4[0:0];
   _RAND_5 = {1{`RANDOM}};
-  requestReg_addr_bank = _RAND_5[1:0];
+  stateReg_write = _RAND_5[0:0];
   _RAND_6 = {1{`RANDOM}};
-  requestReg_addr_col = _RAND_6[8:0];
+  stateReg_refresh = _RAND_6[0:0];
   _RAND_7 = {1{`RANDOM}};
-  bankReg = _RAND_7[1:0];
+  commandReg = _RAND_7[3:0];
   _RAND_8 = {1{`RANDOM}};
-  addrReg = _RAND_8[12:0];
+  waitCounter = _RAND_8[14:0];
   _RAND_9 = {1{`RANDOM}};
-  dinReg = _RAND_9[15:0];
+  refreshCounter = _RAND_9[9:0];
   _RAND_10 = {1{`RANDOM}};
-  doutReg = _RAND_10[15:0];
+  requestReg_wr = _RAND_10[0:0];
   _RAND_11 = {1{`RANDOM}};
-  validReg = _RAND_11[0:0];
+  readDone = _RAND_11[0:0];
   _RAND_12 = {1{`RANDOM}};
-  memBurstDone_REG = _RAND_12[0:0];
+  requestReg_addr_bank = _RAND_12[1:0];
+  _RAND_13 = {1{`RANDOM}};
+  requestReg_addr_col = _RAND_13[8:0];
+  _RAND_14 = {1{`RANDOM}};
+  bankReg = _RAND_14[1:0];
+  _RAND_15 = {1{`RANDOM}};
+  addrReg = _RAND_15[12:0];
+  _RAND_16 = {1{`RANDOM}};
+  dinReg = _RAND_16[15:0];
+  _RAND_17 = {1{`RANDOM}};
+  doutReg = _RAND_17[15:0];
+  _RAND_18 = {1{`RANDOM}};
+  validReg = _RAND_18[0:0];
+  _RAND_19 = {1{`RANDOM}};
+  memBurstDone_REG = _RAND_19[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -987,13 +1225,13 @@ module BurstReadDMA(
   reg  readEnableReg; // @[BurstReadDMA.scala 62:30]
   reg  writeEnableReg; // @[BurstReadDMA.scala 63:31]
   reg  readPendingReg; // @[BurstReadDMA.scala 64:31]
-  wire  fifoAlmostEmpty = fifo_io_count <= 6'h10; // @[BurstReadDMA.scala 70:39]
-  wire  busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 73:28]
-  wire  start = io_start & ~busy; // @[BurstReadDMA.scala 74:24]
-  wire  read = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 75:47]
-  wire  write = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 76:30]
-  wire  effectiveRead = read & io_in_wait_n; // @[BurstReadDMA.scala 77:28]
-  wire  effectiveWrite = write & io_out_wait_n; // @[BurstReadDMA.scala 78:30]
+  wire  fifoAlmostEmpty = fifo_io_count <= 6'h10; // @[BurstReadDMA.scala 71:39]
+  wire  busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 74:28]
+  wire  start = io_start & ~busy; // @[BurstReadDMA.scala 75:24]
+  wire  read = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 76:47]
+  wire  write = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 77:30]
+  wire  effectiveRead = read & io_in_wait_n; // @[BurstReadDMA.scala 78:28]
+  wire  effectiveWrite = write & io_out_wait_n; // @[BurstReadDMA.scala 79:30]
   reg [21:0] wordCounter; // @[Counter.scala 40:34]
   wire  wrap_wrap = wordCounter == 22'h3fffff; // @[Counter.scala 45:24]
   wire [21:0] _wrap_value_T_1 = wordCounter + 22'h1; // @[Counter.scala 46:22]
@@ -1002,13 +1240,13 @@ module BurstReadDMA(
   wire  wrap_wrap_1 = burstCounter == 18'h3ffff; // @[Counter.scala 45:24]
   wire [17:0] _wrap_value_T_3 = burstCounter + 18'h1; // @[Counter.scala 46:22]
   wire  burstCounterWrap = io_in_burstDone & wrap_wrap_1; // @[Counter.scala 86:{48,55}]
-  wire [24:0] readAddr = {burstCounter, 7'h0}; // @[BurstReadDMA.scala 87:19]
-  wire [24:0] writeAddr = {wordCounter, 3'h0}; // @[BurstReadDMA.scala 93:18]
-  wire  _GEN_8 = burstCounterWrap ? 1'h0 : readEnableReg; // @[BurstReadDMA.scala 100:{70,86} 62:30]
-  wire  _GEN_9 = start | _GEN_8; // @[BurstReadDMA.scala 100:{15,31}]
-  wire  _GEN_10 = wordCounterWrap ? 1'h0 : writeEnableReg; // @[BurstReadDMA.scala 101:{70,87} 63:31]
-  wire  _GEN_11 = start | _GEN_10; // @[BurstReadDMA.scala 101:{15,32}]
-  wire  _GEN_12 = effectiveRead | readPendingReg; // @[BurstReadDMA.scala 106:29 107:20 64:31]
+  wire [24:0] readAddr = {burstCounter, 7'h0}; // @[BurstReadDMA.scala 88:19]
+  wire [24:0] writeAddr = {wordCounter, 3'h0}; // @[BurstReadDMA.scala 94:18]
+  wire  _GEN_8 = burstCounterWrap ? 1'h0 : readEnableReg; // @[BurstReadDMA.scala 101:{70,86} 62:30]
+  wire  _GEN_9 = start | _GEN_8; // @[BurstReadDMA.scala 101:{15,31}]
+  wire  _GEN_10 = wordCounterWrap ? 1'h0 : writeEnableReg; // @[BurstReadDMA.scala 102:{70,87} 63:31]
+  wire  _GEN_11 = start | _GEN_10; // @[BurstReadDMA.scala 102:{15,32}]
+  wire  _GEN_12 = effectiveRead | readPendingReg; // @[BurstReadDMA.scala 107:29 108:20 64:31]
   Queue fifo ( // @[BurstReadDMA.scala 69:20]
     .clock(fifo_clock),
     .reset(fifo_reset),
@@ -1021,18 +1259,18 @@ module BurstReadDMA(
     .io_count(fifo_io_count),
     .io_flush(fifo_io_flush)
   );
-  assign io_busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 73:28]
-  assign io_in_rd = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 75:47]
-  assign io_in_addr = {{7'd0}, readAddr}; // @[BurstReadDMA.scala 124:14]
-  assign io_out_wr = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 76:30]
-  assign io_out_addr = {{7'd0}, writeAddr}; // @[BurstReadDMA.scala 126:15]
-  assign io_out_din = fifo_io_deq_bits; // @[BurstReadDMA.scala 127:14]
+  assign io_busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 74:28]
+  assign io_in_rd = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 76:47]
+  assign io_in_addr = {{7'd0}, readAddr}; // @[BurstReadDMA.scala 125:14]
+  assign io_out_wr = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 77:30]
+  assign io_out_addr = {{7'd0}, writeAddr}; // @[BurstReadDMA.scala 127:15]
+  assign io_out_din = fifo_io_deq_bits; // @[BurstReadDMA.scala 128:14]
   assign fifo_clock = clock;
   assign fifo_reset = reset;
-  assign fifo_io_enq_valid = io_in_valid & readPendingReg; // @[BurstReadDMA.scala 111:20]
-  assign fifo_io_enq_bits = io_in_dout; // @[BurstReadDMA.scala 111:39 Decoupled.scala 66:19]
-  assign fifo_io_deq_ready = write & io_out_wait_n; // @[BurstReadDMA.scala 78:30]
-  assign fifo_io_flush = io_start & ~busy; // @[BurstReadDMA.scala 74:24]
+  assign fifo_io_enq_valid = io_in_valid & readPendingReg; // @[BurstReadDMA.scala 112:20]
+  assign fifo_io_enq_bits = io_in_dout; // @[BurstReadDMA.scala 112:39 Decoupled.scala 66:19]
+  assign fifo_io_deq_ready = write & io_out_wait_n; // @[BurstReadDMA.scala 79:30]
+  assign fifo_io_flush = io_start & ~busy; // @[BurstReadDMA.scala 75:24]
   always @(posedge clock) begin
     if (reset) begin // @[BurstReadDMA.scala 62:30]
       readEnableReg <= 1'h0; // @[BurstReadDMA.scala 62:30]
@@ -1046,8 +1284,8 @@ module BurstReadDMA(
     end
     if (reset) begin // @[BurstReadDMA.scala 64:31]
       readPendingReg <= 1'h0; // @[BurstReadDMA.scala 64:31]
-    end else if (io_in_burstDone) begin // @[BurstReadDMA.scala 104:25]
-      readPendingReg <= 1'h0; // @[BurstReadDMA.scala 105:20]
+    end else if (io_in_burstDone) begin // @[BurstReadDMA.scala 105:25]
+      readPendingReg <= 1'h0; // @[BurstReadDMA.scala 106:20]
     end else begin
       readPendingReg <= _GEN_12;
     end
@@ -1178,143 +1416,152 @@ module ReadCache(
   reg [31:0] _RAND_41;
   reg [31:0] _RAND_42;
   reg [31:0] _RAND_43;
-  reg [127:0] _RAND_44;
+  reg [31:0] _RAND_44;
   reg [31:0] _RAND_45;
   reg [31:0] _RAND_46;
   reg [31:0] _RAND_47;
   reg [31:0] _RAND_48;
-  reg [31:0] _RAND_49;
+  reg [127:0] _RAND_49;
   reg [31:0] _RAND_50;
   reg [31:0] _RAND_51;
   reg [31:0] _RAND_52;
   reg [31:0] _RAND_53;
+  reg [31:0] _RAND_54;
+  reg [31:0] _RAND_55;
+  reg [31:0] _RAND_56;
+  reg [31:0] _RAND_57;
+  reg [31:0] _RAND_58;
 `endif // RANDOMIZE_REG_INIT
-  reg  cacheEntryMemA_valid [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 112:35]
+  reg  cacheEntryMemA_valid [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  reg [12:0] cacheEntryMemA_tag [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [12:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [12:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [12:0] cacheEntryMemA_tag [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [12:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [12:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_0 [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_0 [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_1 [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_1 [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_2 [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_2 [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_3 [0:127]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [6:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_3 [0:127]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [6:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   reg [6:0] cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
-  reg  cacheEntryMemB_valid [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg  cacheEntryMemB_valid [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  reg [12:0] cacheEntryMemB_tag [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [12:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [12:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [12:0] cacheEntryMemB_tag [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [12:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [12:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_0 [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_0 [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_1 [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_1 [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_2 [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_2 [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_3 [0:127]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [6:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_3 [0:127]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [6:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   reg [6:0] cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
-  reg [2:0] stateReg; // @[ReadCache.scala 84:25]
-  wire [20:0] offsetReg_addr = io_in_addr[21:1]; // @[ReadCache.scala 91:27]
-  wire [1:0] offsetReg_offset = offsetReg_addr[1:0]; // @[ReadCache.scala 92:22]
+  reg  isInit; // @[ReadCache.scala 86:23]
+  reg  isIdle; // @[ReadCache.scala 87:23]
+  reg  isCheck; // @[ReadCache.scala 88:24]
+  reg  isFill; // @[ReadCache.scala 89:23]
+  reg  isFillwait; // @[ReadCache.scala 90:27]
+  reg  isWrite; // @[ReadCache.scala 91:24]
+  wire [20:0] offsetReg_addr = io_in_addr[21:1]; // @[ReadCache.scala 97:27]
+  wire [1:0] offsetReg_offset = offsetReg_addr[1:0]; // @[ReadCache.scala 98:22]
   reg [1:0] offsetReg; // @[Reg.scala 19:16]
-  wire  _start_T_1 = stateReg == 3'h1; // @[ReadCache.scala 142:48]
-  wire  start = io_enable & io_in_rd & stateReg == 3'h1; // @[ReadCache.scala 142:36]
+  wire  start = io_enable & io_in_rd & isIdle; // @[ReadCache.scala 148:36]
   wire [21:0] _request_WIRE_1 = {{1'd0}, offsetReg_addr};
   wire [1:0] request_addr_offset = _request_WIRE_1[1:0]; // @[Address.scala 78:49]
   wire [6:0] request_addr_index = _request_WIRE_1[8:2]; // @[Address.scala 78:49]
@@ -1323,48 +1570,45 @@ module ReadCache(
   reg [12:0] requestReg_addr_tag; // @[Reg.scala 19:16]
   reg [6:0] requestReg_addr_index; // @[Reg.scala 19:16]
   reg [1:0] requestReg_addr_offset; // @[Reg.scala 19:16]
-  reg [15:0] doutReg; // @[ReadCache.scala 101:20]
-  reg  validReg; // @[ReadCache.scala 102:25]
-  reg [127:0] lruReg; // @[ReadCache.scala 105:19]
-  reg  wayReg; // @[ReadCache.scala 109:23]
-  wire [127:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 169:31]
-  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 169:17]
+  reg [15:0] doutReg; // @[ReadCache.scala 107:20]
+  reg  validReg; // @[ReadCache.scala 108:25]
+  reg [127:0] lruReg; // @[ReadCache.scala 111:19]
+  reg  wayReg; // @[ReadCache.scala 115:23]
+  reg [6:0] initCounter; // @[Counter.scala 61:40]
+  wire  wrap_wrap = initCounter == 7'h7f; // @[Counter.scala 73:24]
+  wire  initCounterWrap = isInit & wrap_wrap; // @[Counter.scala 118:{16,23}]
+  wire [127:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 175:31]
+  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 175:17]
   wire  hitA = cacheEntryMemA_valid_cacheEntryA_data & cacheEntryMemA_tag_cacheEntryA_data == requestReg_addr_tag; // @[Entry.scala 59:42]
   wire  hitB = cacheEntryMemB_valid_cacheEntryB_data & cacheEntryMemB_tag_cacheEntryB_data == requestReg_addr_tag; // @[Entry.scala 59:42]
-  wire  hit = hitA | hitB; // @[ReadCache.scala 146:18]
-  wire  _GEN_76 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 169:11 185:13 207:17]
-  wire  _GEN_86 = 3'h2 == stateReg ? _GEN_76 : _nextWay_T_2; // @[ReadCache.scala 169:11 194:20]
-  wire  _GEN_91 = 3'h1 == stateReg ? _nextWay_T_2 : _GEN_86; // @[ReadCache.scala 169:11 194:20]
-  wire  nextWay = 3'h0 == stateReg ? _nextWay_T_2 : _GEN_91; // @[ReadCache.scala 169:11 194:20]
+  wire  hit = hitA | hitB; // @[ReadCache.scala 152:18]
+  wire  _GEN_76 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 175:11 192:13 210:15]
+  wire  _GEN_92 = isCheck ? _GEN_76 : _nextWay_T_2; // @[ReadCache.scala 175:11 209:23]
+  wire  _GEN_101 = isIdle & start ? _nextWay_T_2 : _GEN_92; // @[ReadCache.scala 175:11 206:31]
+  wire  nextWay = isInit & initCounterWrap ? _nextWay_T_2 : _GEN_101; // @[ReadCache.scala 175:11 203:35]
   wire  _cacheEntryReg_T_valid = nextWay ? cacheEntryMemB_valid_cacheEntryB_data : cacheEntryMemA_valid_cacheEntryA_data
-    ; // @[ReadCache.scala 121:36]
-  wire  _cacheEntryReg_T_1 = stateReg == 3'h2; // @[ReadCache.scala 121:82]
+    ; // @[ReadCache.scala 127:36]
   reg  cacheEntryReg_valid; // @[Reg.scala 19:16]
   reg [12:0] cacheEntryReg_tag; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_0; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_1; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_2; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_3; // @[Reg.scala 19:16]
-  wire  _GEN_10 = _cacheEntryReg_T_1 ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
-  wire  _nextCacheEntry_T = stateReg == 3'h5; // @[ReadCache.scala 124:37]
-  wire  _T = stateReg == 3'h0; // @[ReadCache.scala 126:17]
-  wire  _T_2 = ~wayReg; // @[ReadCache.scala 126:64]
-  wire  _T_3 = _nextCacheEntry_T & ~wayReg; // @[ReadCache.scala 126:61]
-  wire  _T_7 = _nextCacheEntry_T & wayReg; // @[ReadCache.scala 130:61]
-  wire  burstCounterEnable = stateReg == 3'h4 & io_out_valid; // @[ReadCache.scala 135:56]
-  reg [6:0] initCounter; // @[Counter.scala 61:40]
-  wire  wrap_wrap = initCounter == 7'h7f; // @[Counter.scala 73:24]
+  wire  _GEN_10 = isCheck ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
+  wire  _T = ~wayReg; // @[ReadCache.scala 132:30]
+  wire  _T_1 = isWrite & ~wayReg; // @[ReadCache.scala 132:27]
+  wire  _T_3 = isWrite & wayReg; // @[ReadCache.scala 136:27]
+  wire  burstCounterEnable = isFillwait & io_out_valid; // @[ReadCache.scala 141:39]
   wire [6:0] _wrap_value_T_1 = initCounter + 7'h1; // @[Counter.scala 77:24]
-  wire  initCounterWrap = _T & wrap_wrap; // @[Counter.scala 118:{16,23}]
   reg [1:0] burstCounter; // @[Counter.scala 61:40]
   wire  wrap_wrap_1 = burstCounter == 2'h3; // @[Counter.scala 73:24]
   wire [1:0] _wrap_value_T_3 = burstCounter + 2'h1; // @[Counter.scala 77:24]
   wire  burstCounterWrap = burstCounterEnable & wrap_wrap_1; // @[Counter.scala 118:{16,23}]
-  wire  miss = ~hit; // @[ReadCache.scala 147:14]
-  wire  wordDone = burstCounter == 2'h0; // @[ReadCache.scala 153:18]
-  wire [21:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 165:11]
-  wire [22:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 165:18]
-  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 173:57]
+  wire  miss = ~hit; // @[ReadCache.scala 153:14]
+  wire  wordDone = burstCounter == 2'h0; // @[ReadCache.scala 159:18]
+  wire [21:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 171:11]
+  wire [22:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 171:18]
+  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 179:57]
   wire [15:0] entry_line_words_0 = 2'h0 == n ? io_out_dout : cacheEntryReg_line_words_0; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_1 = 2'h1 == n ? io_out_dout : cacheEntryReg_line_words_1; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_2 = 2'h2 == n ? io_out_dout : cacheEntryReg_line_words_2; // @[Entry.scala 92:11 93:{30,30}]
@@ -1378,8 +1622,8 @@ module ReadCache(
   wire [15:0] _GEN_49 = 2'h2 == offsetReg ? doutReg_ws_2 : _GEN_48; // @[Util.scala 104:{11,11}]
   wire [15:0] _GEN_50 = 2'h3 == offsetReg ? doutReg_ws_3 : _GEN_49; // @[Util.scala 104:{11,11}]
   wire [15:0] _doutReg_T_2 = {_GEN_50[7:0],_GEN_50[15:8]}; // @[Util.scala 114:49]
-  wire [15:0] _GEN_58 = burstCounterEnable ? _doutReg_T_2 : doutReg; // @[ReadCache.scala 172:53 176:13 101:20]
-  wire  _GEN_59 = burstCounterEnable & (requestReg_rd & wordDone); // @[ReadCache.scala 172:53 177:14 102:25]
+  wire [15:0] _GEN_58 = burstCounterEnable ? _doutReg_T_2 : doutReg; // @[ReadCache.scala 178:36 182:13 107:20]
+  wire  _GEN_59 = burstCounterEnable & (requestReg_rd & wordDone); // @[ReadCache.scala 178:36 183:14 108:25]
   wire [63:0] _doutReg_ws_T_1 = {cacheEntryMemA_line_words_3_cacheEntryA_data,
     cacheEntryMemA_line_words_2_cacheEntryA_data,cacheEntryMemA_line_words_1_cacheEntryA_data,
     cacheEntryMemA_line_words_0_cacheEntryA_data}; // @[Line.scala 77:32]
@@ -1387,10 +1631,10 @@ module ReadCache(
   wire [15:0] doutReg_ws_1_1 = _doutReg_ws_T_1[31:16]; // @[Util.scala 104:11]
   wire [15:0] doutReg_ws_2_1 = _doutReg_ws_T_1[47:32]; // @[Util.scala 104:11]
   wire [15:0] doutReg_ws_3_1 = _doutReg_ws_T_1[63:48]; // @[Util.scala 104:11]
-  wire [15:0] _GEN_63 = 2'h1 == offsetReg ? doutReg_ws_1_1 : doutReg_ws_0_1; // @[Util.scala 104:{11,11}]
-  wire [15:0] _GEN_64 = 2'h2 == offsetReg ? doutReg_ws_2_1 : _GEN_63; // @[Util.scala 104:{11,11}]
-  wire [15:0] _GEN_65 = 2'h3 == offsetReg ? doutReg_ws_3_1 : _GEN_64; // @[Util.scala 104:{11,11}]
-  wire [15:0] _doutReg_T_5 = {_GEN_65[7:0],_GEN_65[15:8]}; // @[Util.scala 114:49]
+  wire [15:0] _GEN_61 = 2'h1 == offsetReg ? doutReg_ws_1_1 : doutReg_ws_0_1; // @[Util.scala 104:{11,11}]
+  wire [15:0] _GEN_62 = 2'h2 == offsetReg ? doutReg_ws_2_1 : _GEN_61; // @[Util.scala 104:{11,11}]
+  wire [15:0] _GEN_63 = 2'h3 == offsetReg ? doutReg_ws_3_1 : _GEN_62; // @[Util.scala 104:{11,11}]
+  wire [15:0] _doutReg_T_5 = {_GEN_63[7:0],_GEN_63[15:8]}; // @[Util.scala 114:49]
   wire [63:0] _doutReg_ws_T_2 = {cacheEntryMemB_line_words_3_cacheEntryB_data,
     cacheEntryMemB_line_words_2_cacheEntryB_data,cacheEntryMemB_line_words_1_cacheEntryB_data,
     cacheEntryMemB_line_words_0_cacheEntryB_data}; // @[Line.scala 77:32]
@@ -1398,223 +1642,261 @@ module ReadCache(
   wire [15:0] doutReg_ws_1_2 = _doutReg_ws_T_2[31:16]; // @[Util.scala 104:11]
   wire [15:0] doutReg_ws_2_2 = _doutReg_ws_T_2[47:32]; // @[Util.scala 104:11]
   wire [15:0] doutReg_ws_3_2 = _doutReg_ws_T_2[63:48]; // @[Util.scala 104:11]
-  wire [15:0] _GEN_67 = 2'h1 == offsetReg ? doutReg_ws_1_2 : doutReg_ws_0_2; // @[Util.scala 104:{11,11}]
-  wire [15:0] _GEN_68 = 2'h2 == offsetReg ? doutReg_ws_2_2 : _GEN_67; // @[Util.scala 104:{11,11}]
-  wire [15:0] _GEN_69 = 2'h3 == offsetReg ? doutReg_ws_3_2 : _GEN_68; // @[Util.scala 104:{11,11}]
-  wire [15:0] _doutReg_T_8 = {_GEN_69[7:0],_GEN_69[15:8]}; // @[Util.scala 114:49]
-  wire [15:0] _doutReg_T_9 = hitA ? _doutReg_T_5 : _doutReg_T_8; // @[ReadCache.scala 182:19]
-  wire [127:0] _lruReg_T = 128'h1 << requestReg_addr_index; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 184:28]
-  wire [127:0] _lruReg_T_12 = _T_2 ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 190:28]
-  wire [2:0] _GEN_70 = miss ? 3'h3 : stateReg; // @[ReadCache.scala 189:14 207:44 84:25]
-  wire [127:0] _GEN_71 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 190:12 105:19 207:44]
-  wire [2:0] _GEN_72 = hit ? 3'h1 : _GEN_70; // @[ReadCache.scala 181:14 207:17]
-  wire  _GEN_74 = hit | _GEN_59; // @[ReadCache.scala 183:14 207:17]
-  wire [2:0] _GEN_77 = io_out_wait_n ? 3'h4 : stateReg; // @[ReadCache.scala 212:{27,38} 84:25]
-  wire [2:0] _GEN_78 = burstCounterWrap ? 3'h5 : stateReg; // @[ReadCache.scala 217:{30,41} 84:25]
-  wire [2:0] _GEN_79 = 3'h5 == stateReg ? 3'h1 : stateReg; // @[ReadCache.scala 194:20 221:32 84:25]
-  wire [2:0] _GEN_80 = 3'h4 == stateReg ? _GEN_78 : _GEN_79; // @[ReadCache.scala 194:20]
-  wire [2:0] _GEN_81 = 3'h3 == stateReg ? _GEN_77 : _GEN_80; // @[ReadCache.scala 194:20]
+  wire [15:0] _GEN_65 = 2'h1 == offsetReg ? doutReg_ws_1_2 : doutReg_ws_0_2; // @[Util.scala 104:{11,11}]
+  wire [15:0] _GEN_66 = 2'h2 == offsetReg ? doutReg_ws_2_2 : _GEN_65; // @[Util.scala 104:{11,11}]
+  wire [15:0] _GEN_67 = 2'h3 == offsetReg ? doutReg_ws_3_2 : _GEN_66; // @[Util.scala 104:{11,11}]
+  wire [15:0] _doutReg_T_8 = {_GEN_67[7:0],_GEN_67[15:8]}; // @[Util.scala 114:49]
+  wire [15:0] _doutReg_T_9 = hitA ? _doutReg_T_5 : _doutReg_T_8; // @[ReadCache.scala 189:19]
+  wire [127:0] _lruReg_T = 128'h1 << requestReg_addr_index; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 191:28]
+  wire [127:0] _lruReg_T_12 = _T ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 198:28]
+  wire  _GEN_68 = miss ? 1'h0 : isCheck; // @[ReadCache.scala 196:13 212:22 88:24]
+  wire  _GEN_69 = miss | isFill; // @[ReadCache.scala 197:12 212:22 89:23]
+  wire [127:0] _GEN_70 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 198:12 111:19 212:22]
+  wire  _GEN_71 = hit ? 1'h0 : _GEN_68; // @[ReadCache.scala 187:13 210:15]
+  wire  _GEN_72 = hit | isIdle; // @[ReadCache.scala 188:12 210:15 87:23]
+  wire  _GEN_74 = hit | _GEN_59; // @[ReadCache.scala 190:14 210:15]
+  wire  _GEN_77 = hit ? isFill : _GEN_69; // @[ReadCache.scala 210:15 89:23]
+  wire  _GEN_78 = isWrite ? 1'h0 : isWrite; // @[ReadCache.scala 221:23 222:13 91:24]
+  wire  _GEN_79 = isWrite | isIdle; // @[ReadCache.scala 221:23 223:12 87:23]
+  wire  _GEN_80 = isFillwait & burstCounterWrap ? 1'h0 : isFillwait; // @[ReadCache.scala 218:46 219:16 90:27]
+  wire  _GEN_81 = isFillwait & burstCounterWrap | _GEN_78; // @[ReadCache.scala 218:46 220:13]
+  wire  _GEN_82 = isFillwait & burstCounterWrap ? isIdle : _GEN_79; // @[ReadCache.scala 218:46 87:23]
+  wire  _GEN_83 = isFill & io_out_wait_n ? 1'h0 : isFill; // @[ReadCache.scala 215:39 216:12 89:23]
+  wire  _GEN_84 = isFill & io_out_wait_n | _GEN_80; // @[ReadCache.scala 215:39 217:16]
+  wire  _GEN_85 = isFill & io_out_wait_n ? isWrite : _GEN_81; // @[ReadCache.scala 215:39 91:24]
+  wire  _GEN_86 = isFill & io_out_wait_n ? isIdle : _GEN_82; // @[ReadCache.scala 215:39 87:23]
+  wire  _GEN_87 = isCheck ? _GEN_71 : isCheck; // @[ReadCache.scala 209:23 88:24]
+  wire  _GEN_88 = isCheck ? _GEN_72 : _GEN_86; // @[ReadCache.scala 209:23]
+  wire  _GEN_96 = isIdle & start ? 1'h0 : _GEN_88; // @[ReadCache.scala 206:31 207:12]
+  wire  _GEN_97 = isIdle & start | _GEN_87; // @[ReadCache.scala 206:31 208:13]
+  wire  _GEN_105 = isInit & initCounterWrap ? 1'h0 : isInit; // @[ReadCache.scala 203:35 204:12 86:23]
+  wire  _GEN_106 = isInit & initCounterWrap | _GEN_96; // @[ReadCache.scala 203:35 205:12]
   assign cacheEntryMemA_valid_cacheEntryA_en = cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_valid_cacheEntryA_addr = cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_valid_MPORT_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_valid_MPORT_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemA_valid_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_valid_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_valid_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_valid_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_tag_cacheEntryA_en = cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_tag_cacheEntryA_addr = cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_tag_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_tag : 13'h0;
+  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_tag_MPORT_data = isWrite ? cacheEntryReg_tag : 13'h0;
   assign cacheEntryMemA_tag_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_tag_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_tag_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_tag_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_0_cacheEntryA_en = cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_addr = cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_data =
-    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_0_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_0_MPORT_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemA_line_words_0_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_0_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_0_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_0_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_1_cacheEntryA_en = cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_addr = cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_data =
-    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_1_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_1_MPORT_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemA_line_words_1_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_1_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_1_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_1_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_2_cacheEntryA_en = cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_addr = cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_data =
-    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_2_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_2_MPORT_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemA_line_words_2_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_2_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_2_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_2_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_3_cacheEntryA_en = cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_addr = cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_data =
-    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_3_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_3_MPORT_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemA_line_words_3_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_3_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_3_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_3_MPORT_en = isInit | _T_1;
   assign cacheEntryMemB_valid_cacheEntryB_en = cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_valid_cacheEntryB_addr = cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_valid_MPORT_1_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_valid_MPORT_1_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemB_valid_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_valid_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_valid_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_valid_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_tag_cacheEntryB_en = cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_tag_cacheEntryB_addr = cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_tag_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_tag : 13'h0;
+  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_tag_MPORT_1_data = isWrite ? cacheEntryReg_tag : 13'h0;
   assign cacheEntryMemB_tag_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_tag_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_tag_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_tag_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_0_cacheEntryB_en = cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_addr = cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_data =
-    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_0_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_0_MPORT_1_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemB_line_words_0_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_0_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_0_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_0_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_1_cacheEntryB_en = cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_addr = cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_data =
-    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_1_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_1_MPORT_1_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemB_line_words_1_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_1_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_1_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_1_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_2_cacheEntryB_en = cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_addr = cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_data =
-    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_2_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_2_MPORT_1_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemB_line_words_2_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_2_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_2_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_2_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_3_cacheEntryB_en = cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_addr = cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_data =
-    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_3_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_3_MPORT_1_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemB_line_words_3_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_3_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_3_MPORT_1_en = _T | _T_7;
-  assign io_in_dout = doutReg; // @[ReadCache.scala 227:14]
-  assign io_in_wait_n = io_enable & _start_T_1; // @[ReadCache.scala 143:26]
-  assign io_in_valid = validReg; // @[ReadCache.scala 226:15]
-  assign io_out_rd = stateReg == 3'h3; // @[ReadCache.scala 228:25]
-  assign io_out_addr = {{2'd0}, outAddr}; // @[ReadCache.scala 230:15]
+  assign cacheEntryMemB_line_words_3_MPORT_1_en = isInit | _T_3;
+  assign io_in_dout = doutReg; // @[ReadCache.scala 261:14]
+  assign io_in_wait_n = io_enable & isIdle; // @[ReadCache.scala 149:26]
+  assign io_in_valid = validReg; // @[ReadCache.scala 260:15]
+  assign io_out_rd = isFill; // @[ReadCache.scala 262:13]
+  assign io_out_addr = {{2'd0}, outAddr}; // @[ReadCache.scala 264:15]
   always @(posedge clock) begin
     if (cacheEntryMemA_valid_MPORT_en & cacheEntryMemA_valid_MPORT_mask) begin
-      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_valid_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_valid_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemA_tag_MPORT_en & cacheEntryMemA_tag_MPORT_mask) begin
-      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_tag_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_tag_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemA_line_words_0_MPORT_en & cacheEntryMemA_line_words_0_MPORT_mask) begin
-      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemA_line_words_1_MPORT_en & cacheEntryMemA_line_words_1_MPORT_mask) begin
-      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemA_line_words_2_MPORT_en & cacheEntryMemA_line_words_2_MPORT_mask) begin
-      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemA_line_words_3_MPORT_en & cacheEntryMemA_line_words_3_MPORT_mask) begin
-      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_valid_MPORT_1_en & cacheEntryMemB_valid_MPORT_1_mask) begin
-      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_valid_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_valid_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_tag_MPORT_1_en & cacheEntryMemB_tag_MPORT_1_mask) begin
-      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_tag_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_tag_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_line_words_0_MPORT_1_en & cacheEntryMemB_line_words_0_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_line_words_1_MPORT_1_en & cacheEntryMemB_line_words_1_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_line_words_2_MPORT_1_en & cacheEntryMemB_line_words_2_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
     if (cacheEntryMemB_line_words_3_MPORT_1_en & cacheEntryMemB_line_words_3_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[8:2];
     end
-    if (reset) begin // @[ReadCache.scala 84:25]
-      stateReg <= 3'h0; // @[ReadCache.scala 84:25]
-    end else if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (initCounterWrap) begin // @[ReadCache.scala 197:29]
-        stateReg <= 3'h1; // @[ReadCache.scala 197:40]
-      end
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (start) begin // @[ReadCache.scala 202:19]
-        stateReg <= 3'h2; // @[ReadCache.scala 202:30]
-      end
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      stateReg <= _GEN_72;
+    isInit <= reset | _GEN_105; // @[ReadCache.scala 86:{23,23}]
+    if (reset) begin // @[ReadCache.scala 87:23]
+      isIdle <= 1'h0; // @[ReadCache.scala 87:23]
     end else begin
-      stateReg <= _GEN_81;
+      isIdle <= _GEN_106;
+    end
+    if (reset) begin // @[ReadCache.scala 88:24]
+      isCheck <= 1'h0; // @[ReadCache.scala 88:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      isCheck <= _GEN_97;
+    end
+    if (reset) begin // @[ReadCache.scala 89:23]
+      isFill <= 1'h0; // @[ReadCache.scala 89:23]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          isFill <= _GEN_77;
+        end else begin
+          isFill <= _GEN_83;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 90:27]
+      isFillwait <= 1'h0; // @[ReadCache.scala 90:27]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isFillwait <= _GEN_84;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 91:24]
+      isWrite <= 1'h0; // @[ReadCache.scala 91:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isWrite <= _GEN_85;
+        end
+      end
     end
     if (start) begin // @[Reg.scala 20:18]
       offsetReg <= offsetReg_offset; // @[Reg.scala 20:22]
@@ -1631,110 +1913,110 @@ module ReadCache(
     if (start) begin // @[Reg.scala 20:18]
       requestReg_addr_offset <= request_addr_offset; // @[Reg.scala 20:22]
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       doutReg <= _GEN_58;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       doutReg <= _GEN_58;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        doutReg <= _doutReg_T_9; // @[ReadCache.scala 182:13]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        doutReg <= _doutReg_T_9; // @[ReadCache.scala 189:13]
       end else begin
         doutReg <= _GEN_58;
       end
     end else begin
       doutReg <= _GEN_58;
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       validReg <= _GEN_59;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       validReg <= _GEN_59;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
       validReg <= _GEN_74;
     end else begin
       validReg <= _GEN_59;
     end
-    if (!(3'h0 == stateReg)) begin // @[ReadCache.scala 194:20]
-      if (!(3'h1 == stateReg)) begin // @[ReadCache.scala 194:20]
-        if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-          if (hit) begin // @[ReadCache.scala 207:17]
-            lruReg <= _lruReg_T_5; // @[ReadCache.scala 184:12]
+    if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          if (hit) begin // @[ReadCache.scala 210:15]
+            lruReg <= _lruReg_T_5; // @[ReadCache.scala 191:12]
           end else begin
-            lruReg <= _GEN_71;
+            lruReg <= _GEN_70;
           end
         end
       end
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        wayReg <= ~hitA; // @[ReadCache.scala 185:13]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        wayReg <= ~hitA; // @[ReadCache.scala 192:13]
       end else begin
-        wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+        wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
       end
     end else begin
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
     end
-    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 172:53 175:19]
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
-      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 175:19]
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    if (reset) begin // @[Counter.scala 61:40]
+      initCounter <= 7'h0; // @[Counter.scala 61:40]
+    end else if (isInit) begin // @[Counter.scala 118:16]
+      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
+    end
+    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 178:36 181:19]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
+      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 181:19]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_tag <= cacheEntryMemB_tag_cacheEntryB_data;
       end else begin
         cacheEntryReg_tag <= cacheEntryMemA_tag_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h0 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_0 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_0 <= cacheEntryMemB_line_words_0_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_0 <= cacheEntryMemA_line_words_0_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h1 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_1 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_1 <= cacheEntryMemB_line_words_1_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_1 <= cacheEntryMemA_line_words_1_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h2 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_2 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_2 <= cacheEntryMemB_line_words_2_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_2 <= cacheEntryMemA_line_words_2_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h3 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_3 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_3 <= cacheEntryMemB_line_words_3_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_3 <= cacheEntryMemA_line_words_3_cacheEntryA_data;
       end
-    end
-    if (reset) begin // @[Counter.scala 61:40]
-      initCounter <= 7'h0; // @[Counter.scala 61:40]
-    end else if (_T) begin // @[Counter.scala 118:16]
-      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
     end
     if (reset) begin // @[Counter.scala 61:40]
       burstCounter <= 2'h0; // @[Counter.scala 61:40]
@@ -1865,41 +2147,51 @@ initial begin
   _RAND_35 = {1{`RANDOM}};
   cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 = _RAND_35[6:0];
   _RAND_36 = {1{`RANDOM}};
-  stateReg = _RAND_36[2:0];
+  isInit = _RAND_36[0:0];
   _RAND_37 = {1{`RANDOM}};
-  offsetReg = _RAND_37[1:0];
+  isIdle = _RAND_37[0:0];
   _RAND_38 = {1{`RANDOM}};
-  requestReg_rd = _RAND_38[0:0];
+  isCheck = _RAND_38[0:0];
   _RAND_39 = {1{`RANDOM}};
-  requestReg_addr_tag = _RAND_39[12:0];
+  isFill = _RAND_39[0:0];
   _RAND_40 = {1{`RANDOM}};
-  requestReg_addr_index = _RAND_40[6:0];
+  isFillwait = _RAND_40[0:0];
   _RAND_41 = {1{`RANDOM}};
-  requestReg_addr_offset = _RAND_41[1:0];
+  isWrite = _RAND_41[0:0];
   _RAND_42 = {1{`RANDOM}};
-  doutReg = _RAND_42[15:0];
+  offsetReg = _RAND_42[1:0];
   _RAND_43 = {1{`RANDOM}};
-  validReg = _RAND_43[0:0];
-  _RAND_44 = {4{`RANDOM}};
-  lruReg = _RAND_44[127:0];
+  requestReg_rd = _RAND_43[0:0];
+  _RAND_44 = {1{`RANDOM}};
+  requestReg_addr_tag = _RAND_44[12:0];
   _RAND_45 = {1{`RANDOM}};
-  wayReg = _RAND_45[0:0];
+  requestReg_addr_index = _RAND_45[6:0];
   _RAND_46 = {1{`RANDOM}};
-  cacheEntryReg_valid = _RAND_46[0:0];
+  requestReg_addr_offset = _RAND_46[1:0];
   _RAND_47 = {1{`RANDOM}};
-  cacheEntryReg_tag = _RAND_47[12:0];
+  doutReg = _RAND_47[15:0];
   _RAND_48 = {1{`RANDOM}};
-  cacheEntryReg_line_words_0 = _RAND_48[15:0];
-  _RAND_49 = {1{`RANDOM}};
-  cacheEntryReg_line_words_1 = _RAND_49[15:0];
+  validReg = _RAND_48[0:0];
+  _RAND_49 = {4{`RANDOM}};
+  lruReg = _RAND_49[127:0];
   _RAND_50 = {1{`RANDOM}};
-  cacheEntryReg_line_words_2 = _RAND_50[15:0];
+  wayReg = _RAND_50[0:0];
   _RAND_51 = {1{`RANDOM}};
-  cacheEntryReg_line_words_3 = _RAND_51[15:0];
+  initCounter = _RAND_51[6:0];
   _RAND_52 = {1{`RANDOM}};
-  initCounter = _RAND_52[6:0];
+  cacheEntryReg_valid = _RAND_52[0:0];
   _RAND_53 = {1{`RANDOM}};
-  burstCounter = _RAND_53[1:0];
+  cacheEntryReg_tag = _RAND_53[12:0];
+  _RAND_54 = {1{`RANDOM}};
+  cacheEntryReg_line_words_0 = _RAND_54[15:0];
+  _RAND_55 = {1{`RANDOM}};
+  cacheEntryReg_line_words_1 = _RAND_55[15:0];
+  _RAND_56 = {1{`RANDOM}};
+  cacheEntryReg_line_words_2 = _RAND_56[15:0];
+  _RAND_57 = {1{`RANDOM}};
+  cacheEntryReg_line_words_3 = _RAND_57[15:0];
+  _RAND_58 = {1{`RANDOM}};
+  burstCounter = _RAND_58[1:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -2927,132 +3219,141 @@ module ReadCache_2(
   reg [31:0] _RAND_51;
   reg [31:0] _RAND_52;
   reg [31:0] _RAND_53;
+  reg [31:0] _RAND_54;
+  reg [31:0] _RAND_55;
+  reg [31:0] _RAND_56;
+  reg [31:0] _RAND_57;
+  reg [31:0] _RAND_58;
 `endif // RANDOMIZE_REG_INIT
-  reg  cacheEntryMemA_valid [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 112:35]
+  reg  cacheEntryMemA_valid [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  reg [20:0] cacheEntryMemA_tag [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [20:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [20:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [20:0] cacheEntryMemA_tag [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [20:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [20:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_0 [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_0 [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_1 [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_1 [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_2 [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_2 [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_3 [0:3]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [1:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_3 [0:3]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [1:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   reg [1:0] cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
-  reg  cacheEntryMemB_valid [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg  cacheEntryMemB_valid [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  reg [20:0] cacheEntryMemB_tag [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [20:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [20:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [20:0] cacheEntryMemB_tag [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [20:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [20:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_0 [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_0 [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_1 [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_1 [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_2 [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_2 [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_3 [0:3]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [1:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_3 [0:3]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [1:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   reg [1:0] cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
-  reg [2:0] stateReg; // @[ReadCache.scala 84:25]
-  wire [2:0] offsetReg_offset = io_in_addr[2:0]; // @[ReadCache.scala 92:22]
+  reg  isInit; // @[ReadCache.scala 86:23]
+  reg  isIdle; // @[ReadCache.scala 87:23]
+  reg  isCheck; // @[ReadCache.scala 88:24]
+  reg  isFill; // @[ReadCache.scala 89:23]
+  reg  isFillwait; // @[ReadCache.scala 90:27]
+  reg  isWrite; // @[ReadCache.scala 91:24]
+  wire [2:0] offsetReg_offset = io_in_addr[2:0]; // @[ReadCache.scala 98:22]
   reg [2:0] offsetReg; // @[Reg.scala 19:16]
-  wire  _start_T_1 = stateReg == 3'h1; // @[ReadCache.scala 142:48]
-  wire  start = io_enable & io_in_rd & stateReg == 3'h1; // @[ReadCache.scala 142:36]
+  wire  start = io_enable & io_in_rd & isIdle; // @[ReadCache.scala 148:36]
   wire [24:0] _request_WIRE_1 = {{1'd0}, io_in_addr[24:1]};
   wire [1:0] request_addr_offset = _request_WIRE_1[1:0]; // @[Address.scala 78:49]
   wire [1:0] request_addr_index = _request_WIRE_1[3:2]; // @[Address.scala 78:49]
@@ -3061,48 +3362,45 @@ module ReadCache_2(
   reg [20:0] requestReg_addr_tag; // @[Reg.scala 19:16]
   reg [1:0] requestReg_addr_index; // @[Reg.scala 19:16]
   reg [1:0] requestReg_addr_offset; // @[Reg.scala 19:16]
-  reg [7:0] doutReg; // @[ReadCache.scala 101:20]
-  reg  validReg; // @[ReadCache.scala 102:25]
-  reg [3:0] lruReg; // @[ReadCache.scala 105:19]
-  reg  wayReg; // @[ReadCache.scala 109:23]
-  wire [3:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 169:31]
-  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 169:17]
+  reg [7:0] doutReg; // @[ReadCache.scala 107:20]
+  reg  validReg; // @[ReadCache.scala 108:25]
+  reg [3:0] lruReg; // @[ReadCache.scala 111:19]
+  reg  wayReg; // @[ReadCache.scala 115:23]
+  reg [1:0] initCounter; // @[Counter.scala 61:40]
+  wire  wrap_wrap = initCounter == 2'h3; // @[Counter.scala 73:24]
+  wire  initCounterWrap = isInit & wrap_wrap; // @[Counter.scala 118:{16,23}]
+  wire [3:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 175:31]
+  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 175:17]
   wire  hitA = cacheEntryMemA_valid_cacheEntryA_data & cacheEntryMemA_tag_cacheEntryA_data == requestReg_addr_tag; // @[Entry.scala 59:42]
   wire  hitB = cacheEntryMemB_valid_cacheEntryB_data & cacheEntryMemB_tag_cacheEntryB_data == requestReg_addr_tag; // @[Entry.scala 59:42]
-  wire  hit = hitA | hitB; // @[ReadCache.scala 146:18]
-  wire  _GEN_88 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 169:11 185:13 207:17]
-  wire  _GEN_98 = 3'h2 == stateReg ? _GEN_88 : _nextWay_T_2; // @[ReadCache.scala 169:11 194:20]
-  wire  _GEN_103 = 3'h1 == stateReg ? _nextWay_T_2 : _GEN_98; // @[ReadCache.scala 169:11 194:20]
-  wire  nextWay = 3'h0 == stateReg ? _nextWay_T_2 : _GEN_103; // @[ReadCache.scala 169:11 194:20]
+  wire  hit = hitA | hitB; // @[ReadCache.scala 152:18]
+  wire  _GEN_88 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 175:11 192:13 210:15]
+  wire  _GEN_104 = isCheck ? _GEN_88 : _nextWay_T_2; // @[ReadCache.scala 175:11 209:23]
+  wire  _GEN_113 = isIdle & start ? _nextWay_T_2 : _GEN_104; // @[ReadCache.scala 175:11 206:31]
+  wire  nextWay = isInit & initCounterWrap ? _nextWay_T_2 : _GEN_113; // @[ReadCache.scala 175:11 203:35]
   wire  _cacheEntryReg_T_valid = nextWay ? cacheEntryMemB_valid_cacheEntryB_data : cacheEntryMemA_valid_cacheEntryA_data
-    ; // @[ReadCache.scala 121:36]
-  wire  _cacheEntryReg_T_1 = stateReg == 3'h2; // @[ReadCache.scala 121:82]
+    ; // @[ReadCache.scala 127:36]
   reg  cacheEntryReg_valid; // @[Reg.scala 19:16]
   reg [20:0] cacheEntryReg_tag; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_0; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_1; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_2; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_3; // @[Reg.scala 19:16]
-  wire  _GEN_10 = _cacheEntryReg_T_1 ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
-  wire  _nextCacheEntry_T = stateReg == 3'h5; // @[ReadCache.scala 124:37]
-  wire  _T = stateReg == 3'h0; // @[ReadCache.scala 126:17]
-  wire  _T_2 = ~wayReg; // @[ReadCache.scala 126:64]
-  wire  _T_3 = _nextCacheEntry_T & ~wayReg; // @[ReadCache.scala 126:61]
-  wire  _T_7 = _nextCacheEntry_T & wayReg; // @[ReadCache.scala 130:61]
-  wire  burstCounterEnable = stateReg == 3'h4 & io_out_valid; // @[ReadCache.scala 135:56]
-  reg [1:0] initCounter; // @[Counter.scala 61:40]
-  wire  wrap_wrap = initCounter == 2'h3; // @[Counter.scala 73:24]
+  wire  _GEN_10 = isCheck ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
+  wire  _T = ~wayReg; // @[ReadCache.scala 132:30]
+  wire  _T_1 = isWrite & ~wayReg; // @[ReadCache.scala 132:27]
+  wire  _T_3 = isWrite & wayReg; // @[ReadCache.scala 136:27]
+  wire  burstCounterEnable = isFillwait & io_out_valid; // @[ReadCache.scala 141:39]
   wire [1:0] _wrap_value_T_1 = initCounter + 2'h1; // @[Counter.scala 77:24]
-  wire  initCounterWrap = _T & wrap_wrap; // @[Counter.scala 118:{16,23}]
   reg [1:0] burstCounter; // @[Counter.scala 61:40]
   wire  wrap_wrap_1 = burstCounter == 2'h3; // @[Counter.scala 73:24]
   wire [1:0] _wrap_value_T_3 = burstCounter + 2'h1; // @[Counter.scala 77:24]
   wire  burstCounterWrap = burstCounterEnable & wrap_wrap_1; // @[Counter.scala 118:{16,23}]
-  wire  miss = ~hit; // @[ReadCache.scala 147:14]
-  wire  wordDone = burstCounter == 2'h0; // @[ReadCache.scala 153:18]
-  wire [24:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 165:11]
-  wire [25:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 165:18]
-  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 173:57]
+  wire  miss = ~hit; // @[ReadCache.scala 153:14]
+  wire  wordDone = burstCounter == 2'h0; // @[ReadCache.scala 159:18]
+  wire [24:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 171:11]
+  wire [25:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 171:18]
+  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 179:57]
   wire [15:0] entry_line_words_0 = 2'h0 == n ? io_out_dout : cacheEntryReg_line_words_0; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_1 = 2'h1 == n ? io_out_dout : cacheEntryReg_line_words_1; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_2 = 2'h2 == n ? io_out_dout : cacheEntryReg_line_words_2; // @[Entry.scala 92:11 93:{30,30}]
@@ -3123,8 +3421,8 @@ module ReadCache_2(
   wire [7:0] _GEN_52 = 3'h5 == offsetReg ? doutReg_ws_5 : _GEN_51; // @[Util.scala 104:{11,11}]
   wire [7:0] _GEN_53 = 3'h6 == offsetReg ? doutReg_ws_6 : _GEN_52; // @[Util.scala 104:{11,11}]
   wire [7:0] _GEN_54 = 3'h7 == offsetReg ? doutReg_ws_7 : _GEN_53; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_62 = burstCounterEnable ? _GEN_54 : doutReg; // @[ReadCache.scala 172:53 176:13 101:20]
-  wire  _GEN_63 = burstCounterEnable & (requestReg_rd & wordDone); // @[ReadCache.scala 172:53 177:14 102:25]
+  wire [7:0] _GEN_62 = burstCounterEnable ? _GEN_54 : doutReg; // @[ReadCache.scala 178:36 182:13 107:20]
+  wire  _GEN_63 = burstCounterEnable & (requestReg_rd & wordDone); // @[ReadCache.scala 178:36 183:14 108:25]
   wire [63:0] _doutReg_ws_T_1 = {cacheEntryMemA_line_words_3_cacheEntryA_data,
     cacheEntryMemA_line_words_2_cacheEntryA_data,cacheEntryMemA_line_words_1_cacheEntryA_data,
     cacheEntryMemA_line_words_0_cacheEntryA_data}; // @[Line.scala 77:32]
@@ -3136,13 +3434,13 @@ module ReadCache_2(
   wire [7:0] doutReg_ws_5_1 = _doutReg_ws_T_1[47:40]; // @[Util.scala 104:11]
   wire [7:0] doutReg_ws_6_1 = _doutReg_ws_T_1[55:48]; // @[Util.scala 104:11]
   wire [7:0] doutReg_ws_7_1 = _doutReg_ws_T_1[63:56]; // @[Util.scala 104:11]
-  wire [7:0] _GEN_67 = 3'h1 == offsetReg ? doutReg_ws_1_1 : doutReg_ws_0_1; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_68 = 3'h2 == offsetReg ? doutReg_ws_2_1 : _GEN_67; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_69 = 3'h3 == offsetReg ? doutReg_ws_3_1 : _GEN_68; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_70 = 3'h4 == offsetReg ? doutReg_ws_4_1 : _GEN_69; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_71 = 3'h5 == offsetReg ? doutReg_ws_5_1 : _GEN_70; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_72 = 3'h6 == offsetReg ? doutReg_ws_6_1 : _GEN_71; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_73 = 3'h7 == offsetReg ? doutReg_ws_7_1 : _GEN_72; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_65 = 3'h1 == offsetReg ? doutReg_ws_1_1 : doutReg_ws_0_1; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_66 = 3'h2 == offsetReg ? doutReg_ws_2_1 : _GEN_65; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_67 = 3'h3 == offsetReg ? doutReg_ws_3_1 : _GEN_66; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_68 = 3'h4 == offsetReg ? doutReg_ws_4_1 : _GEN_67; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_69 = 3'h5 == offsetReg ? doutReg_ws_5_1 : _GEN_68; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_70 = 3'h6 == offsetReg ? doutReg_ws_6_1 : _GEN_69; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_71 = 3'h7 == offsetReg ? doutReg_ws_7_1 : _GEN_70; // @[Util.scala 104:{11,11}]
   wire [63:0] _doutReg_ws_T_2 = {cacheEntryMemB_line_words_3_cacheEntryB_data,
     cacheEntryMemB_line_words_2_cacheEntryB_data,cacheEntryMemB_line_words_1_cacheEntryB_data,
     cacheEntryMemB_line_words_0_cacheEntryB_data}; // @[Line.scala 77:32]
@@ -3154,226 +3452,264 @@ module ReadCache_2(
   wire [7:0] doutReg_ws_5_2 = _doutReg_ws_T_2[47:40]; // @[Util.scala 104:11]
   wire [7:0] doutReg_ws_6_2 = _doutReg_ws_T_2[55:48]; // @[Util.scala 104:11]
   wire [7:0] doutReg_ws_7_2 = _doutReg_ws_T_2[63:56]; // @[Util.scala 104:11]
-  wire [7:0] _GEN_75 = 3'h1 == offsetReg ? doutReg_ws_1_2 : doutReg_ws_0_2; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_76 = 3'h2 == offsetReg ? doutReg_ws_2_2 : _GEN_75; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_77 = 3'h3 == offsetReg ? doutReg_ws_3_2 : _GEN_76; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_78 = 3'h4 == offsetReg ? doutReg_ws_4_2 : _GEN_77; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_79 = 3'h5 == offsetReg ? doutReg_ws_5_2 : _GEN_78; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_80 = 3'h6 == offsetReg ? doutReg_ws_6_2 : _GEN_79; // @[Util.scala 104:{11,11}]
-  wire [7:0] _GEN_81 = 3'h7 == offsetReg ? doutReg_ws_7_2 : _GEN_80; // @[Util.scala 104:{11,11}]
-  wire [7:0] _doutReg_T_3 = hitA ? _GEN_73 : _GEN_81; // @[ReadCache.scala 182:19]
-  wire [3:0] _lruReg_T = 4'h1 << requestReg_addr_index; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 184:28]
-  wire [3:0] _lruReg_T_12 = _T_2 ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 190:28]
-  wire [2:0] _GEN_82 = miss ? 3'h3 : stateReg; // @[ReadCache.scala 189:14 207:44 84:25]
-  wire [3:0] _GEN_83 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 190:12 105:19 207:44]
-  wire [2:0] _GEN_84 = hit ? 3'h1 : _GEN_82; // @[ReadCache.scala 181:14 207:17]
-  wire  _GEN_86 = hit | _GEN_63; // @[ReadCache.scala 183:14 207:17]
-  wire [2:0] _GEN_89 = io_out_wait_n ? 3'h4 : stateReg; // @[ReadCache.scala 212:{27,38} 84:25]
-  wire [2:0] _GEN_90 = burstCounterWrap ? 3'h5 : stateReg; // @[ReadCache.scala 217:{30,41} 84:25]
-  wire [2:0] _GEN_91 = 3'h5 == stateReg ? 3'h1 : stateReg; // @[ReadCache.scala 194:20 221:32 84:25]
-  wire [2:0] _GEN_92 = 3'h4 == stateReg ? _GEN_90 : _GEN_91; // @[ReadCache.scala 194:20]
-  wire [2:0] _GEN_93 = 3'h3 == stateReg ? _GEN_89 : _GEN_92; // @[ReadCache.scala 194:20]
+  wire [7:0] _GEN_73 = 3'h1 == offsetReg ? doutReg_ws_1_2 : doutReg_ws_0_2; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_74 = 3'h2 == offsetReg ? doutReg_ws_2_2 : _GEN_73; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_75 = 3'h3 == offsetReg ? doutReg_ws_3_2 : _GEN_74; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_76 = 3'h4 == offsetReg ? doutReg_ws_4_2 : _GEN_75; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_77 = 3'h5 == offsetReg ? doutReg_ws_5_2 : _GEN_76; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_78 = 3'h6 == offsetReg ? doutReg_ws_6_2 : _GEN_77; // @[Util.scala 104:{11,11}]
+  wire [7:0] _GEN_79 = 3'h7 == offsetReg ? doutReg_ws_7_2 : _GEN_78; // @[Util.scala 104:{11,11}]
+  wire [7:0] _doutReg_T_3 = hitA ? _GEN_71 : _GEN_79; // @[ReadCache.scala 189:19]
+  wire [3:0] _lruReg_T = 4'h1 << requestReg_addr_index; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 191:28]
+  wire [3:0] _lruReg_T_12 = _T ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 198:28]
+  wire  _GEN_80 = miss ? 1'h0 : isCheck; // @[ReadCache.scala 196:13 212:22 88:24]
+  wire  _GEN_81 = miss | isFill; // @[ReadCache.scala 197:12 212:22 89:23]
+  wire [3:0] _GEN_82 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 198:12 111:19 212:22]
+  wire  _GEN_83 = hit ? 1'h0 : _GEN_80; // @[ReadCache.scala 187:13 210:15]
+  wire  _GEN_84 = hit | isIdle; // @[ReadCache.scala 188:12 210:15 87:23]
+  wire  _GEN_86 = hit | _GEN_63; // @[ReadCache.scala 190:14 210:15]
+  wire  _GEN_89 = hit ? isFill : _GEN_81; // @[ReadCache.scala 210:15 89:23]
+  wire  _GEN_90 = isWrite ? 1'h0 : isWrite; // @[ReadCache.scala 221:23 222:13 91:24]
+  wire  _GEN_91 = isWrite | isIdle; // @[ReadCache.scala 221:23 223:12 87:23]
+  wire  _GEN_92 = isFillwait & burstCounterWrap ? 1'h0 : isFillwait; // @[ReadCache.scala 218:46 219:16 90:27]
+  wire  _GEN_93 = isFillwait & burstCounterWrap | _GEN_90; // @[ReadCache.scala 218:46 220:13]
+  wire  _GEN_94 = isFillwait & burstCounterWrap ? isIdle : _GEN_91; // @[ReadCache.scala 218:46 87:23]
+  wire  _GEN_95 = isFill & io_out_wait_n ? 1'h0 : isFill; // @[ReadCache.scala 215:39 216:12 89:23]
+  wire  _GEN_96 = isFill & io_out_wait_n | _GEN_92; // @[ReadCache.scala 215:39 217:16]
+  wire  _GEN_97 = isFill & io_out_wait_n ? isWrite : _GEN_93; // @[ReadCache.scala 215:39 91:24]
+  wire  _GEN_98 = isFill & io_out_wait_n ? isIdle : _GEN_94; // @[ReadCache.scala 215:39 87:23]
+  wire  _GEN_99 = isCheck ? _GEN_83 : isCheck; // @[ReadCache.scala 209:23 88:24]
+  wire  _GEN_100 = isCheck ? _GEN_84 : _GEN_98; // @[ReadCache.scala 209:23]
+  wire  _GEN_108 = isIdle & start ? 1'h0 : _GEN_100; // @[ReadCache.scala 206:31 207:12]
+  wire  _GEN_109 = isIdle & start | _GEN_99; // @[ReadCache.scala 206:31 208:13]
+  wire  _GEN_117 = isInit & initCounterWrap ? 1'h0 : isInit; // @[ReadCache.scala 203:35 204:12 86:23]
+  wire  _GEN_118 = isInit & initCounterWrap | _GEN_108; // @[ReadCache.scala 203:35 205:12]
   assign cacheEntryMemA_valid_cacheEntryA_en = cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_valid_cacheEntryA_addr = cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_valid_MPORT_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_valid_MPORT_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemA_valid_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_valid_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_valid_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_valid_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_tag_cacheEntryA_en = cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_tag_cacheEntryA_addr = cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_tag_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_tag : 21'h0;
+  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_tag_MPORT_data = isWrite ? cacheEntryReg_tag : 21'h0;
   assign cacheEntryMemA_tag_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_tag_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_tag_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_tag_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_0_cacheEntryA_en = cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_addr = cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_data =
-    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_0_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_0_MPORT_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemA_line_words_0_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_0_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_0_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_0_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_1_cacheEntryA_en = cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_addr = cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_data =
-    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_1_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_1_MPORT_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemA_line_words_1_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_1_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_1_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_1_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_2_cacheEntryA_en = cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_addr = cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_data =
-    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_2_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_2_MPORT_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemA_line_words_2_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_2_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_2_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_2_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_3_cacheEntryA_en = cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_addr = cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_data =
-    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_3_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_3_MPORT_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemA_line_words_3_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_3_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_3_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_3_MPORT_en = isInit | _T_1;
   assign cacheEntryMemB_valid_cacheEntryB_en = cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_valid_cacheEntryB_addr = cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_valid_MPORT_1_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_valid_MPORT_1_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemB_valid_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_valid_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_valid_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_valid_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_tag_cacheEntryB_en = cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_tag_cacheEntryB_addr = cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_tag_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_tag : 21'h0;
+  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_tag_MPORT_1_data = isWrite ? cacheEntryReg_tag : 21'h0;
   assign cacheEntryMemB_tag_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_tag_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_tag_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_tag_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_0_cacheEntryB_en = cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_addr = cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_data =
-    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_0_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_0_MPORT_1_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemB_line_words_0_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_0_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_0_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_0_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_1_cacheEntryB_en = cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_addr = cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_data =
-    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_1_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_1_MPORT_1_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemB_line_words_1_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_1_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_1_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_1_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_2_cacheEntryB_en = cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_addr = cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_data =
-    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_2_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_2_MPORT_1_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemB_line_words_2_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_2_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_2_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_2_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_3_cacheEntryB_en = cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_addr = cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_data =
-    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_3_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_3_MPORT_1_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemB_line_words_3_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_3_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_3_MPORT_1_en = _T | _T_7;
-  assign io_in_dout = doutReg; // @[ReadCache.scala 227:14]
-  assign io_in_wait_n = io_enable & _start_T_1; // @[ReadCache.scala 143:26]
-  assign io_in_valid = validReg; // @[ReadCache.scala 226:15]
-  assign io_out_rd = stateReg == 3'h3; // @[ReadCache.scala 228:25]
-  assign io_out_addr = outAddr[24:0]; // @[ReadCache.scala 230:15]
+  assign cacheEntryMemB_line_words_3_MPORT_1_en = isInit | _T_3;
+  assign io_in_dout = doutReg; // @[ReadCache.scala 261:14]
+  assign io_in_wait_n = io_enable & isIdle; // @[ReadCache.scala 149:26]
+  assign io_in_valid = validReg; // @[ReadCache.scala 260:15]
+  assign io_out_rd = isFill; // @[ReadCache.scala 262:13]
+  assign io_out_addr = outAddr[24:0]; // @[ReadCache.scala 264:15]
   always @(posedge clock) begin
     if (cacheEntryMemA_valid_MPORT_en & cacheEntryMemA_valid_MPORT_mask) begin
-      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_valid_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_valid_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemA_tag_MPORT_en & cacheEntryMemA_tag_MPORT_mask) begin
-      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_tag_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_tag_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemA_line_words_0_MPORT_en & cacheEntryMemA_line_words_0_MPORT_mask) begin
-      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemA_line_words_1_MPORT_en & cacheEntryMemA_line_words_1_MPORT_mask) begin
-      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemA_line_words_2_MPORT_en & cacheEntryMemA_line_words_2_MPORT_mask) begin
-      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemA_line_words_3_MPORT_en & cacheEntryMemA_line_words_3_MPORT_mask) begin
-      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_valid_MPORT_1_en & cacheEntryMemB_valid_MPORT_1_mask) begin
-      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_valid_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_valid_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_tag_MPORT_1_en & cacheEntryMemB_tag_MPORT_1_mask) begin
-      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_tag_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_tag_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_line_words_0_MPORT_1_en & cacheEntryMemB_line_words_0_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_line_words_1_MPORT_1_en & cacheEntryMemB_line_words_1_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_line_words_2_MPORT_1_en & cacheEntryMemB_line_words_2_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
     if (cacheEntryMemB_line_words_3_MPORT_1_en & cacheEntryMemB_line_words_3_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[3:2];
     end
-    if (reset) begin // @[ReadCache.scala 84:25]
-      stateReg <= 3'h0; // @[ReadCache.scala 84:25]
-    end else if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (initCounterWrap) begin // @[ReadCache.scala 197:29]
-        stateReg <= 3'h1; // @[ReadCache.scala 197:40]
-      end
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (start) begin // @[ReadCache.scala 202:19]
-        stateReg <= 3'h2; // @[ReadCache.scala 202:30]
-      end
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      stateReg <= _GEN_84;
+    isInit <= reset | _GEN_117; // @[ReadCache.scala 86:{23,23}]
+    if (reset) begin // @[ReadCache.scala 87:23]
+      isIdle <= 1'h0; // @[ReadCache.scala 87:23]
     end else begin
-      stateReg <= _GEN_93;
+      isIdle <= _GEN_118;
+    end
+    if (reset) begin // @[ReadCache.scala 88:24]
+      isCheck <= 1'h0; // @[ReadCache.scala 88:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      isCheck <= _GEN_109;
+    end
+    if (reset) begin // @[ReadCache.scala 89:23]
+      isFill <= 1'h0; // @[ReadCache.scala 89:23]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          isFill <= _GEN_89;
+        end else begin
+          isFill <= _GEN_95;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 90:27]
+      isFillwait <= 1'h0; // @[ReadCache.scala 90:27]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isFillwait <= _GEN_96;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 91:24]
+      isWrite <= 1'h0; // @[ReadCache.scala 91:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isWrite <= _GEN_97;
+        end
+      end
     end
     if (start) begin // @[Reg.scala 20:18]
       offsetReg <= offsetReg_offset; // @[Reg.scala 20:22]
@@ -3390,110 +3726,110 @@ module ReadCache_2(
     if (start) begin // @[Reg.scala 20:18]
       requestReg_addr_offset <= request_addr_offset; // @[Reg.scala 20:22]
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       doutReg <= _GEN_62;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       doutReg <= _GEN_62;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        doutReg <= _doutReg_T_3; // @[ReadCache.scala 182:13]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        doutReg <= _doutReg_T_3; // @[ReadCache.scala 189:13]
       end else begin
         doutReg <= _GEN_62;
       end
     end else begin
       doutReg <= _GEN_62;
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       validReg <= _GEN_63;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       validReg <= _GEN_63;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
       validReg <= _GEN_86;
     end else begin
       validReg <= _GEN_63;
     end
-    if (!(3'h0 == stateReg)) begin // @[ReadCache.scala 194:20]
-      if (!(3'h1 == stateReg)) begin // @[ReadCache.scala 194:20]
-        if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-          if (hit) begin // @[ReadCache.scala 207:17]
-            lruReg <= _lruReg_T_5; // @[ReadCache.scala 184:12]
+    if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          if (hit) begin // @[ReadCache.scala 210:15]
+            lruReg <= _lruReg_T_5; // @[ReadCache.scala 191:12]
           end else begin
-            lruReg <= _GEN_83;
+            lruReg <= _GEN_82;
           end
         end
       end
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        wayReg <= ~hitA; // @[ReadCache.scala 185:13]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        wayReg <= ~hitA; // @[ReadCache.scala 192:13]
       end else begin
-        wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+        wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
       end
     end else begin
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
     end
-    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 172:53 175:19]
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
-      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 175:19]
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    if (reset) begin // @[Counter.scala 61:40]
+      initCounter <= 2'h0; // @[Counter.scala 61:40]
+    end else if (isInit) begin // @[Counter.scala 118:16]
+      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
+    end
+    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 178:36 181:19]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
+      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 181:19]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_tag <= cacheEntryMemB_tag_cacheEntryB_data;
       end else begin
         cacheEntryReg_tag <= cacheEntryMemA_tag_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h0 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_0 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_0 <= cacheEntryMemB_line_words_0_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_0 <= cacheEntryMemA_line_words_0_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h1 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_1 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_1 <= cacheEntryMemB_line_words_1_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_1 <= cacheEntryMemA_line_words_1_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h2 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_2 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_2 <= cacheEntryMemB_line_words_2_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_2 <= cacheEntryMemA_line_words_2_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h3 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_3 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_3 <= cacheEntryMemB_line_words_3_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_3 <= cacheEntryMemA_line_words_3_cacheEntryA_data;
       end
-    end
-    if (reset) begin // @[Counter.scala 61:40]
-      initCounter <= 2'h0; // @[Counter.scala 61:40]
-    end else if (_T) begin // @[Counter.scala 118:16]
-      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
     end
     if (reset) begin // @[Counter.scala 61:40]
       burstCounter <= 2'h0; // @[Counter.scala 61:40]
@@ -3624,41 +3960,51 @@ initial begin
   _RAND_35 = {1{`RANDOM}};
   cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 = _RAND_35[1:0];
   _RAND_36 = {1{`RANDOM}};
-  stateReg = _RAND_36[2:0];
+  isInit = _RAND_36[0:0];
   _RAND_37 = {1{`RANDOM}};
-  offsetReg = _RAND_37[2:0];
+  isIdle = _RAND_37[0:0];
   _RAND_38 = {1{`RANDOM}};
-  requestReg_rd = _RAND_38[0:0];
+  isCheck = _RAND_38[0:0];
   _RAND_39 = {1{`RANDOM}};
-  requestReg_addr_tag = _RAND_39[20:0];
+  isFill = _RAND_39[0:0];
   _RAND_40 = {1{`RANDOM}};
-  requestReg_addr_index = _RAND_40[1:0];
+  isFillwait = _RAND_40[0:0];
   _RAND_41 = {1{`RANDOM}};
-  requestReg_addr_offset = _RAND_41[1:0];
+  isWrite = _RAND_41[0:0];
   _RAND_42 = {1{`RANDOM}};
-  doutReg = _RAND_42[7:0];
+  offsetReg = _RAND_42[2:0];
   _RAND_43 = {1{`RANDOM}};
-  validReg = _RAND_43[0:0];
+  requestReg_rd = _RAND_43[0:0];
   _RAND_44 = {1{`RANDOM}};
-  lruReg = _RAND_44[3:0];
+  requestReg_addr_tag = _RAND_44[20:0];
   _RAND_45 = {1{`RANDOM}};
-  wayReg = _RAND_45[0:0];
+  requestReg_addr_index = _RAND_45[1:0];
   _RAND_46 = {1{`RANDOM}};
-  cacheEntryReg_valid = _RAND_46[0:0];
+  requestReg_addr_offset = _RAND_46[1:0];
   _RAND_47 = {1{`RANDOM}};
-  cacheEntryReg_tag = _RAND_47[20:0];
+  doutReg = _RAND_47[7:0];
   _RAND_48 = {1{`RANDOM}};
-  cacheEntryReg_line_words_0 = _RAND_48[15:0];
+  validReg = _RAND_48[0:0];
   _RAND_49 = {1{`RANDOM}};
-  cacheEntryReg_line_words_1 = _RAND_49[15:0];
+  lruReg = _RAND_49[3:0];
   _RAND_50 = {1{`RANDOM}};
-  cacheEntryReg_line_words_2 = _RAND_50[15:0];
+  wayReg = _RAND_50[0:0];
   _RAND_51 = {1{`RANDOM}};
-  cacheEntryReg_line_words_3 = _RAND_51[15:0];
+  initCounter = _RAND_51[1:0];
   _RAND_52 = {1{`RANDOM}};
-  initCounter = _RAND_52[1:0];
+  cacheEntryReg_valid = _RAND_52[0:0];
   _RAND_53 = {1{`RANDOM}};
-  burstCounter = _RAND_53[1:0];
+  cacheEntryReg_tag = _RAND_53[20:0];
+  _RAND_54 = {1{`RANDOM}};
+  cacheEntryReg_line_words_0 = _RAND_54[15:0];
+  _RAND_55 = {1{`RANDOM}};
+  cacheEntryReg_line_words_1 = _RAND_55[15:0];
+  _RAND_56 = {1{`RANDOM}};
+  cacheEntryReg_line_words_2 = _RAND_56[15:0];
+  _RAND_57 = {1{`RANDOM}};
+  cacheEntryReg_line_words_3 = _RAND_57[15:0];
+  _RAND_58 = {1{`RANDOM}};
+  burstCounter = _RAND_58[1:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -3726,142 +4072,151 @@ module ReadCache_5(
   reg [31:0] _RAND_38;
   reg [31:0] _RAND_39;
   reg [31:0] _RAND_40;
-  reg [63:0] _RAND_41;
+  reg [31:0] _RAND_41;
   reg [31:0] _RAND_42;
   reg [31:0] _RAND_43;
   reg [31:0] _RAND_44;
   reg [31:0] _RAND_45;
-  reg [31:0] _RAND_46;
+  reg [63:0] _RAND_46;
   reg [31:0] _RAND_47;
   reg [31:0] _RAND_48;
   reg [31:0] _RAND_49;
   reg [31:0] _RAND_50;
   reg [31:0] _RAND_51;
   reg [31:0] _RAND_52;
+  reg [31:0] _RAND_53;
+  reg [31:0] _RAND_54;
+  reg [31:0] _RAND_55;
+  reg [31:0] _RAND_56;
+  reg [31:0] _RAND_57;
 `endif // RANDOMIZE_REG_INIT
-  reg  cacheEntryMemA_valid [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 112:35]
+  reg  cacheEntryMemA_valid [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_valid_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_valid_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_valid_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  reg [26:0] cacheEntryMemA_tag [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [26:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [26:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [26:0] cacheEntryMemA_tag [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_tag_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [26:0] cacheEntryMemA_tag_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [26:0] cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_tag_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_tag_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_0 [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_0 [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_0_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_0_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_0_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_1 [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_1 [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_1_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_1_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_1_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_2 [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_2 [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_2_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_2_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_2_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
-  reg [15:0] cacheEntryMemA_line_words_3 [0:7]; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 112:35]
-  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
-  wire [2:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 112:35]
-  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 112:35]
+  reg [15:0] cacheEntryMemA_line_words_3 [0:7]; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_cacheEntryA_en; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_3_cacheEntryA_addr; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_cacheEntryA_data; // @[ReadCache.scala 118:35]
+  wire [15:0] cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
+  wire [2:0] cacheEntryMemA_line_words_3_MPORT_addr; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_mask; // @[ReadCache.scala 118:35]
+  wire  cacheEntryMemA_line_words_3_MPORT_en; // @[ReadCache.scala 118:35]
   reg  cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   reg [2:0] cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
-  reg  cacheEntryMemB_valid [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg  cacheEntryMemB_valid [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_valid_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_valid_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_valid_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  reg [26:0] cacheEntryMemB_tag [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [26:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [26:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [26:0] cacheEntryMemB_tag [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_tag_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [26:0] cacheEntryMemB_tag_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [26:0] cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_tag_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_tag_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_0 [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_0 [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_0_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_0_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_0_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_1 [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_1 [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_1_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_1_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_1_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_2 [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_2 [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_2_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_2_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_2_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
-  reg [15:0] cacheEntryMemB_line_words_3 [0:7]; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 113:35]
-  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
-  wire [2:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 113:35]
-  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 113:35]
+  reg [15:0] cacheEntryMemB_line_words_3 [0:7]; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_cacheEntryB_en; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_3_cacheEntryB_addr; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_cacheEntryB_data; // @[ReadCache.scala 119:35]
+  wire [15:0] cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
+  wire [2:0] cacheEntryMemB_line_words_3_MPORT_1_addr; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_mask; // @[ReadCache.scala 119:35]
+  wire  cacheEntryMemB_line_words_3_MPORT_1_en; // @[ReadCache.scala 119:35]
   reg  cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   reg [2:0] cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
-  reg [2:0] stateReg; // @[ReadCache.scala 84:25]
-  wire  _start_T_1 = stateReg == 3'h1; // @[ReadCache.scala 142:48]
-  wire  start = io_enable & io_in_rd & stateReg == 3'h1; // @[ReadCache.scala 142:36]
+  reg  isInit; // @[ReadCache.scala 86:23]
+  reg  isIdle; // @[ReadCache.scala 87:23]
+  reg  isCheck; // @[ReadCache.scala 88:24]
+  reg  isFill; // @[ReadCache.scala 89:23]
+  reg  isFillwait; // @[ReadCache.scala 90:27]
+  reg  isWrite; // @[ReadCache.scala 91:24]
+  wire  start = io_enable & io_in_rd & isIdle; // @[ReadCache.scala 148:36]
   wire [31:0] _request_WIRE_1 = {{1'd0}, io_in_addr[31:1]};
   wire [1:0] request_addr_offset = _request_WIRE_1[1:0]; // @[Address.scala 78:49]
   wire [2:0] request_addr_index = _request_WIRE_1[4:2]; // @[Address.scala 78:49]
@@ -3870,47 +4225,44 @@ module ReadCache_5(
   reg [26:0] requestReg_addr_tag; // @[Reg.scala 19:16]
   reg [2:0] requestReg_addr_index; // @[Reg.scala 19:16]
   reg [1:0] requestReg_addr_offset; // @[Reg.scala 19:16]
-  reg [63:0] doutReg; // @[ReadCache.scala 101:20]
-  reg  validReg; // @[ReadCache.scala 102:25]
-  reg [7:0] lruReg; // @[ReadCache.scala 105:19]
-  reg  wayReg; // @[ReadCache.scala 109:23]
-  wire [7:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 169:31]
-  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 169:17]
+  reg [63:0] doutReg; // @[ReadCache.scala 107:20]
+  reg  validReg; // @[ReadCache.scala 108:25]
+  reg [7:0] lruReg; // @[ReadCache.scala 111:19]
+  reg  wayReg; // @[ReadCache.scala 115:23]
+  reg [2:0] initCounter; // @[Counter.scala 61:40]
+  wire  wrap_wrap = initCounter == 3'h7; // @[Counter.scala 73:24]
+  wire  initCounterWrap = isInit & wrap_wrap; // @[Counter.scala 118:{16,23}]
+  wire [7:0] _nextWay_T = lruReg >> request_addr_index; // @[ReadCache.scala 175:31]
+  wire  _nextWay_T_2 = start ? _nextWay_T[0] : wayReg; // @[ReadCache.scala 175:17]
   wire  hitA = cacheEntryMemA_valid_cacheEntryA_data & cacheEntryMemA_tag_cacheEntryA_data == requestReg_addr_tag; // @[Entry.scala 59:42]
   wire  hitB = cacheEntryMemB_valid_cacheEntryB_data & cacheEntryMemB_tag_cacheEntryB_data == requestReg_addr_tag; // @[Entry.scala 59:42]
-  wire  hit = hitA | hitB; // @[ReadCache.scala 146:18]
-  wire  _GEN_64 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 169:11 185:13 207:17]
-  wire  _GEN_74 = 3'h2 == stateReg ? _GEN_64 : _nextWay_T_2; // @[ReadCache.scala 169:11 194:20]
-  wire  _GEN_79 = 3'h1 == stateReg ? _nextWay_T_2 : _GEN_74; // @[ReadCache.scala 169:11 194:20]
-  wire  nextWay = 3'h0 == stateReg ? _nextWay_T_2 : _GEN_79; // @[ReadCache.scala 169:11 194:20]
+  wire  hit = hitA | hitB; // @[ReadCache.scala 152:18]
+  wire  _GEN_64 = hit ? ~hitA : _nextWay_T_2; // @[ReadCache.scala 175:11 192:13 210:15]
+  wire  _GEN_80 = isCheck ? _GEN_64 : _nextWay_T_2; // @[ReadCache.scala 175:11 209:23]
+  wire  _GEN_89 = isIdle & start ? _nextWay_T_2 : _GEN_80; // @[ReadCache.scala 175:11 206:31]
+  wire  nextWay = isInit & initCounterWrap ? _nextWay_T_2 : _GEN_89; // @[ReadCache.scala 175:11 203:35]
   wire  _cacheEntryReg_T_valid = nextWay ? cacheEntryMemB_valid_cacheEntryB_data : cacheEntryMemA_valid_cacheEntryA_data
-    ; // @[ReadCache.scala 121:36]
-  wire  _cacheEntryReg_T_1 = stateReg == 3'h2; // @[ReadCache.scala 121:82]
+    ; // @[ReadCache.scala 127:36]
   reg  cacheEntryReg_valid; // @[Reg.scala 19:16]
   reg [26:0] cacheEntryReg_tag; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_0; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_1; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_2; // @[Reg.scala 19:16]
   reg [15:0] cacheEntryReg_line_words_3; // @[Reg.scala 19:16]
-  wire  _GEN_10 = _cacheEntryReg_T_1 ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
-  wire  _nextCacheEntry_T = stateReg == 3'h5; // @[ReadCache.scala 124:37]
-  wire  _T = stateReg == 3'h0; // @[ReadCache.scala 126:17]
-  wire  _T_2 = ~wayReg; // @[ReadCache.scala 126:64]
-  wire  _T_3 = _nextCacheEntry_T & ~wayReg; // @[ReadCache.scala 126:61]
-  wire  _T_7 = _nextCacheEntry_T & wayReg; // @[ReadCache.scala 130:61]
-  wire  burstCounterEnable = stateReg == 3'h4 & io_out_valid; // @[ReadCache.scala 135:56]
-  reg [2:0] initCounter; // @[Counter.scala 61:40]
-  wire  wrap_wrap = initCounter == 3'h7; // @[Counter.scala 73:24]
+  wire  _GEN_10 = isCheck ? _cacheEntryReg_T_valid : cacheEntryReg_valid; // @[Reg.scala 19:16 20:{18,22}]
+  wire  _T = ~wayReg; // @[ReadCache.scala 132:30]
+  wire  _T_1 = isWrite & ~wayReg; // @[ReadCache.scala 132:27]
+  wire  _T_3 = isWrite & wayReg; // @[ReadCache.scala 136:27]
+  wire  burstCounterEnable = isFillwait & io_out_valid; // @[ReadCache.scala 141:39]
   wire [2:0] _wrap_value_T_1 = initCounter + 3'h1; // @[Counter.scala 77:24]
-  wire  initCounterWrap = _T & wrap_wrap; // @[Counter.scala 118:{16,23}]
   reg [1:0] burstCounter; // @[Counter.scala 61:40]
   wire  wrap_wrap_1 = burstCounter == 2'h3; // @[Counter.scala 73:24]
   wire [1:0] _wrap_value_T_3 = burstCounter + 2'h1; // @[Counter.scala 77:24]
   wire  burstCounterWrap = burstCounterEnable & wrap_wrap_1; // @[Counter.scala 118:{16,23}]
-  wire  miss = ~hit; // @[ReadCache.scala 147:14]
-  wire [31:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 165:11]
-  wire [32:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 165:18]
-  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 173:57]
+  wire  miss = ~hit; // @[ReadCache.scala 153:14]
+  wire [31:0] _outAddr_T = {requestReg_addr_tag,requestReg_addr_index,requestReg_addr_offset}; // @[ReadCache.scala 171:11]
+  wire [32:0] outAddr = {_outAddr_T, 1'h0}; // @[ReadCache.scala 171:18]
+  wire [1:0] n = requestReg_addr_offset + burstCounter; // @[ReadCache.scala 179:57]
   wire [15:0] entry_line_words_0 = 2'h0 == n ? io_out_dout : cacheEntryReg_line_words_0; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_1 = 2'h1 == n ? io_out_dout : cacheEntryReg_line_words_1; // @[Entry.scala 92:11 93:{30,30}]
   wire [15:0] entry_line_words_2 = 2'h2 == n ? io_out_dout : cacheEntryReg_line_words_2; // @[Entry.scala 92:11 93:{30,30}]
@@ -3918,8 +4270,8 @@ module ReadCache_5(
   wire [63:0] doutReg_ws_0 = {entry_line_words_3,entry_line_words_2,entry_line_words_1,entry_line_words_0}; // @[Line.scala 77:32]
   wire [63:0] _doutReg_T_14 = {doutReg_ws_0[7:0],doutReg_ws_0[15:8],doutReg_ws_0[23:16],doutReg_ws_0[31:24],doutReg_ws_0
     [39:32],doutReg_ws_0[47:40],doutReg_ws_0[55:48],doutReg_ws_0[63:56]}; // @[Util.scala 114:49]
-  wire [63:0] _GEN_54 = burstCounterEnable ? _doutReg_T_14 : doutReg; // @[ReadCache.scala 172:53 176:13 101:20]
-  wire  _GEN_55 = burstCounterEnable & (requestReg_rd & wrap_wrap_1); // @[ReadCache.scala 172:53 177:14 102:25]
+  wire [63:0] _GEN_54 = burstCounterEnable ? _doutReg_T_14 : doutReg; // @[ReadCache.scala 178:36 182:13 107:20]
+  wire  _GEN_55 = burstCounterEnable & (requestReg_rd & wrap_wrap_1); // @[ReadCache.scala 178:36 183:14 108:25]
   wire [63:0] doutReg_ws_0_1 = {cacheEntryMemA_line_words_3_cacheEntryA_data,
     cacheEntryMemA_line_words_2_cacheEntryA_data,cacheEntryMemA_line_words_1_cacheEntryA_data,
     cacheEntryMemA_line_words_0_cacheEntryA_data}; // @[Line.scala 77:32]
@@ -3930,219 +4282,257 @@ module ReadCache_5(
     cacheEntryMemB_line_words_0_cacheEntryB_data}; // @[Line.scala 77:32]
   wire [63:0] _doutReg_T_44 = {doutReg_ws_0_2[7:0],doutReg_ws_0_2[15:8],doutReg_ws_0_2[23:16],doutReg_ws_0_2[31:24],
     doutReg_ws_0_2[39:32],doutReg_ws_0_2[47:40],doutReg_ws_0_2[55:48],doutReg_ws_0_2[63:56]}; // @[Util.scala 114:49]
-  wire [63:0] _doutReg_T_45 = hitA ? _doutReg_T_29 : _doutReg_T_44; // @[ReadCache.scala 182:19]
-  wire [7:0] _lruReg_T = 8'h1 << requestReg_addr_index; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 184:28]
-  wire [7:0] _lruReg_T_12 = _T_2 ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 190:28]
-  wire [2:0] _GEN_58 = miss ? 3'h3 : stateReg; // @[ReadCache.scala 189:14 207:44 84:25]
-  wire [7:0] _GEN_59 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 190:12 105:19 207:44]
-  wire [2:0] _GEN_60 = hit ? 3'h1 : _GEN_58; // @[ReadCache.scala 181:14 207:17]
-  wire  _GEN_62 = hit | _GEN_55; // @[ReadCache.scala 183:14 207:17]
-  wire [2:0] _GEN_65 = io_out_wait_n ? 3'h4 : stateReg; // @[ReadCache.scala 212:{27,38} 84:25]
-  wire [2:0] _GEN_66 = burstCounterWrap ? 3'h5 : stateReg; // @[ReadCache.scala 217:{30,41} 84:25]
-  wire [2:0] _GEN_67 = 3'h5 == stateReg ? 3'h1 : stateReg; // @[ReadCache.scala 194:20 221:32 84:25]
-  wire [2:0] _GEN_68 = 3'h4 == stateReg ? _GEN_66 : _GEN_67; // @[ReadCache.scala 194:20]
-  wire [2:0] _GEN_69 = 3'h3 == stateReg ? _GEN_65 : _GEN_68; // @[ReadCache.scala 194:20]
+  wire [63:0] _doutReg_T_45 = hitA ? _doutReg_T_29 : _doutReg_T_44; // @[ReadCache.scala 189:19]
+  wire [7:0] _lruReg_T = 8'h1 << requestReg_addr_index; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_1 = lruReg | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_2 = ~lruReg; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_3 = _lruReg_T_2 | _lruReg_T; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_4 = ~_lruReg_T_3; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_5 = hitA ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 191:28]
+  wire [7:0] _lruReg_T_12 = _T ? _lruReg_T_1 : _lruReg_T_4; // @[ReadCache.scala 198:28]
+  wire  _GEN_56 = miss ? 1'h0 : isCheck; // @[ReadCache.scala 196:13 212:22 88:24]
+  wire  _GEN_57 = miss | isFill; // @[ReadCache.scala 197:12 212:22 89:23]
+  wire [7:0] _GEN_58 = miss ? _lruReg_T_12 : lruReg; // @[ReadCache.scala 198:12 111:19 212:22]
+  wire  _GEN_59 = hit ? 1'h0 : _GEN_56; // @[ReadCache.scala 187:13 210:15]
+  wire  _GEN_60 = hit | isIdle; // @[ReadCache.scala 188:12 210:15 87:23]
+  wire  _GEN_62 = hit | _GEN_55; // @[ReadCache.scala 190:14 210:15]
+  wire  _GEN_65 = hit ? isFill : _GEN_57; // @[ReadCache.scala 210:15 89:23]
+  wire  _GEN_66 = isWrite ? 1'h0 : isWrite; // @[ReadCache.scala 221:23 222:13 91:24]
+  wire  _GEN_67 = isWrite | isIdle; // @[ReadCache.scala 221:23 223:12 87:23]
+  wire  _GEN_68 = isFillwait & burstCounterWrap ? 1'h0 : isFillwait; // @[ReadCache.scala 218:46 219:16 90:27]
+  wire  _GEN_69 = isFillwait & burstCounterWrap | _GEN_66; // @[ReadCache.scala 218:46 220:13]
+  wire  _GEN_70 = isFillwait & burstCounterWrap ? isIdle : _GEN_67; // @[ReadCache.scala 218:46 87:23]
+  wire  _GEN_71 = isFill & io_out_wait_n ? 1'h0 : isFill; // @[ReadCache.scala 215:39 216:12 89:23]
+  wire  _GEN_72 = isFill & io_out_wait_n | _GEN_68; // @[ReadCache.scala 215:39 217:16]
+  wire  _GEN_73 = isFill & io_out_wait_n ? isWrite : _GEN_69; // @[ReadCache.scala 215:39 91:24]
+  wire  _GEN_74 = isFill & io_out_wait_n ? isIdle : _GEN_70; // @[ReadCache.scala 215:39 87:23]
+  wire  _GEN_75 = isCheck ? _GEN_59 : isCheck; // @[ReadCache.scala 209:23 88:24]
+  wire  _GEN_76 = isCheck ? _GEN_60 : _GEN_74; // @[ReadCache.scala 209:23]
+  wire  _GEN_84 = isIdle & start ? 1'h0 : _GEN_76; // @[ReadCache.scala 206:31 207:12]
+  wire  _GEN_85 = isIdle & start | _GEN_75; // @[ReadCache.scala 206:31 208:13]
+  wire  _GEN_93 = isInit & initCounterWrap ? 1'h0 : isInit; // @[ReadCache.scala 203:35 204:12 86:23]
+  wire  _GEN_94 = isInit & initCounterWrap | _GEN_84; // @[ReadCache.scala 203:35 205:12]
   assign cacheEntryMemA_valid_cacheEntryA_en = cacheEntryMemA_valid_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_valid_cacheEntryA_addr = cacheEntryMemA_valid_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_valid_MPORT_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemA_valid_cacheEntryA_data = cacheEntryMemA_valid[cacheEntryMemA_valid_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_valid_MPORT_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemA_valid_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_valid_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_valid_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_valid_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_tag_cacheEntryA_en = cacheEntryMemA_tag_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_tag_cacheEntryA_addr = cacheEntryMemA_tag_cacheEntryA_addr_pipe_0;
-  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_tag_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_tag : 27'h0;
+  assign cacheEntryMemA_tag_cacheEntryA_data = cacheEntryMemA_tag[cacheEntryMemA_tag_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_tag_MPORT_data = isWrite ? cacheEntryReg_tag : 27'h0;
   assign cacheEntryMemA_tag_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_tag_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_tag_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_tag_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_0_cacheEntryA_en = cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_addr = cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_0_cacheEntryA_data =
-    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_0_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_0_MPORT_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemA_line_words_0_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_0_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_0_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_0_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_1_cacheEntryA_en = cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_addr = cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_1_cacheEntryA_data =
-    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_1_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_1_MPORT_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemA_line_words_1_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_1_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_1_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_1_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_2_cacheEntryA_en = cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_addr = cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_2_cacheEntryA_data =
-    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_2_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_2_MPORT_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemA_line_words_2_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_2_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_2_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_2_MPORT_en = isInit | _T_1;
   assign cacheEntryMemA_line_words_3_cacheEntryA_en = cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_addr = cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0;
   assign cacheEntryMemA_line_words_3_cacheEntryA_data =
-    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 112:35]
-  assign cacheEntryMemA_line_words_3_MPORT_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_cacheEntryA_addr]; // @[ReadCache.scala 118:35]
+  assign cacheEntryMemA_line_words_3_MPORT_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemA_line_words_3_MPORT_addr = requestReg_addr_index;
   assign cacheEntryMemA_line_words_3_MPORT_mask = 1'h1;
-  assign cacheEntryMemA_line_words_3_MPORT_en = _T | _T_3;
+  assign cacheEntryMemA_line_words_3_MPORT_en = isInit | _T_1;
   assign cacheEntryMemB_valid_cacheEntryB_en = cacheEntryMemB_valid_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_valid_cacheEntryB_addr = cacheEntryMemB_valid_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_valid_MPORT_1_data = _nextCacheEntry_T & cacheEntryReg_valid;
+  assign cacheEntryMemB_valid_cacheEntryB_data = cacheEntryMemB_valid[cacheEntryMemB_valid_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_valid_MPORT_1_data = isWrite & cacheEntryReg_valid;
   assign cacheEntryMemB_valid_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_valid_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_valid_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_valid_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_tag_cacheEntryB_en = cacheEntryMemB_tag_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_tag_cacheEntryB_addr = cacheEntryMemB_tag_cacheEntryB_addr_pipe_0;
-  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_tag_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_tag : 27'h0;
+  assign cacheEntryMemB_tag_cacheEntryB_data = cacheEntryMemB_tag[cacheEntryMemB_tag_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_tag_MPORT_1_data = isWrite ? cacheEntryReg_tag : 27'h0;
   assign cacheEntryMemB_tag_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_tag_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_tag_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_tag_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_0_cacheEntryB_en = cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_addr = cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_0_cacheEntryB_data =
-    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_0_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_0 : 16'h0;
+    cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_0_MPORT_1_data = isWrite ? cacheEntryReg_line_words_0 : 16'h0;
   assign cacheEntryMemB_line_words_0_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_0_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_0_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_0_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_1_cacheEntryB_en = cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_addr = cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_1_cacheEntryB_data =
-    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_1_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_1 : 16'h0;
+    cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_1_MPORT_1_data = isWrite ? cacheEntryReg_line_words_1 : 16'h0;
   assign cacheEntryMemB_line_words_1_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_1_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_1_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_1_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_2_cacheEntryB_en = cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_addr = cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_2_cacheEntryB_data =
-    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_2_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_2 : 16'h0;
+    cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_2_MPORT_1_data = isWrite ? cacheEntryReg_line_words_2 : 16'h0;
   assign cacheEntryMemB_line_words_2_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_2_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_2_MPORT_1_en = _T | _T_7;
+  assign cacheEntryMemB_line_words_2_MPORT_1_en = isInit | _T_3;
   assign cacheEntryMemB_line_words_3_cacheEntryB_en = cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_addr = cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0;
   assign cacheEntryMemB_line_words_3_cacheEntryB_data =
-    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 113:35]
-  assign cacheEntryMemB_line_words_3_MPORT_1_data = _nextCacheEntry_T ? cacheEntryReg_line_words_3 : 16'h0;
+    cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_cacheEntryB_addr]; // @[ReadCache.scala 119:35]
+  assign cacheEntryMemB_line_words_3_MPORT_1_data = isWrite ? cacheEntryReg_line_words_3 : 16'h0;
   assign cacheEntryMemB_line_words_3_MPORT_1_addr = requestReg_addr_index;
   assign cacheEntryMemB_line_words_3_MPORT_1_mask = 1'h1;
-  assign cacheEntryMemB_line_words_3_MPORT_1_en = _T | _T_7;
-  assign io_in_dout = doutReg; // @[ReadCache.scala 227:14]
-  assign io_in_wait_n = io_enable & _start_T_1; // @[ReadCache.scala 143:26]
-  assign io_in_valid = validReg; // @[ReadCache.scala 226:15]
-  assign io_out_rd = stateReg == 3'h3; // @[ReadCache.scala 228:25]
-  assign io_out_addr = outAddr[24:0]; // @[ReadCache.scala 230:15]
+  assign cacheEntryMemB_line_words_3_MPORT_1_en = isInit | _T_3;
+  assign io_in_dout = doutReg; // @[ReadCache.scala 261:14]
+  assign io_in_wait_n = io_enable & isIdle; // @[ReadCache.scala 149:26]
+  assign io_in_valid = validReg; // @[ReadCache.scala 260:15]
+  assign io_out_rd = isFill; // @[ReadCache.scala 262:13]
+  assign io_out_addr = outAddr[24:0]; // @[ReadCache.scala 264:15]
   always @(posedge clock) begin
     if (cacheEntryMemA_valid_MPORT_en & cacheEntryMemA_valid_MPORT_mask) begin
-      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_valid[cacheEntryMemA_valid_MPORT_addr] <= cacheEntryMemA_valid_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_valid_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_valid_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemA_tag_MPORT_en & cacheEntryMemA_tag_MPORT_mask) begin
-      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_tag[cacheEntryMemA_tag_MPORT_addr] <= cacheEntryMemA_tag_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_tag_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_tag_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemA_line_words_0_MPORT_en & cacheEntryMemA_line_words_0_MPORT_mask) begin
-      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_0[cacheEntryMemA_line_words_0_MPORT_addr] <= cacheEntryMemA_line_words_0_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_0_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_0_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemA_line_words_1_MPORT_en & cacheEntryMemA_line_words_1_MPORT_mask) begin
-      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_1[cacheEntryMemA_line_words_1_MPORT_addr] <= cacheEntryMemA_line_words_1_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_1_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_1_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemA_line_words_2_MPORT_en & cacheEntryMemA_line_words_2_MPORT_mask) begin
-      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_2[cacheEntryMemA_line_words_2_MPORT_addr] <= cacheEntryMemA_line_words_2_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_2_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_2_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemA_line_words_3_MPORT_en & cacheEntryMemA_line_words_3_MPORT_mask) begin
-      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 112:35]
+      cacheEntryMemA_line_words_3[cacheEntryMemA_line_words_3_MPORT_addr] <= cacheEntryMemA_line_words_3_MPORT_data; // @[ReadCache.scala 118:35]
     end
     cacheEntryMemA_line_words_3_cacheEntryA_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemA_line_words_3_cacheEntryA_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_valid_MPORT_1_en & cacheEntryMemB_valid_MPORT_1_mask) begin
-      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_valid[cacheEntryMemB_valid_MPORT_1_addr] <= cacheEntryMemB_valid_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_valid_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_valid_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_tag_MPORT_1_en & cacheEntryMemB_tag_MPORT_1_mask) begin
-      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_tag[cacheEntryMemB_tag_MPORT_1_addr] <= cacheEntryMemB_tag_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_tag_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_tag_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_line_words_0_MPORT_1_en & cacheEntryMemB_line_words_0_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_0[cacheEntryMemB_line_words_0_MPORT_1_addr] <= cacheEntryMemB_line_words_0_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_0_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_0_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_line_words_1_MPORT_1_en & cacheEntryMemB_line_words_1_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_1[cacheEntryMemB_line_words_1_MPORT_1_addr] <= cacheEntryMemB_line_words_1_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_1_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_1_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_line_words_2_MPORT_1_en & cacheEntryMemB_line_words_2_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_2[cacheEntryMemB_line_words_2_MPORT_1_addr] <= cacheEntryMemB_line_words_2_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_2_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_2_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
     if (cacheEntryMemB_line_words_3_MPORT_1_en & cacheEntryMemB_line_words_3_MPORT_1_mask) begin
-      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 113:35]
+      cacheEntryMemB_line_words_3[cacheEntryMemB_line_words_3_MPORT_1_addr] <= cacheEntryMemB_line_words_3_MPORT_1_data; // @[ReadCache.scala 119:35]
     end
     cacheEntryMemB_line_words_3_cacheEntryB_en_pipe_0 <= 1'h1;
     if (1'h1) begin
       cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 <= _request_WIRE_1[4:2];
     end
-    if (reset) begin // @[ReadCache.scala 84:25]
-      stateReg <= 3'h0; // @[ReadCache.scala 84:25]
-    end else if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (initCounterWrap) begin // @[ReadCache.scala 197:29]
-        stateReg <= 3'h1; // @[ReadCache.scala 197:40]
-      end
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (start) begin // @[ReadCache.scala 202:19]
-        stateReg <= 3'h2; // @[ReadCache.scala 202:30]
-      end
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      stateReg <= _GEN_60;
+    isInit <= reset | _GEN_93; // @[ReadCache.scala 86:{23,23}]
+    if (reset) begin // @[ReadCache.scala 87:23]
+      isIdle <= 1'h0; // @[ReadCache.scala 87:23]
     end else begin
-      stateReg <= _GEN_69;
+      isIdle <= _GEN_94;
+    end
+    if (reset) begin // @[ReadCache.scala 88:24]
+      isCheck <= 1'h0; // @[ReadCache.scala 88:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      isCheck <= _GEN_85;
+    end
+    if (reset) begin // @[ReadCache.scala 89:23]
+      isFill <= 1'h0; // @[ReadCache.scala 89:23]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          isFill <= _GEN_65;
+        end else begin
+          isFill <= _GEN_71;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 90:27]
+      isFillwait <= 1'h0; // @[ReadCache.scala 90:27]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isFillwait <= _GEN_72;
+        end
+      end
+    end
+    if (reset) begin // @[ReadCache.scala 91:24]
+      isWrite <= 1'h0; // @[ReadCache.scala 91:24]
+    end else if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (!(isCheck)) begin // @[ReadCache.scala 209:23]
+          isWrite <= _GEN_73;
+        end
+      end
     end
     if (start) begin // @[Reg.scala 20:18]
       requestReg_rd <= io_in_rd; // @[Reg.scala 20:22]
@@ -4156,110 +4546,110 @@ module ReadCache_5(
     if (start) begin // @[Reg.scala 20:18]
       requestReg_addr_offset <= request_addr_offset; // @[Reg.scala 20:22]
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       doutReg <= _GEN_54;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       doutReg <= _GEN_54;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        doutReg <= _doutReg_T_45; // @[ReadCache.scala 182:13]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        doutReg <= _doutReg_T_45; // @[ReadCache.scala 189:13]
       end else begin
         doutReg <= _GEN_54;
       end
     end else begin
       doutReg <= _GEN_54;
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
       validReg <= _GEN_55;
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
       validReg <= _GEN_55;
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
       validReg <= _GEN_62;
     end else begin
       validReg <= _GEN_55;
     end
-    if (!(3'h0 == stateReg)) begin // @[ReadCache.scala 194:20]
-      if (!(3'h1 == stateReg)) begin // @[ReadCache.scala 194:20]
-        if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-          if (hit) begin // @[ReadCache.scala 207:17]
-            lruReg <= _lruReg_T_5; // @[ReadCache.scala 184:12]
+    if (!(isInit & initCounterWrap)) begin // @[ReadCache.scala 203:35]
+      if (!(isIdle & start)) begin // @[ReadCache.scala 206:31]
+        if (isCheck) begin // @[ReadCache.scala 209:23]
+          if (hit) begin // @[ReadCache.scala 210:15]
+            lruReg <= _lruReg_T_5; // @[ReadCache.scala 191:12]
           end else begin
-            lruReg <= _GEN_59;
+            lruReg <= _GEN_58;
           end
         end
       end
     end
-    if (3'h0 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h1 == stateReg) begin // @[ReadCache.scala 194:20]
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
-    end else if (3'h2 == stateReg) begin // @[ReadCache.scala 194:20]
-      if (hit) begin // @[ReadCache.scala 207:17]
-        wayReg <= ~hitA; // @[ReadCache.scala 185:13]
+    if (isInit & initCounterWrap) begin // @[ReadCache.scala 203:35]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isIdle & start) begin // @[ReadCache.scala 206:31]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
+    end else if (isCheck) begin // @[ReadCache.scala 209:23]
+      if (hit) begin // @[ReadCache.scala 210:15]
+        wayReg <= ~hitA; // @[ReadCache.scala 192:13]
       end else begin
-        wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+        wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
       end
     end else begin
-      wayReg <= _nextWay_T_2; // @[ReadCache.scala 169:11]
+      wayReg <= _nextWay_T_2; // @[ReadCache.scala 175:11]
     end
-    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 172:53 175:19]
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
-      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 175:19]
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    if (reset) begin // @[Counter.scala 61:40]
+      initCounter <= 3'h0; // @[Counter.scala 61:40]
+    end else if (isInit) begin // @[Counter.scala 118:16]
+      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
+    end
+    cacheEntryReg_valid <= burstCounterEnable | _GEN_10; // @[ReadCache.scala 178:36 181:19]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
+      cacheEntryReg_tag <= requestReg_addr_tag; // @[ReadCache.scala 181:19]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_tag <= cacheEntryMemB_tag_cacheEntryB_data;
       end else begin
         cacheEntryReg_tag <= cacheEntryMemA_tag_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h0 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_0 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_0 <= cacheEntryMemB_line_words_0_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_0 <= cacheEntryMemA_line_words_0_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h1 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_1 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_1 <= cacheEntryMemB_line_words_1_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_1 <= cacheEntryMemA_line_words_1_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h2 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_2 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_2 <= cacheEntryMemB_line_words_2_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_2 <= cacheEntryMemA_line_words_2_cacheEntryA_data;
       end
     end
-    if (burstCounterEnable) begin // @[ReadCache.scala 172:53]
+    if (burstCounterEnable) begin // @[ReadCache.scala 178:36]
       if (2'h3 == n) begin // @[Entry.scala 93:30]
         cacheEntryReg_line_words_3 <= io_out_dout; // @[Entry.scala 93:30]
       end
-    end else if (_cacheEntryReg_T_1) begin // @[Reg.scala 20:18]
-      if (nextWay) begin // @[ReadCache.scala 121:36]
+    end else if (isCheck) begin // @[Reg.scala 20:18]
+      if (nextWay) begin // @[ReadCache.scala 127:36]
         cacheEntryReg_line_words_3 <= cacheEntryMemB_line_words_3_cacheEntryB_data;
       end else begin
         cacheEntryReg_line_words_3 <= cacheEntryMemA_line_words_3_cacheEntryA_data;
       end
-    end
-    if (reset) begin // @[Counter.scala 61:40]
-      initCounter <= 3'h0; // @[Counter.scala 61:40]
-    end else if (_T) begin // @[Counter.scala 118:16]
-      initCounter <= _wrap_value_T_1; // @[Counter.scala 77:15]
     end
     if (reset) begin // @[Counter.scala 61:40]
       burstCounter <= 2'h0; // @[Counter.scala 61:40]
@@ -4390,39 +4780,49 @@ initial begin
   _RAND_35 = {1{`RANDOM}};
   cacheEntryMemB_line_words_3_cacheEntryB_addr_pipe_0 = _RAND_35[2:0];
   _RAND_36 = {1{`RANDOM}};
-  stateReg = _RAND_36[2:0];
+  isInit = _RAND_36[0:0];
   _RAND_37 = {1{`RANDOM}};
-  requestReg_rd = _RAND_37[0:0];
+  isIdle = _RAND_37[0:0];
   _RAND_38 = {1{`RANDOM}};
-  requestReg_addr_tag = _RAND_38[26:0];
+  isCheck = _RAND_38[0:0];
   _RAND_39 = {1{`RANDOM}};
-  requestReg_addr_index = _RAND_39[2:0];
+  isFill = _RAND_39[0:0];
   _RAND_40 = {1{`RANDOM}};
-  requestReg_addr_offset = _RAND_40[1:0];
-  _RAND_41 = {2{`RANDOM}};
-  doutReg = _RAND_41[63:0];
+  isFillwait = _RAND_40[0:0];
+  _RAND_41 = {1{`RANDOM}};
+  isWrite = _RAND_41[0:0];
   _RAND_42 = {1{`RANDOM}};
-  validReg = _RAND_42[0:0];
+  requestReg_rd = _RAND_42[0:0];
   _RAND_43 = {1{`RANDOM}};
-  lruReg = _RAND_43[7:0];
+  requestReg_addr_tag = _RAND_43[26:0];
   _RAND_44 = {1{`RANDOM}};
-  wayReg = _RAND_44[0:0];
+  requestReg_addr_index = _RAND_44[2:0];
   _RAND_45 = {1{`RANDOM}};
-  cacheEntryReg_valid = _RAND_45[0:0];
-  _RAND_46 = {1{`RANDOM}};
-  cacheEntryReg_tag = _RAND_46[26:0];
+  requestReg_addr_offset = _RAND_45[1:0];
+  _RAND_46 = {2{`RANDOM}};
+  doutReg = _RAND_46[63:0];
   _RAND_47 = {1{`RANDOM}};
-  cacheEntryReg_line_words_0 = _RAND_47[15:0];
+  validReg = _RAND_47[0:0];
   _RAND_48 = {1{`RANDOM}};
-  cacheEntryReg_line_words_1 = _RAND_48[15:0];
+  lruReg = _RAND_48[7:0];
   _RAND_49 = {1{`RANDOM}};
-  cacheEntryReg_line_words_2 = _RAND_49[15:0];
+  wayReg = _RAND_49[0:0];
   _RAND_50 = {1{`RANDOM}};
-  cacheEntryReg_line_words_3 = _RAND_50[15:0];
+  initCounter = _RAND_50[2:0];
   _RAND_51 = {1{`RANDOM}};
-  initCounter = _RAND_51[2:0];
+  cacheEntryReg_valid = _RAND_51[0:0];
   _RAND_52 = {1{`RANDOM}};
-  burstCounter = _RAND_52[1:0];
+  cacheEntryReg_tag = _RAND_52[26:0];
+  _RAND_53 = {1{`RANDOM}};
+  cacheEntryReg_line_words_0 = _RAND_53[15:0];
+  _RAND_54 = {1{`RANDOM}};
+  cacheEntryReg_line_words_1 = _RAND_54[15:0];
+  _RAND_55 = {1{`RANDOM}};
+  cacheEntryReg_line_words_2 = _RAND_55[15:0];
+  _RAND_56 = {1{`RANDOM}};
+  cacheEntryReg_line_words_3 = _RAND_56[15:0];
+  _RAND_57 = {1{`RANDOM}};
+  burstCounter = _RAND_57[1:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -4459,6 +4859,11 @@ module SpriteDescrambler(
   reg [31:0] _RAND_6;
   reg [31:0] _RAND_7;
   reg [31:0] _RAND_8;
+  reg [31:0] _RAND_9;
+  reg [31:0] _RAND_10;
+  reg [31:0] _RAND_11;
+  reg [31:0] _RAND_12;
+  reg [31:0] _RAND_13;
 `endif // RANDOMIZE_REG_INIT
   reg [15:0] readOffset; // @[SpriteDescrambler.scala 25:27]
   reg [31:0] writeAddr; // @[SpriteDescrambler.scala 26:28]
@@ -4467,11 +4872,16 @@ module SpriteDescrambler(
   reg [15:0] readRegs_1; // @[SpriteDescrambler.scala 30:21]
   reg [15:0] readRegs_2; // @[SpriteDescrambler.scala 30:21]
   reg [15:0] readRegs_3; // @[SpriteDescrambler.scala 30:21]
-  reg [2:0] state; // @[SpriteDescrambler.scala 34:22]
-  reg  done; // @[SpriteDescrambler.scala 37:21]
-  wire [31:0] _GEN_60 = {{16'd0}, readOffset}; // @[SpriteDescrambler.scala 43:37]
-  wire [31:0] readAddr_descramble_0 = writeAddr + _GEN_60; // @[SpriteDescrambler.scala 43:37]
-  wire [31:0] readAddr_xorRes = readAddr_descramble_0 ^ 32'h950c4; // @[SpriteDescrambler.scala 44:31]
+  reg  stateIdle; // @[SpriteDescrambler.scala 34:26]
+  reg  stateRead; // @[SpriteDescrambler.scala 35:26]
+  reg  stateReadWait; // @[SpriteDescrambler.scala 36:30]
+  reg  stateReadValid; // @[SpriteDescrambler.scala 37:31]
+  reg  stateWrite; // @[SpriteDescrambler.scala 38:27]
+  reg  stateWriteDone; // @[SpriteDescrambler.scala 39:31]
+  reg  stateDone; // @[SpriteDescrambler.scala 40:26]
+  wire [31:0] _GEN_83 = {{16'd0}, readOffset}; // @[SpriteDescrambler.scala 46:37]
+  wire [31:0] readAddr_descramble_0 = writeAddr + _GEN_83; // @[SpriteDescrambler.scala 46:37]
+  wire [31:0] readAddr_xorRes = readAddr_descramble_0 ^ 32'h950c4; // @[SpriteDescrambler.scala 47:31]
   wire [5:0] readAddr_descramble_1_lo_lo = {readAddr_xorRes[18],readAddr_xorRes[8],readAddr_xorRes[4],readAddr_xorRes[19
     ],readAddr_xorRes[9],readAddr_xorRes[0]}; // @[Cat.scala 33:92]
   wire [11:0] readAddr_descramble_1_lo = {readAddr_xorRes[16],readAddr_xorRes[17],readAddr_xorRes[2],readAddr_xorRes[5],
@@ -4480,140 +4890,183 @@ module SpriteDescrambler(
     ],readAddr_xorRes[13],readAddr_xorRes[3]}; // @[Cat.scala 33:92]
   wire [23:0] readAddr_descramble_1 = {readAddr_xorRes[23],readAddr_xorRes[22],readAddr_xorRes[21],readAddr_xorRes[20],
     readAddr_xorRes[15],readAddr_xorRes[10],readAddr_descramble_1_hi_lo,readAddr_descramble_1_lo}; // @[Cat.scala 33:92]
-  wire  _readAddr_T = io_gameConfig_sprite_descrambleStyle == 3'h0; // @[SpriteDescrambler.scala 49:45]
-  wire  _readAddr_T_1 = io_gameConfig_sprite_descrambleStyle == 3'h1; // @[SpriteDescrambler.scala 50:45]
+  wire  _readAddr_T = io_gameConfig_sprite_descrambleStyle == 3'h0; // @[SpriteDescrambler.scala 52:45]
+  wire  _readAddr_T_1 = io_gameConfig_sprite_descrambleStyle == 3'h1; // @[SpriteDescrambler.scala 53:45]
   wire [31:0] _readAddr_T_2 = _readAddr_T_1 ? {{8'd0}, readAddr_descramble_1} : readAddr_descramble_0; // @[Mux.scala 101:16]
   wire [31:0] readAddr = _readAddr_T ? readAddr_descramble_0 : _readAddr_T_2; // @[Mux.scala 101:16]
-  wire [2:0] resultOffset = readAddr[2:0]; // @[SpriteDescrambler.scala 58:30]
-  wire [2:0] _GEN_1 = io_in_wait_n ? 3'h2 : state; // @[SpriteDescrambler.scala 73:34 74:17 61:9]
-  wire [2:0] _GEN_3 = io_in_valid & io_in_burstDone ? 3'h3 : state; // @[SpriteDescrambler.scala 79:45 80:15 61:9]
-  wire [5:0] _readRegs_T = {resultOffset, 3'h0}; // @[SpriteDescrambler.scala 85:56]
-  wire [63:0] _readRegs_T_1 = io_in_dout >> _readRegs_T; // @[SpriteDescrambler.scala 85:39]
-  wire [15:0] _GEN_4 = 2'h0 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_0; // @[SpriteDescrambler.scala 30:21 85:{24,24}]
-  wire [15:0] _GEN_5 = 2'h1 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_1; // @[SpriteDescrambler.scala 30:21 85:{24,24}]
-  wire [15:0] _GEN_6 = 2'h2 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_2; // @[SpriteDescrambler.scala 30:21 85:{24,24}]
-  wire [15:0] _GEN_7 = 2'h3 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_3; // @[SpriteDescrambler.scala 30:21 85:{24,24}]
-  wire [15:0] _readOffset_T_1 = readOffset + 16'h2; // @[SpriteDescrambler.scala 87:32]
-  wire [3:0] _regIdx_T_1 = regIdx + 4'h1; // @[SpriteDescrambler.scala 88:24]
-  wire [2:0] _GEN_8 = regIdx == 4'h3 ? 3'h4 : 3'h1; // @[SpriteDescrambler.scala 86:13 89:29 90:15]
-  wire [2:0] _GEN_9 = io_out_wait_n ? 3'h5 : state; // @[SpriteDescrambler.scala 95:29 96:17 61:9]
-  wire [31:0] _writeOffset_T_1 = writeAddr + 32'h8; // @[SpriteDescrambler.scala 101:36]
-  wire [2:0] _GEN_10 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? 3'h0 : 3'h6; // @[SpriteDescrambler.scala 102:65 103:17 107:17]
-  wire [15:0] _GEN_11 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? 16'h0 : readOffset; // @[SpriteDescrambler.scala 102:65 104:22 25:27]
-  wire [3:0] _GEN_12 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? 4'h0 : regIdx; // @[SpriteDescrambler.scala 102:65 105:18 28:23]
-  wire  _GEN_13 = 3'h6 == state | done; // @[SpriteDescrambler.scala 112:12 63:17 37:21]
-  wire [31:0] _GEN_14 = 3'h5 == state ? _writeOffset_T_1 : writeAddr; // @[SpriteDescrambler.scala 63:17 101:21 26:28]
-  wire [2:0] _GEN_15 = 3'h5 == state ? _GEN_10 : state; // @[SpriteDescrambler.scala 63:17 61:9]
-  wire [15:0] _GEN_16 = 3'h5 == state ? _GEN_11 : readOffset; // @[SpriteDescrambler.scala 63:17 25:27]
-  wire [3:0] _GEN_17 = 3'h5 == state ? _GEN_12 : regIdx; // @[SpriteDescrambler.scala 63:17 28:23]
-  wire  _GEN_18 = 3'h5 == state ? done : _GEN_13; // @[SpriteDescrambler.scala 63:17 37:21]
-  wire [2:0] _GEN_19 = 3'h4 == state ? _GEN_9 : _GEN_15; // @[SpriteDescrambler.scala 63:17]
-  wire [31:0] _GEN_20 = 3'h4 == state ? writeAddr : _GEN_14; // @[SpriteDescrambler.scala 63:17 26:28]
-  wire [15:0] _GEN_21 = 3'h4 == state ? readOffset : _GEN_16; // @[SpriteDescrambler.scala 63:17 25:27]
-  wire [3:0] _GEN_22 = 3'h4 == state ? regIdx : _GEN_17; // @[SpriteDescrambler.scala 63:17 28:23]
-  wire  _GEN_23 = 3'h4 == state ? done : _GEN_18; // @[SpriteDescrambler.scala 63:17 37:21]
-  wire [2:0] _GEN_28 = 3'h3 == state ? _GEN_8 : _GEN_19; // @[SpriteDescrambler.scala 63:17]
-  wire [15:0] _GEN_29 = 3'h3 == state ? _readOffset_T_1 : _GEN_21; // @[SpriteDescrambler.scala 63:17 87:18]
-  wire [3:0] _GEN_30 = 3'h3 == state ? _regIdx_T_1 : _GEN_22; // @[SpriteDescrambler.scala 63:17 88:14]
-  wire [31:0] _GEN_31 = 3'h3 == state ? writeAddr : _GEN_20; // @[SpriteDescrambler.scala 63:17 26:28]
-  wire  _GEN_32 = 3'h3 == state ? done : _GEN_23; // @[SpriteDescrambler.scala 63:17 37:21]
-  wire [63:0] _GEN_61 = {{32'd0}, readAddr}; // @[SpriteDescrambler.scala 116:26]
-  wire [63:0] _io_in_addr_T_1 = _GEN_61 & 64'hfffffffffffffff8; // @[SpriteDescrambler.scala 116:26]
+  wire [2:0] resultOffset = readAddr[2:0]; // @[SpriteDescrambler.scala 61:30]
+  wire  _GEN_0 = io_in_wait_n ? 1'h0 : stateRead; // @[SpriteDescrambler.scala 71:30 72:17 35:26]
+  wire  _GEN_1 = io_in_wait_n | stateReadWait; // @[SpriteDescrambler.scala 71:30 73:21 36:30]
+  wire  _GEN_2 = io_in_valid ? 1'h0 : _GEN_0; // @[SpriteDescrambler.scala 68:24 69:17]
+  wire  _GEN_3 = io_in_valid | stateReadValid; // @[SpriteDescrambler.scala 68:24 70:22 37:31]
+  wire [5:0] _readRegs_T = {resultOffset, 3'h0}; // @[SpriteDescrambler.scala 80:54]
+  wire [63:0] _readRegs_T_1 = io_in_dout >> _readRegs_T; // @[SpriteDescrambler.scala 80:37]
+  wire [15:0] _GEN_5 = 2'h0 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_0; // @[SpriteDescrambler.scala 30:21 80:{22,22}]
+  wire [15:0] _GEN_6 = 2'h1 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_1; // @[SpriteDescrambler.scala 30:21 80:{22,22}]
+  wire [15:0] _GEN_7 = 2'h2 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_2; // @[SpriteDescrambler.scala 30:21 80:{22,22}]
+  wire [15:0] _GEN_8 = 2'h3 == regIdx[1:0] ? _readRegs_T_1[15:0] : readRegs_3; // @[SpriteDescrambler.scala 30:21 80:{22,22}]
+  wire [15:0] _readOffset_T_1 = readOffset + 16'h2; // @[SpriteDescrambler.scala 81:30]
+  wire [3:0] _regIdx_T_1 = regIdx + 4'h1; // @[SpriteDescrambler.scala 82:22]
+  wire  _GEN_9 = regIdx == 4'h3 | stateWrite; // @[SpriteDescrambler.scala 83:27 84:18 38:27]
+  wire  _GEN_10 = regIdx == 4'h3 ? stateRead : 1'h1; // @[SpriteDescrambler.scala 35:26 83:27 86:17]
+  wire [31:0] _writeOffset_T_1 = writeAddr + 32'h8; // @[SpriteDescrambler.scala 92:33]
+  wire  _GEN_11 = _writeOffset_T_1 < io_gameConfig_sprite_romSize | stateIdle; // @[SpriteDescrambler.scala 94:62 95:18 34:26]
+  wire [15:0] _GEN_12 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? 16'h0 : readOffset; // @[SpriteDescrambler.scala 94:62 96:19 25:27]
+  wire [3:0] _GEN_13 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? 4'h0 : regIdx; // @[SpriteDescrambler.scala 94:62 97:15 28:23]
+  wire  _GEN_14 = _writeOffset_T_1 < io_gameConfig_sprite_romSize ? stateDone : 1'h1; // @[SpriteDescrambler.scala 40:26 94:62 99:18]
+  wire [31:0] _GEN_15 = stateWriteDone ? _writeOffset_T_1 : writeAddr; // @[SpriteDescrambler.scala 91:30 92:18 26:28]
+  wire  _GEN_16 = stateWriteDone ? 1'h0 : stateWriteDone; // @[SpriteDescrambler.scala 91:30 93:21 39:31]
+  wire  _GEN_17 = stateWriteDone ? _GEN_11 : stateIdle; // @[SpriteDescrambler.scala 34:26 91:30]
+  wire [15:0] _GEN_18 = stateWriteDone ? _GEN_12 : readOffset; // @[SpriteDescrambler.scala 25:27 91:30]
+  wire [3:0] _GEN_19 = stateWriteDone ? _GEN_13 : regIdx; // @[SpriteDescrambler.scala 28:23 91:30]
+  wire  _GEN_20 = stateWriteDone ? _GEN_14 : stateDone; // @[SpriteDescrambler.scala 40:26 91:30]
+  wire  _GEN_21 = stateWrite & io_out_wait_n ? 1'h0 : stateWrite; // @[SpriteDescrambler.scala 88:43 89:16 38:27]
+  wire  _GEN_22 = stateWrite & io_out_wait_n | _GEN_16; // @[SpriteDescrambler.scala 88:43 90:20]
+  wire [31:0] _GEN_23 = stateWrite & io_out_wait_n ? writeAddr : _GEN_15; // @[SpriteDescrambler.scala 26:28 88:43]
+  wire  _GEN_24 = stateWrite & io_out_wait_n ? stateIdle : _GEN_17; // @[SpriteDescrambler.scala 34:26 88:43]
+  wire [15:0] _GEN_25 = stateWrite & io_out_wait_n ? readOffset : _GEN_18; // @[SpriteDescrambler.scala 25:27 88:43]
+  wire [3:0] _GEN_26 = stateWrite & io_out_wait_n ? regIdx : _GEN_19; // @[SpriteDescrambler.scala 28:23 88:43]
+  wire  _GEN_27 = stateWrite & io_out_wait_n ? stateDone : _GEN_20; // @[SpriteDescrambler.scala 40:26 88:43]
+  wire  _GEN_28 = stateReadValid ? 1'h0 : stateReadValid; // @[SpriteDescrambler.scala 78:30 79:20 37:31]
+  wire [15:0] _GEN_33 = stateReadValid ? _readOffset_T_1 : _GEN_25; // @[SpriteDescrambler.scala 78:30 81:16]
+  wire [3:0] _GEN_34 = stateReadValid ? _regIdx_T_1 : _GEN_26; // @[SpriteDescrambler.scala 78:30 82:12]
+  wire  _GEN_35 = stateReadValid ? _GEN_9 : _GEN_21; // @[SpriteDescrambler.scala 78:30]
+  wire  _GEN_36 = stateReadValid ? _GEN_10 : stateRead; // @[SpriteDescrambler.scala 35:26 78:30]
+  wire  _GEN_37 = stateReadValid ? stateWriteDone : _GEN_22; // @[SpriteDescrambler.scala 78:30 39:31]
+  wire [31:0] _GEN_38 = stateReadValid ? writeAddr : _GEN_23; // @[SpriteDescrambler.scala 26:28 78:30]
+  wire  _GEN_39 = stateReadValid ? stateIdle : _GEN_24; // @[SpriteDescrambler.scala 34:26 78:30]
+  wire  _GEN_40 = stateReadValid ? stateDone : _GEN_27; // @[SpriteDescrambler.scala 40:26 78:30]
+  wire  _GEN_42 = stateReadWait & io_in_valid & io_in_burstDone | _GEN_28; // @[SpriteDescrambler.scala 75:63 77:20]
+  wire  _GEN_50 = stateReadWait & io_in_valid & io_in_burstDone ? stateRead : _GEN_36; // @[SpriteDescrambler.scala 35:26 75:63]
+  wire  _GEN_53 = stateReadWait & io_in_valid & io_in_burstDone ? stateIdle : _GEN_39; // @[SpriteDescrambler.scala 34:26 75:63]
+  wire  _GEN_55 = stateRead ? _GEN_2 : _GEN_50; // @[SpriteDescrambler.scala 67:25]
+  wire  _GEN_67 = stateRead ? stateIdle : _GEN_53; // @[SpriteDescrambler.scala 67:25 34:26]
+  wire  _GEN_69 = stateIdle & io_start ? 1'h0 : _GEN_67; // @[SpriteDescrambler.scala 64:31 65:15]
+  wire  _GEN_70 = stateIdle & io_start | _GEN_55; // @[SpriteDescrambler.scala 64:31 66:15]
+  wire [63:0] _GEN_84 = {{32'd0}, readAddr}; // @[SpriteDescrambler.scala 103:26]
+  wire [63:0] _io_in_addr_T_1 = _GEN_84 & 64'hfffffffffffffff8; // @[SpriteDescrambler.scala 103:26]
   wire [31:0] io_out_din_lo = {readRegs_1,readRegs_0}; // @[Cat.scala 33:92]
   wire [31:0] io_out_din_hi = {readRegs_3,readRegs_2}; // @[Cat.scala 33:92]
-  assign io_done = done; // @[SpriteDescrambler.scala 120:11]
-  assign io_in_rd = state == 3'h1; // @[SpriteDescrambler.scala 121:21]
-  assign io_in_addr = _io_in_addr_T_1[31:0]; // @[SpriteDescrambler.scala 116:14]
-  assign io_out_wr = state == 3'h4; // @[SpriteDescrambler.scala 122:22]
-  assign io_out_addr = writeAddr; // @[SpriteDescrambler.scala 117:15]
+  assign io_done = stateDone; // @[SpriteDescrambler.scala 107:11]
+  assign io_in_rd = stateRead; // @[SpriteDescrambler.scala 108:12]
+  assign io_in_addr = _io_in_addr_T_1[31:0]; // @[SpriteDescrambler.scala 103:14]
+  assign io_out_wr = stateWrite; // @[SpriteDescrambler.scala 109:13]
+  assign io_out_addr = writeAddr; // @[SpriteDescrambler.scala 104:15]
   assign io_out_din = {io_out_din_hi,io_out_din_lo}; // @[Cat.scala 33:92]
   always @(posedge clock) begin
     if (reset) begin // @[SpriteDescrambler.scala 25:27]
       readOffset <= 16'h0; // @[SpriteDescrambler.scala 25:27]
-    end else if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          readOffset <= _GEN_29;
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          readOffset <= _GEN_33;
         end
       end
     end
     if (reset) begin // @[SpriteDescrambler.scala 26:28]
       writeAddr <= 32'h0; // @[SpriteDescrambler.scala 26:28]
-    end else if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          writeAddr <= _GEN_31;
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          writeAddr <= _GEN_38;
         end
       end
     end
     if (reset) begin // @[SpriteDescrambler.scala 28:23]
       regIdx <= 4'h0; // @[SpriteDescrambler.scala 28:23]
-    end else if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          regIdx <= _GEN_30;
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          regIdx <= _GEN_34;
         end
       end
     end
-    if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          if (3'h3 == state) begin // @[SpriteDescrambler.scala 63:17]
-            readRegs_0 <= _GEN_4;
+    if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          if (stateReadValid) begin // @[SpriteDescrambler.scala 78:30]
+            readRegs_0 <= _GEN_5;
           end
         end
       end
     end
-    if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          if (3'h3 == state) begin // @[SpriteDescrambler.scala 63:17]
-            readRegs_1 <= _GEN_5;
+    if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          if (stateReadValid) begin // @[SpriteDescrambler.scala 78:30]
+            readRegs_1 <= _GEN_6;
           end
         end
       end
     end
-    if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          if (3'h3 == state) begin // @[SpriteDescrambler.scala 63:17]
-            readRegs_2 <= _GEN_6;
+    if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          if (stateReadValid) begin // @[SpriteDescrambler.scala 78:30]
+            readRegs_2 <= _GEN_7;
           end
         end
       end
     end
-    if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          if (3'h3 == state) begin // @[SpriteDescrambler.scala 63:17]
-            readRegs_3 <= _GEN_7;
+    if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          if (stateReadValid) begin // @[SpriteDescrambler.scala 78:30]
+            readRegs_3 <= _GEN_8;
           end
         end
       end
     end
-    if (reset) begin // @[SpriteDescrambler.scala 34:22]
-      state <= 3'h0; // @[SpriteDescrambler.scala 34:22]
-    end else if (3'h0 == state) begin // @[SpriteDescrambler.scala 63:17]
-      if (io_start) begin // @[SpriteDescrambler.scala 65:22]
-        state <= 3'h1; // @[SpriteDescrambler.scala 66:15]
-      end
-    end else if (3'h1 == state) begin // @[SpriteDescrambler.scala 63:17]
-      if (io_in_valid) begin // @[SpriteDescrambler.scala 71:28]
-        state <= 3'h3; // @[SpriteDescrambler.scala 72:17]
-      end else begin
-        state <= _GEN_1;
-      end
-    end else if (3'h2 == state) begin // @[SpriteDescrambler.scala 63:17]
-      state <= _GEN_3;
+    stateIdle <= reset | _GEN_69; // @[SpriteDescrambler.scala 34:{26,26}]
+    if (reset) begin // @[SpriteDescrambler.scala 35:26]
+      stateRead <= 1'h0; // @[SpriteDescrambler.scala 35:26]
     end else begin
-      state <= _GEN_28;
+      stateRead <= _GEN_70;
     end
-    if (reset) begin // @[SpriteDescrambler.scala 37:21]
-      done <= 1'h0; // @[SpriteDescrambler.scala 37:21]
-    end else if (!(3'h0 == state)) begin // @[SpriteDescrambler.scala 63:17]
-      if (!(3'h1 == state)) begin // @[SpriteDescrambler.scala 63:17]
-        if (!(3'h2 == state)) begin // @[SpriteDescrambler.scala 63:17]
-          done <= _GEN_32;
+    if (reset) begin // @[SpriteDescrambler.scala 36:30]
+      stateReadWait <= 1'h0; // @[SpriteDescrambler.scala 36:30]
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (stateRead) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(io_in_valid)) begin // @[SpriteDescrambler.scala 68:24]
+          stateReadWait <= _GEN_1;
+        end
+      end else if (stateReadWait & io_in_valid & io_in_burstDone) begin // @[SpriteDescrambler.scala 75:63]
+        stateReadWait <= 1'h0; // @[SpriteDescrambler.scala 76:19]
+      end
+    end
+    if (reset) begin // @[SpriteDescrambler.scala 37:31]
+      stateReadValid <= 1'h0; // @[SpriteDescrambler.scala 37:31]
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (stateRead) begin // @[SpriteDescrambler.scala 67:25]
+        stateReadValid <= _GEN_3;
+      end else begin
+        stateReadValid <= _GEN_42;
+      end
+    end
+    if (reset) begin // @[SpriteDescrambler.scala 38:27]
+      stateWrite <= 1'h0; // @[SpriteDescrambler.scala 38:27]
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          stateWrite <= _GEN_35;
+        end
+      end
+    end
+    if (reset) begin // @[SpriteDescrambler.scala 39:31]
+      stateWriteDone <= 1'h0; // @[SpriteDescrambler.scala 39:31]
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          stateWriteDone <= _GEN_37;
+        end
+      end
+    end
+    if (reset) begin // @[SpriteDescrambler.scala 40:26]
+      stateDone <= 1'h0; // @[SpriteDescrambler.scala 40:26]
+    end else if (!(stateIdle & io_start)) begin // @[SpriteDescrambler.scala 64:31]
+      if (!(stateRead)) begin // @[SpriteDescrambler.scala 67:25]
+        if (!(stateReadWait & io_in_valid & io_in_burstDone)) begin // @[SpriteDescrambler.scala 75:63]
+          stateDone <= _GEN_40;
         end
       end
     end
@@ -4669,9 +5122,19 @@ initial begin
   _RAND_6 = {1{`RANDOM}};
   readRegs_3 = _RAND_6[15:0];
   _RAND_7 = {1{`RANDOM}};
-  state = _RAND_7[2:0];
+  stateIdle = _RAND_7[0:0];
   _RAND_8 = {1{`RANDOM}};
-  done = _RAND_8[0:0];
+  stateRead = _RAND_8[0:0];
+  _RAND_9 = {1{`RANDOM}};
+  stateReadWait = _RAND_9[0:0];
+  _RAND_10 = {1{`RANDOM}};
+  stateReadValid = _RAND_10[0:0];
+  _RAND_11 = {1{`RANDOM}};
+  stateWrite = _RAND_11[0:0];
+  _RAND_12 = {1{`RANDOM}};
+  stateWriteDone = _RAND_12[0:0];
+  _RAND_13 = {1{`RANDOM}};
+  stateDone = _RAND_13[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial
@@ -4754,7 +5217,7 @@ module BurstMemArbiter(
   wire [6:0] chosen = busyReg ? indexReg : index; // @[BurstMemArbiter.scala 80:19]
   wire  effectiveRequest = ~busyReg & (io_out_rd | io_out_wr) & io_out_wait_n; // @[BurstMemArbiter.scala 83:63]
   wire  _GEN_0 = effectiveRequest | busyReg; // @[BurstMemArbiter.scala 88:32 89:13 73:24]
-  wire  io_out_anySelected = chosen[0] | chosen[1] | chosen[2] | chosen[3] | chosen[4] | chosen[5] | chosen[6]; // @[BurstMemIO.scala 316:45]
+  wire  io_out_anySelected = chosen[0] | chosen[1] | chosen[2] | chosen[3] | chosen[4] | chosen[5] | chosen[6]; // @[BurstMemIO.scala 338:45]
   wire [7:0] _io_out_mem_burstLength_T = chosen[0] ? 8'h1 : 8'h0; // @[Mux.scala 27:73]
   wire [7:0] _io_out_mem_burstLength_T_1 = chosen[1] ? 8'h10 : 8'h0; // @[Mux.scala 27:73]
   wire [7:0] _io_out_mem_burstLength_T_2 = chosen[2] ? 8'h1 : 8'h0; // @[Mux.scala 27:73]
@@ -4791,25 +5254,25 @@ module BurstMemArbiter(
   wire [63:0] _io_out_mem_din_T_6 = chosen[6] ? io_in_6_din : 64'h0; // @[Mux.scala 27:73]
   wire [63:0] _io_out_mem_din_T_8 = _io_out_mem_din_T | _io_out_mem_din_T_2; // @[Mux.scala 27:73]
   wire [63:0] _io_out_mem_din_T_9 = _io_out_mem_din_T_8 | _io_out_mem_din_T_3; // @[Mux.scala 27:73]
-  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_1_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_1_valid = chosen[1] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_1_burstDone = chosen[1] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_3_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_3_wait_n = (~io_out_anySelected | chosen[3]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_3_valid = chosen[3] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_3_burstDone = chosen[3] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_4_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_4_wait_n = (~io_out_anySelected | chosen[4]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_4_valid = chosen[4] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_4_burstDone = chosen[4] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_5_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_5_wait_n = (~io_out_anySelected | chosen[5]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_5_valid = chosen[5] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_5_burstDone = chosen[5] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_6_wait_n = (~io_out_anySelected | chosen[6]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
+  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_1_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_1_valid = chosen[1] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_1_burstDone = chosen[1] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_3_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_3_wait_n = (~io_out_anySelected | chosen[3]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_3_valid = chosen[3] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_3_burstDone = chosen[3] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_4_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_4_wait_n = (~io_out_anySelected | chosen[4]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_4_valid = chosen[4] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_4_burstDone = chosen[4] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_5_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_5_wait_n = (~io_out_anySelected | chosen[5]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_5_valid = chosen[5] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_5_burstDone = chosen[5] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_6_wait_n = (~io_out_anySelected | chosen[6]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
   assign io_out_rd = chosen[1] & io_in_1_rd | chosen[3] & io_in_3_rd | chosen[4] & io_in_4_rd | chosen[5] & io_in_5_rd; // @[Mux.scala 27:73]
   assign io_out_wr = chosen[0] & io_in_0_wr | chosen[2] & io_in_2_wr | chosen[3] & io_in_3_wr | chosen[6] & io_in_6_wr; // @[Mux.scala 27:73]
   assign io_out_addr = _io_out_mem_addr_T_11 | _io_out_mem_addr_T_6; // @[Mux.scala 27:73]
@@ -4967,7 +5430,7 @@ module BurstMemArbiter_1(
   wire  effectiveRequest = ~busyReg & (io_out_rd | io_out_wr) & io_out_wait_n; // @[BurstMemArbiter.scala 83:63]
   wire  _GEN_0 = effectiveRequest | busyReg; // @[BurstMemArbiter.scala 88:32 89:13 73:24]
   wire  io_out_anySelected = chosen[0] | chosen[1] | chosen[2] | chosen[3] | chosen[4] | chosen[5] | chosen[6] | chosen[
-    7] | chosen[8] | chosen[9]; // @[BurstMemIO.scala 316:45]
+    7] | chosen[8] | chosen[9]; // @[BurstMemIO.scala 338:45]
   wire [24:0] _io_out_mem_addr_T = chosen[0] ? io_in_0_addr : 25'h0; // @[Mux.scala 27:73]
   wire [24:0] _io_out_mem_addr_T_1 = chosen[1] ? io_in_1_addr : 25'h0; // @[Mux.scala 27:73]
   wire [24:0] _io_out_mem_addr_T_2 = chosen[2] ? io_in_2_addr : 25'h0; // @[Mux.scala 27:73]
@@ -4988,35 +5451,35 @@ module BurstMemArbiter_1(
   wire [24:0] _io_out_mem_addr_T_17 = _io_out_mem_addr_T_16 | _io_out_mem_addr_T_8; // @[Mux.scala 27:73]
   wire [15:0] _io_out_mem_din_T = chosen[0] ? io_in_0_din : 16'h0; // @[Mux.scala 27:73]
   wire [15:0] _io_out_mem_din_T_3 = chosen[3] ? io_in_3_din : 16'h0; // @[Mux.scala 27:73]
-  assign io_in_0_wait_n = (~io_out_anySelected | chosen[0]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_1_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_1_valid = chosen[1] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_2_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_2_valid = chosen[2] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_3_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_3_wait_n = (~io_out_anySelected | chosen[3]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_3_valid = chosen[3] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_4_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_4_wait_n = (~io_out_anySelected | chosen[4]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_4_valid = chosen[4] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_5_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_5_wait_n = (~io_out_anySelected | chosen[5]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_5_valid = chosen[5] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_6_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_6_wait_n = (~io_out_anySelected | chosen[6]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_6_valid = chosen[6] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_7_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_7_wait_n = (~io_out_anySelected | chosen[7]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_7_valid = chosen[7] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_8_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_8_wait_n = (~io_out_anySelected | chosen[8]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_8_valid = chosen[8] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_9_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_9_wait_n = (~io_out_anySelected | chosen[9]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_9_valid = chosen[9] & io_out_valid; // @[BurstMemIO.scala 326:30]
+  assign io_in_0_wait_n = (~io_out_anySelected | chosen[0]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_1_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_1_valid = chosen[1] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_2_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_2_valid = chosen[2] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_3_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_3_wait_n = (~io_out_anySelected | chosen[3]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_3_valid = chosen[3] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_4_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_4_wait_n = (~io_out_anySelected | chosen[4]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_4_valid = chosen[4] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_5_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_5_wait_n = (~io_out_anySelected | chosen[5]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_5_valid = chosen[5] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_6_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_6_wait_n = (~io_out_anySelected | chosen[6]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_6_valid = chosen[6] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_7_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_7_wait_n = (~io_out_anySelected | chosen[7]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_7_valid = chosen[7] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_8_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_8_wait_n = (~io_out_anySelected | chosen[8]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_8_valid = chosen[8] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_9_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_9_wait_n = (~io_out_anySelected | chosen[9]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_9_valid = chosen[9] & io_out_valid; // @[BurstMemIO.scala 352:30]
   assign io_out_rd = chosen[1] & io_in_1_rd | chosen[2] & io_in_2_rd | chosen[3] & io_in_3_rd | chosen[4] & io_in_4_rd
      | chosen[5] & io_in_5_rd | chosen[6] & io_in_6_rd | chosen[7] & io_in_7_rd | chosen[8] & io_in_8_rd | chosen[9] &
     io_in_9_rd; // @[Mux.scala 27:73]
@@ -5361,309 +5824,309 @@ module MemSys(
   wire [31:0] copyDma_io_out_addr; // @[MemSys.scala 105:23]
   wire [63:0] copyDma_io_out_din; // @[MemSys.scala 105:23]
   wire  copyDma_io_out_wait_n; // @[MemSys.scala 105:23]
-  wire  progRomCache_clock; // @[MemSys.scala 110:28]
-  wire  progRomCache_reset; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_enable; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_in_rd; // @[MemSys.scala 110:28]
-  wire [21:0] progRomCache_io_in_addr; // @[MemSys.scala 110:28]
-  wire [15:0] progRomCache_io_in_dout; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_in_wait_n; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_in_valid; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_out_rd; // @[MemSys.scala 110:28]
-  wire [24:0] progRomCache_io_out_addr; // @[MemSys.scala 110:28]
-  wire [15:0] progRomCache_io_out_dout; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_out_wait_n; // @[MemSys.scala 110:28]
-  wire  progRomCache_io_out_valid; // @[MemSys.scala 110:28]
-  wire  highProgRomCache_clock; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_reset; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_enable; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_in_rd; // @[MemSys.scala 122:32]
-  wire [21:0] highProgRomCache_io_in_addr; // @[MemSys.scala 122:32]
-  wire [15:0] highProgRomCache_io_in_dout; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_in_wait_n; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_in_valid; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_out_rd; // @[MemSys.scala 122:32]
-  wire [24:0] highProgRomCache_io_out_addr; // @[MemSys.scala 122:32]
-  wire [15:0] highProgRomCache_io_out_dout; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_out_wait_n; // @[MemSys.scala 122:32]
-  wire  highProgRomCache_io_out_valid; // @[MemSys.scala 122:32]
-  wire  eepromCache_clock; // @[MemSys.scala 135:27]
-  wire  eepromCache_reset; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_enable; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_in_rd; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_in_wr; // @[MemSys.scala 135:27]
-  wire [6:0] eepromCache_io_in_addr; // @[MemSys.scala 135:27]
-  wire [15:0] eepromCache_io_in_din; // @[MemSys.scala 135:27]
-  wire [15:0] eepromCache_io_in_dout; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_in_wait_n; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_in_valid; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_out_rd; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_out_wr; // @[MemSys.scala 135:27]
-  wire [24:0] eepromCache_io_out_addr; // @[MemSys.scala 135:27]
-  wire [15:0] eepromCache_io_out_din; // @[MemSys.scala 135:27]
-  wire [15:0] eepromCache_io_out_dout; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_out_wait_n; // @[MemSys.scala 135:27]
-  wire  eepromCache_io_out_valid; // @[MemSys.scala 135:27]
-  wire  soundRomCache_0_clock; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_reset; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_enable; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_in_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_0_io_in_addr; // @[MemSys.scala 148:19]
-  wire [7:0] soundRomCache_0_io_in_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_in_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_in_valid; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_out_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_0_io_out_addr; // @[MemSys.scala 148:19]
-  wire [15:0] soundRomCache_0_io_out_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_out_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_0_io_out_valid; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_clock; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_reset; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_enable; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_in_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_1_io_in_addr; // @[MemSys.scala 148:19]
-  wire [7:0] soundRomCache_1_io_in_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_in_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_in_valid; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_out_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_1_io_out_addr; // @[MemSys.scala 148:19]
-  wire [15:0] soundRomCache_1_io_out_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_out_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_1_io_out_valid; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_clock; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_reset; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_enable; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_in_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_2_io_in_addr; // @[MemSys.scala 148:19]
-  wire [7:0] soundRomCache_2_io_in_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_in_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_in_valid; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_out_rd; // @[MemSys.scala 148:19]
-  wire [24:0] soundRomCache_2_io_out_addr; // @[MemSys.scala 148:19]
-  wire [15:0] soundRomCache_2_io_out_dout; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_out_wait_n; // @[MemSys.scala 148:19]
-  wire  soundRomCache_2_io_out_valid; // @[MemSys.scala 148:19]
-  wire  layerRomCache_0_clock; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_reset; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_enable; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_in_rd; // @[MemSys.scala 164:19]
-  wire [31:0] layerRomCache_0_io_in_addr; // @[MemSys.scala 164:19]
-  wire [63:0] layerRomCache_0_io_in_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_in_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_in_valid; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_out_rd; // @[MemSys.scala 164:19]
-  wire [24:0] layerRomCache_0_io_out_addr; // @[MemSys.scala 164:19]
-  wire [15:0] layerRomCache_0_io_out_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_out_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_0_io_out_valid; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_clock; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_reset; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_enable; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_in_rd; // @[MemSys.scala 164:19]
-  wire [31:0] layerRomCache_1_io_in_addr; // @[MemSys.scala 164:19]
-  wire [63:0] layerRomCache_1_io_in_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_in_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_in_valid; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_out_rd; // @[MemSys.scala 164:19]
-  wire [24:0] layerRomCache_1_io_out_addr; // @[MemSys.scala 164:19]
-  wire [15:0] layerRomCache_1_io_out_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_out_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_1_io_out_valid; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_clock; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_reset; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_enable; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_in_rd; // @[MemSys.scala 164:19]
-  wire [31:0] layerRomCache_2_io_in_addr; // @[MemSys.scala 164:19]
-  wire [63:0] layerRomCache_2_io_in_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_in_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_in_valid; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_out_rd; // @[MemSys.scala 164:19]
-  wire [24:0] layerRomCache_2_io_out_addr; // @[MemSys.scala 164:19]
-  wire [15:0] layerRomCache_2_io_out_dout; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_out_wait_n; // @[MemSys.scala 164:19]
-  wire  layerRomCache_2_io_out_valid; // @[MemSys.scala 164:19]
-  wire  spriteDescrambler_clock; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_reset; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_start; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_done; // @[MemSys.scala 180:33]
-  wire [31:0] spriteDescrambler_io_gameConfig_sprite_romSize; // @[MemSys.scala 180:33]
-  wire [2:0] spriteDescrambler_io_gameConfig_sprite_descrambleStyle; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_in_rd; // @[MemSys.scala 180:33]
-  wire [31:0] spriteDescrambler_io_in_addr; // @[MemSys.scala 180:33]
-  wire [63:0] spriteDescrambler_io_in_dout; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_in_wait_n; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_in_valid; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_in_burstDone; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_out_wr; // @[MemSys.scala 180:33]
-  wire [31:0] spriteDescrambler_io_out_addr; // @[MemSys.scala 180:33]
-  wire [63:0] spriteDescrambler_io_out_din; // @[MemSys.scala 180:33]
-  wire  spriteDescrambler_io_out_wait_n; // @[MemSys.scala 180:33]
-  wire  ddrArbiter_clock; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_reset; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_0_wr; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_0_addr; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_0_din; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_0_burstDone; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_1_rd; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_1_addr; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_1_dout; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_1_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_1_valid; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_1_burstDone; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_2_wr; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_2_addr; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_in_2_mask; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_2_din; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_2_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_3_rd; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_3_wr; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_3_addr; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_in_3_mask; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_3_din; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_3_dout; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_3_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_3_valid; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_in_3_burstLength; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_3_burstDone; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_4_rd; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_4_addr; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_4_dout; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_4_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_4_valid; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_in_4_burstLength; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_4_burstDone; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_5_rd; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_5_addr; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_5_dout; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_5_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_5_valid; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_5_burstDone; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_6_wr; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_in_6_addr; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_in_6_din; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_in_6_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_out_rd; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_out_wr; // @[MemSys.scala 185:26]
-  wire [31:0] ddrArbiter_io_out_addr; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_out_mask; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_out_din; // @[MemSys.scala 185:26]
-  wire [63:0] ddrArbiter_io_out_dout; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_out_wait_n; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_out_valid; // @[MemSys.scala 185:26]
-  wire [7:0] ddrArbiter_io_out_burstLength; // @[MemSys.scala 185:26]
-  wire  ddrArbiter_io_out_burstDone; // @[MemSys.scala 185:26]
-  wire  sdramArbiter_clock; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_reset; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_0_wr; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_0_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_0_din; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_0_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_0_burstDone; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_1_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_1_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_1_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_1_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_1_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_2_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_2_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_2_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_2_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_2_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_3_rd; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_3_wr; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_3_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_3_din; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_3_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_3_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_3_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_4_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_4_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_4_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_4_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_4_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_5_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_5_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_5_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_5_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_5_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_6_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_6_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_6_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_6_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_6_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_7_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_7_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_7_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_7_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_7_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_8_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_8_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_8_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_8_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_8_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_9_rd; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_in_9_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_in_9_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_9_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_in_9_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_out_rd; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_out_wr; // @[MemSys.scala 197:28]
-  wire [24:0] sdramArbiter_io_out_addr; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_out_din; // @[MemSys.scala 197:28]
-  wire [15:0] sdramArbiter_io_out_dout; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_out_wait_n; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_out_valid; // @[MemSys.scala 197:28]
-  wire  sdramArbiter_io_out_burstDone; // @[MemSys.scala 197:28]
-  wire  nvramArbiter_clock; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_reset; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_0_rd; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_0_wr; // @[MemSys.scala 212:28]
-  wire [6:0] nvramArbiter_io_in_0_addr; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_in_0_din; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_in_0_dout; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_0_wait_n; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_0_valid; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_1_rd; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_1_wr; // @[MemSys.scala 212:28]
-  wire [6:0] nvramArbiter_io_in_1_addr; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_in_1_din; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_in_1_dout; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_1_wait_n; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_in_1_valid; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_out_rd; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_out_wr; // @[MemSys.scala 212:28]
-  wire [6:0] nvramArbiter_io_out_addr; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_out_din; // @[MemSys.scala 212:28]
-  wire [15:0] nvramArbiter_io_out_dout; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_out_wait_n; // @[MemSys.scala 212:28]
-  wire  nvramArbiter_io_out_valid; // @[MemSys.scala 212:28]
-  wire  doSpriteDescramble = io_gameConfig_sprite_descrambleStyle > 3'h0; // @[MemSys.scala 178:65]
-  wire [31:0] _spriteRomOffset_T_1 = 32'h30000000 + io_gameConfig_sprite_romOffset; // @[MemSys.scala 179:116]
-  wire [31:0] spriteRomOffset = doSpriteDescramble ? 32'h34000000 : _spriteRomOffset_T_1; // @[MemSys.scala 179:28]
-  wire  _spriteDescrambler_io_start_T = copyDma_io_busy & doSpriteDescramble; // @[MemSys.scala 181:77]
+  wire  progRomCache_clock; // @[MemSys.scala 113:28]
+  wire  progRomCache_reset; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_enable; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_in_rd; // @[MemSys.scala 113:28]
+  wire [21:0] progRomCache_io_in_addr; // @[MemSys.scala 113:28]
+  wire [15:0] progRomCache_io_in_dout; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_in_wait_n; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_in_valid; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_out_rd; // @[MemSys.scala 113:28]
+  wire [24:0] progRomCache_io_out_addr; // @[MemSys.scala 113:28]
+  wire [15:0] progRomCache_io_out_dout; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_out_wait_n; // @[MemSys.scala 113:28]
+  wire  progRomCache_io_out_valid; // @[MemSys.scala 113:28]
+  wire  highProgRomCache_clock; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_reset; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_enable; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_in_rd; // @[MemSys.scala 125:32]
+  wire [21:0] highProgRomCache_io_in_addr; // @[MemSys.scala 125:32]
+  wire [15:0] highProgRomCache_io_in_dout; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_in_wait_n; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_in_valid; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_out_rd; // @[MemSys.scala 125:32]
+  wire [24:0] highProgRomCache_io_out_addr; // @[MemSys.scala 125:32]
+  wire [15:0] highProgRomCache_io_out_dout; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_out_wait_n; // @[MemSys.scala 125:32]
+  wire  highProgRomCache_io_out_valid; // @[MemSys.scala 125:32]
+  wire  eepromCache_clock; // @[MemSys.scala 145:27]
+  wire  eepromCache_reset; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_enable; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_in_rd; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_in_wr; // @[MemSys.scala 145:27]
+  wire [6:0] eepromCache_io_in_addr; // @[MemSys.scala 145:27]
+  wire [15:0] eepromCache_io_in_din; // @[MemSys.scala 145:27]
+  wire [15:0] eepromCache_io_in_dout; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_in_wait_n; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_in_valid; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_out_rd; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_out_wr; // @[MemSys.scala 145:27]
+  wire [24:0] eepromCache_io_out_addr; // @[MemSys.scala 145:27]
+  wire [15:0] eepromCache_io_out_din; // @[MemSys.scala 145:27]
+  wire [15:0] eepromCache_io_out_dout; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_out_wait_n; // @[MemSys.scala 145:27]
+  wire  eepromCache_io_out_valid; // @[MemSys.scala 145:27]
+  wire  soundRomCache_0_clock; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_reset; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_enable; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_in_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_0_io_in_addr; // @[MemSys.scala 158:19]
+  wire [7:0] soundRomCache_0_io_in_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_in_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_in_valid; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_out_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_0_io_out_addr; // @[MemSys.scala 158:19]
+  wire [15:0] soundRomCache_0_io_out_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_out_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_0_io_out_valid; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_clock; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_reset; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_enable; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_in_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_1_io_in_addr; // @[MemSys.scala 158:19]
+  wire [7:0] soundRomCache_1_io_in_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_in_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_in_valid; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_out_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_1_io_out_addr; // @[MemSys.scala 158:19]
+  wire [15:0] soundRomCache_1_io_out_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_out_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_1_io_out_valid; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_clock; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_reset; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_enable; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_in_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_2_io_in_addr; // @[MemSys.scala 158:19]
+  wire [7:0] soundRomCache_2_io_in_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_in_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_in_valid; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_out_rd; // @[MemSys.scala 158:19]
+  wire [24:0] soundRomCache_2_io_out_addr; // @[MemSys.scala 158:19]
+  wire [15:0] soundRomCache_2_io_out_dout; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_out_wait_n; // @[MemSys.scala 158:19]
+  wire  soundRomCache_2_io_out_valid; // @[MemSys.scala 158:19]
+  wire  layerRomCache_0_clock; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_reset; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_enable; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_in_rd; // @[MemSys.scala 174:19]
+  wire [31:0] layerRomCache_0_io_in_addr; // @[MemSys.scala 174:19]
+  wire [63:0] layerRomCache_0_io_in_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_in_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_in_valid; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_out_rd; // @[MemSys.scala 174:19]
+  wire [24:0] layerRomCache_0_io_out_addr; // @[MemSys.scala 174:19]
+  wire [15:0] layerRomCache_0_io_out_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_out_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_0_io_out_valid; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_clock; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_reset; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_enable; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_in_rd; // @[MemSys.scala 174:19]
+  wire [31:0] layerRomCache_1_io_in_addr; // @[MemSys.scala 174:19]
+  wire [63:0] layerRomCache_1_io_in_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_in_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_in_valid; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_out_rd; // @[MemSys.scala 174:19]
+  wire [24:0] layerRomCache_1_io_out_addr; // @[MemSys.scala 174:19]
+  wire [15:0] layerRomCache_1_io_out_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_out_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_1_io_out_valid; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_clock; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_reset; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_enable; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_in_rd; // @[MemSys.scala 174:19]
+  wire [31:0] layerRomCache_2_io_in_addr; // @[MemSys.scala 174:19]
+  wire [63:0] layerRomCache_2_io_in_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_in_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_in_valid; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_out_rd; // @[MemSys.scala 174:19]
+  wire [24:0] layerRomCache_2_io_out_addr; // @[MemSys.scala 174:19]
+  wire [15:0] layerRomCache_2_io_out_dout; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_out_wait_n; // @[MemSys.scala 174:19]
+  wire  layerRomCache_2_io_out_valid; // @[MemSys.scala 174:19]
+  wire  spriteDescrambler_clock; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_reset; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_start; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_done; // @[MemSys.scala 190:33]
+  wire [31:0] spriteDescrambler_io_gameConfig_sprite_romSize; // @[MemSys.scala 190:33]
+  wire [2:0] spriteDescrambler_io_gameConfig_sprite_descrambleStyle; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_in_rd; // @[MemSys.scala 190:33]
+  wire [31:0] spriteDescrambler_io_in_addr; // @[MemSys.scala 190:33]
+  wire [63:0] spriteDescrambler_io_in_dout; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_in_wait_n; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_in_valid; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_in_burstDone; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_out_wr; // @[MemSys.scala 190:33]
+  wire [31:0] spriteDescrambler_io_out_addr; // @[MemSys.scala 190:33]
+  wire [63:0] spriteDescrambler_io_out_din; // @[MemSys.scala 190:33]
+  wire  spriteDescrambler_io_out_wait_n; // @[MemSys.scala 190:33]
+  wire  ddrArbiter_clock; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_reset; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_0_wr; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_0_addr; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_0_din; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_0_burstDone; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_1_rd; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_1_addr; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_1_dout; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_1_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_1_valid; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_1_burstDone; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_2_wr; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_2_addr; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_in_2_mask; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_2_din; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_2_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_3_rd; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_3_wr; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_3_addr; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_in_3_mask; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_3_din; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_3_dout; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_3_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_3_valid; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_in_3_burstLength; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_3_burstDone; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_4_rd; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_4_addr; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_4_dout; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_4_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_4_valid; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_in_4_burstLength; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_4_burstDone; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_5_rd; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_5_addr; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_5_dout; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_5_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_5_valid; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_5_burstDone; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_6_wr; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_in_6_addr; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_in_6_din; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_in_6_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_out_rd; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_out_wr; // @[MemSys.scala 195:26]
+  wire [31:0] ddrArbiter_io_out_addr; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_out_mask; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_out_din; // @[MemSys.scala 195:26]
+  wire [63:0] ddrArbiter_io_out_dout; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_out_wait_n; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_out_valid; // @[MemSys.scala 195:26]
+  wire [7:0] ddrArbiter_io_out_burstLength; // @[MemSys.scala 195:26]
+  wire  ddrArbiter_io_out_burstDone; // @[MemSys.scala 195:26]
+  wire  sdramArbiter_clock; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_reset; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_0_wr; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_0_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_0_din; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_0_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_0_burstDone; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_1_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_1_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_1_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_1_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_1_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_2_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_2_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_2_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_2_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_2_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_3_rd; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_3_wr; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_3_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_3_din; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_3_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_3_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_3_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_4_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_4_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_4_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_4_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_4_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_5_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_5_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_5_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_5_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_5_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_6_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_6_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_6_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_6_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_6_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_7_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_7_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_7_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_7_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_7_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_8_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_8_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_8_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_8_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_8_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_9_rd; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_in_9_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_in_9_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_9_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_in_9_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_out_rd; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_out_wr; // @[MemSys.scala 207:28]
+  wire [24:0] sdramArbiter_io_out_addr; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_out_din; // @[MemSys.scala 207:28]
+  wire [15:0] sdramArbiter_io_out_dout; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_out_wait_n; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_out_valid; // @[MemSys.scala 207:28]
+  wire  sdramArbiter_io_out_burstDone; // @[MemSys.scala 207:28]
+  wire  nvramArbiter_clock; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_reset; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_0_rd; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_0_wr; // @[MemSys.scala 222:28]
+  wire [6:0] nvramArbiter_io_in_0_addr; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_in_0_din; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_in_0_dout; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_0_wait_n; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_0_valid; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_1_rd; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_1_wr; // @[MemSys.scala 222:28]
+  wire [6:0] nvramArbiter_io_in_1_addr; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_in_1_din; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_in_1_dout; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_1_wait_n; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_in_1_valid; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_out_rd; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_out_wr; // @[MemSys.scala 222:28]
+  wire [6:0] nvramArbiter_io_out_addr; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_out_din; // @[MemSys.scala 222:28]
+  wire [15:0] nvramArbiter_io_out_dout; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_out_wait_n; // @[MemSys.scala 222:28]
+  wire  nvramArbiter_io_out_valid; // @[MemSys.scala 222:28]
+  wire  doSpriteDescramble = io_gameConfig_sprite_descrambleStyle > 3'h0; // @[MemSys.scala 188:65]
+  wire [31:0] _spriteRomOffset_T_1 = 32'h30000000 + io_gameConfig_sprite_romOffset; // @[MemSys.scala 189:116]
+  wire [31:0] spriteRomOffset = doSpriteDescramble ? 32'h34000000 : _spriteRomOffset_T_1; // @[MemSys.scala 189:28]
+  wire  _spriteDescrambler_io_start_T = copyDma_io_busy & doSpriteDescramble; // @[MemSys.scala 191:77]
   reg  spriteDescrambler_io_start_REG; // @[Util.scala 165:45]
   wire  _spriteDescrambler_io_start_T_2 = ~_spriteDescrambler_io_start_T & spriteDescrambler_io_start_REG; // @[Util.scala 165:35]
   reg  spriteDescrambler_io_start_enableReg; // @[Util.scala 218:28]
   wire  _GEN_0 = _spriteDescrambler_io_start_T_2 | spriteDescrambler_io_start_enableReg; // @[Util.scala 218:28 219:{54,66}]
-  wire [31:0] _mem_T_7 = spriteDescrambler_io_in_addr + 32'h30000000; // @[MemSys.scala 192:39]
-  wire [31:0] _GEN_6 = {{7'd0}, progRomCache_io_out_addr}; // @[MemSys.scala 200:35]
-  wire [32:0] _mem_T_12 = {{1'd0}, _GEN_6}; // @[MemSys.scala 200:35]
-  wire [31:0] _GEN_8 = {{7'd0}, highProgRomCache_io_out_addr}; // @[MemSys.scala 201:39]
-  wire [32:0] _mem_T_14 = {{1'd0}, _GEN_8}; // @[MemSys.scala 201:39]
-  wire [31:0] _GEN_10 = {{7'd0}, eepromCache_io_out_addr}; // @[MemSys.scala 202:34]
-  wire [31:0] _mem_T_17 = _GEN_10 + io_gameConfig_eepromOffset; // @[MemSys.scala 202:34]
-  wire [31:0] _GEN_12 = {{7'd0}, soundRomCache_0_io_out_addr}; // @[MemSys.scala 203:39]
-  wire [31:0] _mem_T_19 = _GEN_12 + io_gameConfig_sound_0_romOffset; // @[MemSys.scala 203:39]
-  wire [31:0] _GEN_14 = {{7'd0}, soundRomCache_1_io_out_addr}; // @[MemSys.scala 204:39]
-  wire [31:0] _mem_T_21 = _GEN_14 + io_gameConfig_sound_1_romOffset; // @[MemSys.scala 204:39]
-  wire [31:0] _GEN_16 = {{7'd0}, soundRomCache_2_io_out_addr}; // @[MemSys.scala 205:39]
-  wire [31:0] _mem_T_23 = _GEN_16 + io_gameConfig_sound_2_romOffset; // @[MemSys.scala 205:39]
-  wire [31:0] _GEN_18 = {{7'd0}, layerRomCache_0_io_out_addr}; // @[MemSys.scala 206:39]
-  wire [31:0] _mem_T_25 = _GEN_18 + io_gameConfig_layer_0_romOffset; // @[MemSys.scala 206:39]
-  wire [31:0] _GEN_20 = {{7'd0}, layerRomCache_1_io_out_addr}; // @[MemSys.scala 207:39]
-  wire [31:0] _mem_T_27 = _GEN_20 + io_gameConfig_layer_1_romOffset; // @[MemSys.scala 207:39]
-  wire [31:0] _GEN_22 = {{7'd0}, layerRomCache_2_io_out_addr}; // @[MemSys.scala 208:39]
-  wire [31:0] _mem_T_29 = _GEN_22 + io_gameConfig_layer_2_romOffset; // @[MemSys.scala 208:39]
+  wire [31:0] _mem_T_7 = spriteDescrambler_io_in_addr + 32'h30000000; // @[MemSys.scala 202:39]
+  wire [31:0] _GEN_6 = {{7'd0}, progRomCache_io_out_addr}; // @[MemSys.scala 210:35]
+  wire [32:0] _mem_T_12 = {{1'd0}, _GEN_6}; // @[MemSys.scala 210:35]
+  wire [31:0] _GEN_8 = {{7'd0}, highProgRomCache_io_out_addr}; // @[MemSys.scala 211:39]
+  wire [32:0] _mem_T_14 = {{1'd0}, _GEN_8}; // @[MemSys.scala 211:39]
+  wire [31:0] _GEN_10 = {{7'd0}, eepromCache_io_out_addr}; // @[MemSys.scala 212:34]
+  wire [31:0] _mem_T_17 = _GEN_10 + io_gameConfig_eepromOffset; // @[MemSys.scala 212:34]
+  wire [31:0] _GEN_12 = {{7'd0}, soundRomCache_0_io_out_addr}; // @[MemSys.scala 213:39]
+  wire [31:0] _mem_T_19 = _GEN_12 + io_gameConfig_sound_0_romOffset; // @[MemSys.scala 213:39]
+  wire [31:0] _GEN_14 = {{7'd0}, soundRomCache_1_io_out_addr}; // @[MemSys.scala 214:39]
+  wire [31:0] _mem_T_21 = _GEN_14 + io_gameConfig_sound_1_romOffset; // @[MemSys.scala 214:39]
+  wire [31:0] _GEN_16 = {{7'd0}, soundRomCache_2_io_out_addr}; // @[MemSys.scala 215:39]
+  wire [31:0] _mem_T_23 = _GEN_16 + io_gameConfig_sound_2_romOffset; // @[MemSys.scala 215:39]
+  wire [31:0] _GEN_18 = {{7'd0}, layerRomCache_0_io_out_addr}; // @[MemSys.scala 216:39]
+  wire [31:0] _mem_T_25 = _GEN_18 + io_gameConfig_layer_0_romOffset; // @[MemSys.scala 216:39]
+  wire [31:0] _GEN_20 = {{7'd0}, layerRomCache_1_io_out_addr}; // @[MemSys.scala 217:39]
+  wire [31:0] _mem_T_27 = _GEN_20 + io_gameConfig_layer_1_romOffset; // @[MemSys.scala 217:39]
+  wire [31:0] _GEN_22 = {{7'd0}, layerRomCache_2_io_out_addr}; // @[MemSys.scala 218:39]
+  wire [31:0] _mem_T_29 = _GEN_22 + io_gameConfig_layer_2_romOffset; // @[MemSys.scala 218:39]
   reg  io_ready_REG; // @[Util.scala 158:44]
   wire  _io_ready_T_1 = spriteDescrambler_io_done & ~io_ready_REG; // @[Util.scala 158:33]
   reg  io_ready_enableReg; // @[Util.scala 218:28]
@@ -5712,7 +6175,7 @@ module MemSys(
     .io_out_din(copyDma_io_out_din),
     .io_out_wait_n(copyDma_io_out_wait_n)
   );
-  ReadCache progRomCache ( // @[MemSys.scala 110:28]
+  ReadCache progRomCache ( // @[MemSys.scala 113:28]
     .clock(progRomCache_clock),
     .reset(progRomCache_reset),
     .io_enable(progRomCache_io_enable),
@@ -5727,7 +6190,7 @@ module MemSys(
     .io_out_wait_n(progRomCache_io_out_wait_n),
     .io_out_valid(progRomCache_io_out_valid)
   );
-  ReadCache highProgRomCache ( // @[MemSys.scala 122:32]
+  ReadCache highProgRomCache ( // @[MemSys.scala 125:32]
     .clock(highProgRomCache_clock),
     .reset(highProgRomCache_reset),
     .io_enable(highProgRomCache_io_enable),
@@ -5742,7 +6205,7 @@ module MemSys(
     .io_out_wait_n(highProgRomCache_io_out_wait_n),
     .io_out_valid(highProgRomCache_io_out_valid)
   );
-  Cache eepromCache ( // @[MemSys.scala 135:27]
+  Cache eepromCache ( // @[MemSys.scala 145:27]
     .clock(eepromCache_clock),
     .reset(eepromCache_reset),
     .io_enable(eepromCache_io_enable),
@@ -5761,7 +6224,7 @@ module MemSys(
     .io_out_wait_n(eepromCache_io_out_wait_n),
     .io_out_valid(eepromCache_io_out_valid)
   );
-  ReadCache_2 soundRomCache_0 ( // @[MemSys.scala 148:19]
+  ReadCache_2 soundRomCache_0 ( // @[MemSys.scala 158:19]
     .clock(soundRomCache_0_clock),
     .reset(soundRomCache_0_reset),
     .io_enable(soundRomCache_0_io_enable),
@@ -5776,7 +6239,7 @@ module MemSys(
     .io_out_wait_n(soundRomCache_0_io_out_wait_n),
     .io_out_valid(soundRomCache_0_io_out_valid)
   );
-  ReadCache_2 soundRomCache_1 ( // @[MemSys.scala 148:19]
+  ReadCache_2 soundRomCache_1 ( // @[MemSys.scala 158:19]
     .clock(soundRomCache_1_clock),
     .reset(soundRomCache_1_reset),
     .io_enable(soundRomCache_1_io_enable),
@@ -5791,7 +6254,7 @@ module MemSys(
     .io_out_wait_n(soundRomCache_1_io_out_wait_n),
     .io_out_valid(soundRomCache_1_io_out_valid)
   );
-  ReadCache_2 soundRomCache_2 ( // @[MemSys.scala 148:19]
+  ReadCache_2 soundRomCache_2 ( // @[MemSys.scala 158:19]
     .clock(soundRomCache_2_clock),
     .reset(soundRomCache_2_reset),
     .io_enable(soundRomCache_2_io_enable),
@@ -5806,7 +6269,7 @@ module MemSys(
     .io_out_wait_n(soundRomCache_2_io_out_wait_n),
     .io_out_valid(soundRomCache_2_io_out_valid)
   );
-  ReadCache_5 layerRomCache_0 ( // @[MemSys.scala 164:19]
+  ReadCache_5 layerRomCache_0 ( // @[MemSys.scala 174:19]
     .clock(layerRomCache_0_clock),
     .reset(layerRomCache_0_reset),
     .io_enable(layerRomCache_0_io_enable),
@@ -5821,7 +6284,7 @@ module MemSys(
     .io_out_wait_n(layerRomCache_0_io_out_wait_n),
     .io_out_valid(layerRomCache_0_io_out_valid)
   );
-  ReadCache_5 layerRomCache_1 ( // @[MemSys.scala 164:19]
+  ReadCache_5 layerRomCache_1 ( // @[MemSys.scala 174:19]
     .clock(layerRomCache_1_clock),
     .reset(layerRomCache_1_reset),
     .io_enable(layerRomCache_1_io_enable),
@@ -5836,7 +6299,7 @@ module MemSys(
     .io_out_wait_n(layerRomCache_1_io_out_wait_n),
     .io_out_valid(layerRomCache_1_io_out_valid)
   );
-  ReadCache_5 layerRomCache_2 ( // @[MemSys.scala 164:19]
+  ReadCache_5 layerRomCache_2 ( // @[MemSys.scala 174:19]
     .clock(layerRomCache_2_clock),
     .reset(layerRomCache_2_reset),
     .io_enable(layerRomCache_2_io_enable),
@@ -5851,7 +6314,7 @@ module MemSys(
     .io_out_wait_n(layerRomCache_2_io_out_wait_n),
     .io_out_valid(layerRomCache_2_io_out_valid)
   );
-  SpriteDescrambler spriteDescrambler ( // @[MemSys.scala 180:33]
+  SpriteDescrambler spriteDescrambler ( // @[MemSys.scala 190:33]
     .clock(spriteDescrambler_clock),
     .reset(spriteDescrambler_reset),
     .io_start(spriteDescrambler_io_start),
@@ -5869,7 +6332,7 @@ module MemSys(
     .io_out_din(spriteDescrambler_io_out_din),
     .io_out_wait_n(spriteDescrambler_io_out_wait_n)
   );
-  BurstMemArbiter ddrArbiter ( // @[MemSys.scala 185:26]
+  BurstMemArbiter ddrArbiter ( // @[MemSys.scala 195:26]
     .clock(ddrArbiter_clock),
     .reset(ddrArbiter_reset),
     .io_in_0_wr(ddrArbiter_io_in_0_wr),
@@ -5925,7 +6388,7 @@ module MemSys(
     .io_out_burstLength(ddrArbiter_io_out_burstLength),
     .io_out_burstDone(ddrArbiter_io_out_burstDone)
   );
-  BurstMemArbiter_1 sdramArbiter ( // @[MemSys.scala 197:28]
+  BurstMemArbiter_1 sdramArbiter ( // @[MemSys.scala 207:28]
     .clock(sdramArbiter_clock),
     .reset(sdramArbiter_reset),
     .io_in_0_wr(sdramArbiter_io_in_0_wr),
@@ -5989,7 +6452,7 @@ module MemSys(
     .io_out_valid(sdramArbiter_io_out_valid),
     .io_out_burstDone(sdramArbiter_io_out_burstDone)
   );
-  AsyncMemArbiter nvramArbiter ( // @[MemSys.scala 212:28]
+  AsyncMemArbiter nvramArbiter ( // @[MemSys.scala 222:28]
     .clock(nvramArbiter_clock),
     .reset(nvramArbiter_reset),
     .io_in_0_rd(nvramArbiter_io_in_0_rd),
@@ -6018,53 +6481,53 @@ module MemSys(
   assign io_prog_nvram_dout = nvramArbiter_io_in_0_dout; // @[AsyncMemArbiter.scala 68:67]
   assign io_prog_nvram_wait_n = nvramArbiter_io_in_0_wait_n; // @[AsyncMemArbiter.scala 68:67]
   assign io_prog_nvram_valid = nvramArbiter_io_in_0_valid; // @[AsyncMemArbiter.scala 68:67]
-  assign io_progRom_dout = progRomCache_io_in_dout; // @[MemSys.scala 120:22]
-  assign io_progRom_wait_n = progRomCache_io_in_wait_n; // @[MemSys.scala 120:22]
-  assign io_progRom_valid = progRomCache_io_in_valid; // @[MemSys.scala 120:22]
-  assign io_highProgRom_dout = highProgRomCache_io_in_dout; // @[MemSys.scala 132:26]
-  assign io_highProgRom_wait_n = highProgRomCache_io_in_wait_n; // @[MemSys.scala 132:26]
-  assign io_highProgRom_valid = highProgRomCache_io_in_valid; // @[MemSys.scala 132:26]
+  assign io_progRom_dout = progRomCache_io_in_dout; // @[MemSys.scala 123:22]
+  assign io_progRom_wait_n = progRomCache_io_in_wait_n; // @[MemSys.scala 123:22]
+  assign io_progRom_valid = progRomCache_io_in_valid; // @[MemSys.scala 123:22]
+  assign io_highProgRom_dout = highProgRomCache_io_in_dout; // @[MemSys.scala 135:26]
+  assign io_highProgRom_wait_n = highProgRomCache_io_in_wait_n; // @[MemSys.scala 135:26]
+  assign io_highProgRom_valid = highProgRomCache_io_in_valid; // @[MemSys.scala 135:26]
   assign io_eeprom_dout = nvramArbiter_io_in_1_dout; // @[AsyncMemArbiter.scala 68:67]
   assign io_eeprom_wait_n = nvramArbiter_io_in_1_wait_n; // @[AsyncMemArbiter.scala 68:67]
   assign io_eeprom_valid = nvramArbiter_io_in_1_valid; // @[AsyncMemArbiter.scala 68:67]
-  assign io_soundRom_0_dout = soundRomCache_0_io_in_dout; // @[MemSys.scala 158:13]
-  assign io_soundRom_0_wait_n = soundRomCache_0_io_in_wait_n; // @[MemSys.scala 158:13]
-  assign io_soundRom_0_valid = soundRomCache_0_io_in_valid; // @[MemSys.scala 158:13]
-  assign io_soundRom_1_dout = soundRomCache_1_io_in_dout; // @[MemSys.scala 158:13]
-  assign io_soundRom_1_wait_n = soundRomCache_1_io_in_wait_n; // @[MemSys.scala 158:13]
-  assign io_soundRom_1_valid = soundRomCache_1_io_in_valid; // @[MemSys.scala 158:13]
-  assign io_soundRom_2_dout = soundRomCache_2_io_in_dout; // @[MemSys.scala 158:13]
-  assign io_soundRom_2_wait_n = soundRomCache_2_io_in_wait_n; // @[MemSys.scala 158:13]
-  assign io_soundRom_2_valid = soundRomCache_2_io_in_valid; // @[MemSys.scala 158:13]
-  assign io_layerTileRom_0_dout = layerRomCache_0_io_in_dout; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_0_wait_n = layerRomCache_0_io_in_wait_n; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_0_valid = layerRomCache_0_io_in_valid; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_1_dout = layerRomCache_1_io_in_dout; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_1_wait_n = layerRomCache_1_io_in_wait_n; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_1_valid = layerRomCache_1_io_in_valid; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_2_dout = layerRomCache_2_io_in_dout; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_2_wait_n = layerRomCache_2_io_in_wait_n; // @[MemSys.scala 174:13]
-  assign io_layerTileRom_2_valid = layerRomCache_2_io_in_valid; // @[MemSys.scala 174:13]
+  assign io_soundRom_0_dout = soundRomCache_0_io_in_dout; // @[MemSys.scala 168:13]
+  assign io_soundRom_0_wait_n = soundRomCache_0_io_in_wait_n; // @[MemSys.scala 168:13]
+  assign io_soundRom_0_valid = soundRomCache_0_io_in_valid; // @[MemSys.scala 168:13]
+  assign io_soundRom_1_dout = soundRomCache_1_io_in_dout; // @[MemSys.scala 168:13]
+  assign io_soundRom_1_wait_n = soundRomCache_1_io_in_wait_n; // @[MemSys.scala 168:13]
+  assign io_soundRom_1_valid = soundRomCache_1_io_in_valid; // @[MemSys.scala 168:13]
+  assign io_soundRom_2_dout = soundRomCache_2_io_in_dout; // @[MemSys.scala 168:13]
+  assign io_soundRom_2_wait_n = soundRomCache_2_io_in_wait_n; // @[MemSys.scala 168:13]
+  assign io_soundRom_2_valid = soundRomCache_2_io_in_valid; // @[MemSys.scala 168:13]
+  assign io_layerTileRom_0_dout = layerRomCache_0_io_in_dout; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_0_wait_n = layerRomCache_0_io_in_wait_n; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_0_valid = layerRomCache_0_io_in_valid; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_1_dout = layerRomCache_1_io_in_dout; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_1_wait_n = layerRomCache_1_io_in_wait_n; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_1_valid = layerRomCache_1_io_in_valid; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_2_dout = layerRomCache_2_io_in_dout; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_2_wait_n = layerRomCache_2_io_in_wait_n; // @[MemSys.scala 184:13]
+  assign io_layerTileRom_2_valid = layerRomCache_2_io_in_valid; // @[MemSys.scala 184:13]
   assign io_spriteTileRom_dout = ddrArbiter_io_in_4_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign io_spriteTileRom_wait_n = ddrArbiter_io_in_4_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign io_spriteTileRom_valid = ddrArbiter_io_in_4_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign io_spriteTileRom_burstDone = ddrArbiter_io_in_4_burstDone; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
-  assign io_ddr_rd = ddrArbiter_io_out_rd; // @[MemSys.scala 194:5]
-  assign io_ddr_wr = ddrArbiter_io_out_wr; // @[MemSys.scala 194:5]
-  assign io_ddr_addr = ddrArbiter_io_out_addr; // @[MemSys.scala 194:5]
-  assign io_ddr_mask = ddrArbiter_io_out_mask; // @[MemSys.scala 194:5]
-  assign io_ddr_din = ddrArbiter_io_out_din; // @[MemSys.scala 194:5]
-  assign io_ddr_burstLength = ddrArbiter_io_out_burstLength; // @[MemSys.scala 194:5]
-  assign io_sdram_rd = sdramArbiter_io_out_rd; // @[MemSys.scala 209:5]
-  assign io_sdram_wr = sdramArbiter_io_out_wr; // @[MemSys.scala 209:5]
-  assign io_sdram_addr = sdramArbiter_io_out_addr; // @[MemSys.scala 209:5]
-  assign io_sdram_din = sdramArbiter_io_out_din; // @[MemSys.scala 209:5]
+  assign io_ddr_rd = ddrArbiter_io_out_rd; // @[MemSys.scala 204:5]
+  assign io_ddr_wr = ddrArbiter_io_out_wr; // @[MemSys.scala 204:5]
+  assign io_ddr_addr = ddrArbiter_io_out_addr; // @[MemSys.scala 204:5]
+  assign io_ddr_mask = ddrArbiter_io_out_mask; // @[MemSys.scala 204:5]
+  assign io_ddr_din = ddrArbiter_io_out_din; // @[MemSys.scala 204:5]
+  assign io_ddr_burstLength = ddrArbiter_io_out_burstLength; // @[MemSys.scala 204:5]
+  assign io_sdram_rd = sdramArbiter_io_out_rd; // @[MemSys.scala 219:5]
+  assign io_sdram_wr = sdramArbiter_io_out_wr; // @[MemSys.scala 219:5]
+  assign io_sdram_addr = sdramArbiter_io_out_addr; // @[MemSys.scala 219:5]
+  assign io_sdram_din = sdramArbiter_io_out_din; // @[MemSys.scala 219:5]
   assign io_spriteFrameBuffer_dout = ddrArbiter_io_in_3_dout; // @[BurstMemArbiter.scala 68:67]
   assign io_spriteFrameBuffer_wait_n = ddrArbiter_io_in_3_wait_n; // @[BurstMemArbiter.scala 68:67]
   assign io_spriteFrameBuffer_valid = ddrArbiter_io_in_3_valid; // @[BurstMemArbiter.scala 68:67]
   assign io_spriteFrameBuffer_burstDone = ddrArbiter_io_in_3_burstDone; // @[BurstMemArbiter.scala 68:67]
   assign io_systemFrameBuffer_wait_n = ddrArbiter_io_in_2_wait_n; // @[BurstMemArbiter.scala 68:67]
-  assign io_ready = doSpriteDescramble ? io_ready_enableReg : io_ready_enableReg_1; // @[MemSys.scala 216:18]
+  assign io_ready = doSpriteDescramble ? io_ready_enableReg : io_ready_enableReg_1; // @[MemSys.scala 226:18]
   assign ddrDownloadBuffer_clock = clock;
   assign ddrDownloadBuffer_reset = reset;
   assign ddrDownloadBuffer_io_in_wr = io_prog_rom_wr; // @[MemSys.scala 91:27]
@@ -6088,83 +6551,83 @@ module MemSys(
   assign copyDma_io_out_wait_n = sdramDownloadBuffer_io_in_wait_n; // @[MemSys.scala 107:18]
   assign progRomCache_clock = clock;
   assign progRomCache_reset = reset;
-  assign progRomCache_io_enable = io_ready; // @[MemSys.scala 119:26]
-  assign progRomCache_io_in_rd = io_progRom_rd; // @[MemSys.scala 120:22]
-  assign progRomCache_io_in_addr = io_progRom_addr; // @[MemSys.scala 120:22]
+  assign progRomCache_io_enable = io_ready; // @[MemSys.scala 122:26]
+  assign progRomCache_io_in_rd = io_progRom_rd; // @[MemSys.scala 123:22]
+  assign progRomCache_io_in_addr = io_progRom_addr; // @[MemSys.scala 123:22]
   assign progRomCache_io_out_dout = sdramArbiter_io_in_1_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign progRomCache_io_out_wait_n = sdramArbiter_io_in_1_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign progRomCache_io_out_valid = sdramArbiter_io_in_1_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign highProgRomCache_clock = clock;
   assign highProgRomCache_reset = reset;
-  assign highProgRomCache_io_enable = io_ready; // @[MemSys.scala 131:30]
-  assign highProgRomCache_io_in_rd = io_highProgRom_rd; // @[MemSys.scala 132:26]
-  assign highProgRomCache_io_in_addr = io_highProgRom_addr; // @[MemSys.scala 132:26]
+  assign highProgRomCache_io_enable = io_ready; // @[MemSys.scala 134:30]
+  assign highProgRomCache_io_in_rd = io_highProgRom_rd; // @[MemSys.scala 135:26]
+  assign highProgRomCache_io_in_addr = io_highProgRom_addr; // @[MemSys.scala 135:26]
   assign highProgRomCache_io_out_dout = sdramArbiter_io_in_2_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign highProgRomCache_io_out_wait_n = sdramArbiter_io_in_2_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign highProgRomCache_io_out_valid = sdramArbiter_io_in_2_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign eepromCache_clock = clock;
   assign eepromCache_reset = reset;
-  assign eepromCache_io_enable = io_ready; // @[MemSys.scala 144:25]
-  assign eepromCache_io_in_rd = nvramArbiter_io_out_rd; // @[MemSys.scala 213:50]
-  assign eepromCache_io_in_wr = nvramArbiter_io_out_wr; // @[MemSys.scala 213:50]
-  assign eepromCache_io_in_addr = nvramArbiter_io_out_addr; // @[MemSys.scala 213:50]
-  assign eepromCache_io_in_din = nvramArbiter_io_out_din; // @[MemSys.scala 213:50]
+  assign eepromCache_io_enable = io_ready; // @[MemSys.scala 154:25]
+  assign eepromCache_io_in_rd = nvramArbiter_io_out_rd; // @[MemSys.scala 223:50]
+  assign eepromCache_io_in_wr = nvramArbiter_io_out_wr; // @[MemSys.scala 223:50]
+  assign eepromCache_io_in_addr = nvramArbiter_io_out_addr; // @[MemSys.scala 223:50]
+  assign eepromCache_io_in_din = nvramArbiter_io_out_din; // @[MemSys.scala 223:50]
   assign eepromCache_io_out_dout = sdramArbiter_io_in_3_dout; // @[BurstMemIO.scala 269:19 BurstMemArbiter.scala 68:67]
   assign eepromCache_io_out_wait_n = sdramArbiter_io_in_3_wait_n; // @[BurstMemIO.scala 269:19 BurstMemArbiter.scala 68:67]
   assign eepromCache_io_out_valid = sdramArbiter_io_in_3_valid; // @[BurstMemIO.scala 269:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_0_clock = clock;
   assign soundRomCache_0_reset = reset;
-  assign soundRomCache_0_io_enable = io_ready; // @[MemSys.scala 157:17]
-  assign soundRomCache_0_io_in_rd = io_soundRom_0_rd; // @[MemSys.scala 158:13]
-  assign soundRomCache_0_io_in_addr = io_soundRom_0_addr; // @[MemSys.scala 158:13]
+  assign soundRomCache_0_io_enable = io_ready; // @[MemSys.scala 167:17]
+  assign soundRomCache_0_io_in_rd = io_soundRom_0_rd; // @[MemSys.scala 168:13]
+  assign soundRomCache_0_io_in_addr = io_soundRom_0_addr; // @[MemSys.scala 168:13]
   assign soundRomCache_0_io_out_dout = sdramArbiter_io_in_4_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_0_io_out_wait_n = sdramArbiter_io_in_4_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_0_io_out_valid = sdramArbiter_io_in_4_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_1_clock = clock;
   assign soundRomCache_1_reset = reset;
-  assign soundRomCache_1_io_enable = io_ready; // @[MemSys.scala 157:17]
-  assign soundRomCache_1_io_in_rd = io_soundRom_1_rd; // @[MemSys.scala 158:13]
-  assign soundRomCache_1_io_in_addr = io_soundRom_1_addr; // @[MemSys.scala 158:13]
+  assign soundRomCache_1_io_enable = io_ready; // @[MemSys.scala 167:17]
+  assign soundRomCache_1_io_in_rd = io_soundRom_1_rd; // @[MemSys.scala 168:13]
+  assign soundRomCache_1_io_in_addr = io_soundRom_1_addr; // @[MemSys.scala 168:13]
   assign soundRomCache_1_io_out_dout = sdramArbiter_io_in_5_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_1_io_out_wait_n = sdramArbiter_io_in_5_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_1_io_out_valid = sdramArbiter_io_in_5_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_2_clock = clock;
   assign soundRomCache_2_reset = reset;
-  assign soundRomCache_2_io_enable = io_ready; // @[MemSys.scala 157:17]
-  assign soundRomCache_2_io_in_rd = io_soundRom_2_rd; // @[MemSys.scala 158:13]
-  assign soundRomCache_2_io_in_addr = io_soundRom_2_addr; // @[MemSys.scala 158:13]
+  assign soundRomCache_2_io_enable = io_ready; // @[MemSys.scala 167:17]
+  assign soundRomCache_2_io_in_rd = io_soundRom_2_rd; // @[MemSys.scala 168:13]
+  assign soundRomCache_2_io_in_addr = io_soundRom_2_addr; // @[MemSys.scala 168:13]
   assign soundRomCache_2_io_out_dout = sdramArbiter_io_in_6_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_2_io_out_wait_n = sdramArbiter_io_in_6_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign soundRomCache_2_io_out_valid = sdramArbiter_io_in_6_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_0_clock = clock;
   assign layerRomCache_0_reset = reset;
-  assign layerRomCache_0_io_enable = io_ready; // @[MemSys.scala 173:17]
-  assign layerRomCache_0_io_in_rd = io_layerTileRom_0_rd; // @[MemSys.scala 174:13]
-  assign layerRomCache_0_io_in_addr = io_layerTileRom_0_addr; // @[MemSys.scala 174:13]
+  assign layerRomCache_0_io_enable = io_ready; // @[MemSys.scala 183:17]
+  assign layerRomCache_0_io_in_rd = io_layerTileRom_0_rd; // @[MemSys.scala 184:13]
+  assign layerRomCache_0_io_in_addr = io_layerTileRom_0_addr; // @[MemSys.scala 184:13]
   assign layerRomCache_0_io_out_dout = sdramArbiter_io_in_7_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_0_io_out_wait_n = sdramArbiter_io_in_7_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_0_io_out_valid = sdramArbiter_io_in_7_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_1_clock = clock;
   assign layerRomCache_1_reset = reset;
-  assign layerRomCache_1_io_enable = io_ready; // @[MemSys.scala 173:17]
-  assign layerRomCache_1_io_in_rd = io_layerTileRom_1_rd; // @[MemSys.scala 174:13]
-  assign layerRomCache_1_io_in_addr = io_layerTileRom_1_addr; // @[MemSys.scala 174:13]
+  assign layerRomCache_1_io_enable = io_ready; // @[MemSys.scala 183:17]
+  assign layerRomCache_1_io_in_rd = io_layerTileRom_1_rd; // @[MemSys.scala 184:13]
+  assign layerRomCache_1_io_in_addr = io_layerTileRom_1_addr; // @[MemSys.scala 184:13]
   assign layerRomCache_1_io_out_dout = sdramArbiter_io_in_8_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_1_io_out_wait_n = sdramArbiter_io_in_8_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_1_io_out_valid = sdramArbiter_io_in_8_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_2_clock = clock;
   assign layerRomCache_2_reset = reset;
-  assign layerRomCache_2_io_enable = io_ready; // @[MemSys.scala 173:17]
-  assign layerRomCache_2_io_in_rd = io_layerTileRom_2_rd; // @[MemSys.scala 174:13]
-  assign layerRomCache_2_io_in_addr = io_layerTileRom_2_addr; // @[MemSys.scala 174:13]
+  assign layerRomCache_2_io_enable = io_ready; // @[MemSys.scala 183:17]
+  assign layerRomCache_2_io_in_rd = io_layerTileRom_2_rd; // @[MemSys.scala 184:13]
+  assign layerRomCache_2_io_in_addr = io_layerTileRom_2_addr; // @[MemSys.scala 184:13]
   assign layerRomCache_2_io_out_dout = sdramArbiter_io_in_9_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_2_io_out_wait_n = sdramArbiter_io_in_9_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign layerRomCache_2_io_out_valid = sdramArbiter_io_in_9_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign spriteDescrambler_clock = clock;
   assign spriteDescrambler_reset = reset;
-  assign spriteDescrambler_io_start = spriteDescrambler_io_start_enableReg; // @[MemSys.scala 181:30]
-  assign spriteDescrambler_io_gameConfig_sprite_romSize = io_gameConfig_sprite_romSize; // @[MemSys.scala 182:35]
-  assign spriteDescrambler_io_gameConfig_sprite_descrambleStyle = io_gameConfig_sprite_descrambleStyle; // @[MemSys.scala 182:35]
+  assign spriteDescrambler_io_start = spriteDescrambler_io_start_enableReg; // @[MemSys.scala 191:30]
+  assign spriteDescrambler_io_gameConfig_sprite_romSize = io_gameConfig_sprite_romSize; // @[MemSys.scala 192:35]
+  assign spriteDescrambler_io_gameConfig_sprite_descrambleStyle = io_gameConfig_sprite_descrambleStyle; // @[MemSys.scala 192:35]
   assign spriteDescrambler_io_in_dout = ddrArbiter_io_in_5_dout; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign spriteDescrambler_io_in_wait_n = ddrArbiter_io_in_5_wait_n; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
   assign spriteDescrambler_io_in_valid = ddrArbiter_io_in_5_valid; // @[BurstMemIO.scala 63:19 BurstMemArbiter.scala 68:67]
@@ -6173,10 +6636,10 @@ module MemSys(
   assign ddrArbiter_clock = clock;
   assign ddrArbiter_reset = reset;
   assign ddrArbiter_io_in_0_wr = ddrDownloadBuffer_io_out_wr; // @[BurstMemIO.scala 180:19 181:12]
-  assign ddrArbiter_io_in_0_addr = ddrDownloadBuffer_io_out_addr + 32'h30000000; // @[MemSys.scala 187:40]
+  assign ddrArbiter_io_in_0_addr = ddrDownloadBuffer_io_out_addr + 32'h30000000; // @[MemSys.scala 197:40]
   assign ddrArbiter_io_in_0_din = ddrDownloadBuffer_io_out_din; // @[BurstMemIO.scala 180:19 187:13]
   assign ddrArbiter_io_in_1_rd = copyDma_io_in_rd; // @[BurstMemIO.scala 89:19 90:12]
-  assign ddrArbiter_io_in_1_addr = copyDma_io_in_addr + 32'h30000000; // @[MemSys.scala 188:29]
+  assign ddrArbiter_io_in_1_addr = copyDma_io_in_addr + 32'h30000000; // @[MemSys.scala 198:29]
   assign ddrArbiter_io_in_2_wr = io_systemFrameBuffer_wr; // @[BurstMemArbiter.scala 68:67]
   assign ddrArbiter_io_in_2_addr = io_systemFrameBuffer_addr; // @[BurstMemArbiter.scala 68:67]
   assign ddrArbiter_io_in_2_mask = io_systemFrameBuffer_mask; // @[BurstMemArbiter.scala 68:67]
@@ -6188,17 +6651,17 @@ module MemSys(
   assign ddrArbiter_io_in_3_din = io_spriteFrameBuffer_din; // @[BurstMemArbiter.scala 68:67]
   assign ddrArbiter_io_in_3_burstLength = io_spriteFrameBuffer_burstLength; // @[BurstMemArbiter.scala 68:67]
   assign ddrArbiter_io_in_4_rd = io_spriteTileRom_rd; // @[BurstMemIO.scala 89:19 90:12]
-  assign ddrArbiter_io_in_4_addr = io_spriteTileRom_addr + spriteRomOffset; // @[MemSys.scala 191:32]
+  assign ddrArbiter_io_in_4_addr = io_spriteTileRom_addr + spriteRomOffset; // @[MemSys.scala 201:32]
   assign ddrArbiter_io_in_4_burstLength = io_spriteTileRom_burstLength; // @[BurstMemIO.scala 89:19 91:21]
   assign ddrArbiter_io_in_5_rd = spriteDescrambler_io_in_rd; // @[BurstMemIO.scala 89:19 90:12]
-  assign ddrArbiter_io_in_5_addr = _mem_T_7 + io_gameConfig_sprite_romOffset; // @[MemSys.scala 192:75]
+  assign ddrArbiter_io_in_5_addr = _mem_T_7 + io_gameConfig_sprite_romOffset; // @[MemSys.scala 202:75]
   assign ddrArbiter_io_in_6_wr = spriteDescrambler_io_out_wr; // @[BurstMemIO.scala 180:19 181:12]
-  assign ddrArbiter_io_in_6_addr = spriteDescrambler_io_out_addr + 32'h34000000; // @[MemSys.scala 193:40]
+  assign ddrArbiter_io_in_6_addr = spriteDescrambler_io_out_addr + 32'h34000000; // @[MemSys.scala 203:40]
   assign ddrArbiter_io_in_6_din = spriteDescrambler_io_out_din; // @[BurstMemIO.scala 180:19 187:13]
-  assign ddrArbiter_io_out_dout = io_ddr_dout; // @[MemSys.scala 194:5]
-  assign ddrArbiter_io_out_wait_n = io_ddr_wait_n; // @[MemSys.scala 194:5]
-  assign ddrArbiter_io_out_valid = io_ddr_valid; // @[MemSys.scala 194:5]
-  assign ddrArbiter_io_out_burstDone = io_ddr_burstDone; // @[MemSys.scala 194:5]
+  assign ddrArbiter_io_out_dout = io_ddr_dout; // @[MemSys.scala 204:5]
+  assign ddrArbiter_io_out_wait_n = io_ddr_wait_n; // @[MemSys.scala 204:5]
+  assign ddrArbiter_io_out_valid = io_ddr_valid; // @[MemSys.scala 204:5]
+  assign ddrArbiter_io_out_burstDone = io_ddr_burstDone; // @[MemSys.scala 204:5]
   assign sdramArbiter_clock = clock;
   assign sdramArbiter_reset = reset;
   assign sdramArbiter_io_in_0_wr = sdramDownloadBuffer_io_out_wr; // @[BurstMemIO.scala 156:19 158:12]
@@ -6224,10 +6687,10 @@ module MemSys(
   assign sdramArbiter_io_in_8_addr = _mem_T_27[24:0]; // @[BurstMemArbiter.scala 68:67]
   assign sdramArbiter_io_in_9_rd = layerRomCache_2_io_out_rd; // @[BurstMemIO.scala 89:19 90:12]
   assign sdramArbiter_io_in_9_addr = _mem_T_29[24:0]; // @[BurstMemArbiter.scala 68:67]
-  assign sdramArbiter_io_out_dout = io_sdram_dout; // @[MemSys.scala 209:5]
-  assign sdramArbiter_io_out_wait_n = io_sdram_wait_n; // @[MemSys.scala 209:5]
-  assign sdramArbiter_io_out_valid = io_sdram_valid; // @[MemSys.scala 209:5]
-  assign sdramArbiter_io_out_burstDone = io_sdram_burstDone; // @[MemSys.scala 209:5]
+  assign sdramArbiter_io_out_dout = io_sdram_dout; // @[MemSys.scala 219:5]
+  assign sdramArbiter_io_out_wait_n = io_sdram_wait_n; // @[MemSys.scala 219:5]
+  assign sdramArbiter_io_out_valid = io_sdram_valid; // @[MemSys.scala 219:5]
+  assign sdramArbiter_io_out_burstDone = io_sdram_burstDone; // @[MemSys.scala 219:5]
   assign nvramArbiter_clock = clock;
   assign nvramArbiter_reset = reset;
   assign nvramArbiter_io_in_0_rd = io_prog_nvram_rd; // @[AsyncMemArbiter.scala 68:67]
@@ -6238,11 +6701,11 @@ module MemSys(
   assign nvramArbiter_io_in_1_wr = io_eeprom_wr; // @[AsyncMemArbiter.scala 68:67]
   assign nvramArbiter_io_in_1_addr = io_eeprom_addr; // @[AsyncMemArbiter.scala 68:67]
   assign nvramArbiter_io_in_1_din = io_eeprom_din; // @[AsyncMemArbiter.scala 68:67]
-  assign nvramArbiter_io_out_dout = eepromCache_io_in_dout; // @[MemSys.scala 213:50]
-  assign nvramArbiter_io_out_wait_n = eepromCache_io_in_wait_n; // @[MemSys.scala 213:50]
-  assign nvramArbiter_io_out_valid = eepromCache_io_in_valid; // @[MemSys.scala 213:50]
+  assign nvramArbiter_io_out_dout = eepromCache_io_in_dout; // @[MemSys.scala 223:50]
+  assign nvramArbiter_io_out_wait_n = eepromCache_io_in_wait_n; // @[MemSys.scala 223:50]
+  assign nvramArbiter_io_out_valid = eepromCache_io_in_valid; // @[MemSys.scala 223:50]
   always @(posedge clock) begin
-    spriteDescrambler_io_start_REG <= copyDma_io_busy & doSpriteDescramble; // @[MemSys.scala 181:77]
+    spriteDescrambler_io_start_REG <= copyDma_io_busy & doSpriteDescramble; // @[MemSys.scala 191:77]
     if (reset) begin // @[Util.scala 218:28]
       spriteDescrambler_io_start_enableReg <= 1'h0; // @[Util.scala 218:28]
     end else begin
@@ -8339,218 +8802,218 @@ module Main(
   reg [31:0] _RAND_133;
   reg [31:0] _RAND_134;
 `endif // RANDOMIZE_REG_INIT
-  wire  cpu_clock; // @[Main.scala 96:19]
-  wire  cpu_reset; // @[Main.scala 96:19]
-  wire  cpu_io_halt; // @[Main.scala 96:19]
-  wire  cpu_io_as; // @[Main.scala 96:19]
-  wire  cpu_io_rw; // @[Main.scala 96:19]
-  wire  cpu_io_uds; // @[Main.scala 96:19]
-  wire  cpu_io_lds; // @[Main.scala 96:19]
-  wire  cpu_io_dtack; // @[Main.scala 96:19]
-  wire  cpu_io_vpa; // @[Main.scala 96:19]
-  wire [2:0] cpu_io_ipl; // @[Main.scala 96:19]
-  wire [2:0] cpu_io_fc; // @[Main.scala 96:19]
-  wire [22:0] cpu_io_addr; // @[Main.scala 96:19]
-  wire [15:0] cpu_io_din; // @[Main.scala 96:19]
-  wire [15:0] cpu_io_dout; // @[Main.scala 96:19]
-  wire  eeprom_clock; // @[Main.scala 115:22]
-  wire  eeprom_reset; // @[Main.scala 115:22]
-  wire  eeprom_io_mem_rd; // @[Main.scala 115:22]
-  wire  eeprom_io_mem_wr; // @[Main.scala 115:22]
-  wire [6:0] eeprom_io_mem_addr; // @[Main.scala 115:22]
-  wire [15:0] eeprom_io_mem_din; // @[Main.scala 115:22]
-  wire [15:0] eeprom_io_mem_dout; // @[Main.scala 115:22]
-  wire  eeprom_io_mem_wait_n; // @[Main.scala 115:22]
-  wire  eeprom_io_mem_valid; // @[Main.scala 115:22]
-  wire  eeprom_io_serial_cs; // @[Main.scala 115:22]
-  wire  eeprom_io_serial_sck; // @[Main.scala 115:22]
-  wire  eeprom_io_serial_sdi; // @[Main.scala 115:22]
-  wire  eeprom_io_serial_sdo; // @[Main.scala 115:22]
-  wire  mainRam_clock; // @[Main.scala 129:23]
-  wire  mainRam_io_rd; // @[Main.scala 129:23]
-  wire  mainRam_io_wr; // @[Main.scala 129:23]
-  wire [15:0] mainRam_io_addr; // @[Main.scala 129:23]
-  wire [1:0] mainRam_io_mask; // @[Main.scala 129:23]
-  wire [15:0] mainRam_io_din; // @[Main.scala 129:23]
-  wire [15:0] mainRam_io_dout; // @[Main.scala 129:23]
-  wire  spriteRam_clock; // @[Main.scala 153:25]
-  wire  spriteRam_io_clockB; // @[Main.scala 153:25]
-  wire  spriteRam_io_portA_rd; // @[Main.scala 153:25]
-  wire  spriteRam_io_portA_wr; // @[Main.scala 153:25]
-  wire [14:0] spriteRam_io_portA_addr; // @[Main.scala 153:25]
-  wire [1:0] spriteRam_io_portA_mask; // @[Main.scala 153:25]
-  wire [15:0] spriteRam_io_portA_din; // @[Main.scala 153:25]
-  wire [15:0] spriteRam_io_portA_dout; // @[Main.scala 153:25]
-  wire  spriteRam_io_portB_rd; // @[Main.scala 153:25]
-  wire [11:0] spriteRam_io_portB_addr; // @[Main.scala 153:25]
-  wire [127:0] spriteRam_io_portB_dout; // @[Main.scala 153:25]
-  wire  vram8x8_0_clock; // @[Main.scala 166:21]
-  wire  vram8x8_0_io_clockB; // @[Main.scala 166:21]
-  wire  vram8x8_0_io_portA_rd; // @[Main.scala 166:21]
-  wire  vram8x8_0_io_portA_wr; // @[Main.scala 166:21]
-  wire [12:0] vram8x8_0_io_portA_addr; // @[Main.scala 166:21]
-  wire [1:0] vram8x8_0_io_portA_mask; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_0_io_portA_din; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_0_io_portA_dout; // @[Main.scala 166:21]
-  wire [11:0] vram8x8_0_io_portB_addr; // @[Main.scala 166:21]
-  wire [31:0] vram8x8_0_io_portB_dout; // @[Main.scala 166:21]
-  wire  vram8x8_1_clock; // @[Main.scala 166:21]
-  wire  vram8x8_1_io_clockB; // @[Main.scala 166:21]
-  wire  vram8x8_1_io_portA_rd; // @[Main.scala 166:21]
-  wire  vram8x8_1_io_portA_wr; // @[Main.scala 166:21]
-  wire [12:0] vram8x8_1_io_portA_addr; // @[Main.scala 166:21]
-  wire [1:0] vram8x8_1_io_portA_mask; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_1_io_portA_din; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_1_io_portA_dout; // @[Main.scala 166:21]
-  wire [11:0] vram8x8_1_io_portB_addr; // @[Main.scala 166:21]
-  wire [31:0] vram8x8_1_io_portB_dout; // @[Main.scala 166:21]
-  wire  vram8x8_2_clock; // @[Main.scala 166:21]
-  wire  vram8x8_2_io_clockB; // @[Main.scala 166:21]
-  wire  vram8x8_2_io_portA_rd; // @[Main.scala 166:21]
-  wire  vram8x8_2_io_portA_wr; // @[Main.scala 166:21]
-  wire [12:0] vram8x8_2_io_portA_addr; // @[Main.scala 166:21]
-  wire [1:0] vram8x8_2_io_portA_mask; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_2_io_portA_din; // @[Main.scala 166:21]
-  wire [15:0] vram8x8_2_io_portA_dout; // @[Main.scala 166:21]
-  wire [11:0] vram8x8_2_io_portB_addr; // @[Main.scala 166:21]
-  wire [31:0] vram8x8_2_io_portB_dout; // @[Main.scala 166:21]
-  wire  vram16x16_0_clock; // @[Main.scala 181:21]
-  wire  vram16x16_0_io_clockB; // @[Main.scala 181:21]
-  wire  vram16x16_0_io_portA_rd; // @[Main.scala 181:21]
-  wire  vram16x16_0_io_portA_wr; // @[Main.scala 181:21]
-  wire [10:0] vram16x16_0_io_portA_addr; // @[Main.scala 181:21]
-  wire [1:0] vram16x16_0_io_portA_mask; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_0_io_portA_din; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_0_io_portA_dout; // @[Main.scala 181:21]
-  wire [9:0] vram16x16_0_io_portB_addr; // @[Main.scala 181:21]
-  wire [31:0] vram16x16_0_io_portB_dout; // @[Main.scala 181:21]
-  wire  vram16x16_1_clock; // @[Main.scala 181:21]
-  wire  vram16x16_1_io_clockB; // @[Main.scala 181:21]
-  wire  vram16x16_1_io_portA_rd; // @[Main.scala 181:21]
-  wire  vram16x16_1_io_portA_wr; // @[Main.scala 181:21]
-  wire [10:0] vram16x16_1_io_portA_addr; // @[Main.scala 181:21]
-  wire [1:0] vram16x16_1_io_portA_mask; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_1_io_portA_din; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_1_io_portA_dout; // @[Main.scala 181:21]
-  wire [9:0] vram16x16_1_io_portB_addr; // @[Main.scala 181:21]
-  wire [31:0] vram16x16_1_io_portB_dout; // @[Main.scala 181:21]
-  wire  vram16x16_2_clock; // @[Main.scala 181:21]
-  wire  vram16x16_2_io_clockB; // @[Main.scala 181:21]
-  wire  vram16x16_2_io_portA_rd; // @[Main.scala 181:21]
-  wire  vram16x16_2_io_portA_wr; // @[Main.scala 181:21]
-  wire [10:0] vram16x16_2_io_portA_addr; // @[Main.scala 181:21]
-  wire [1:0] vram16x16_2_io_portA_mask; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_2_io_portA_din; // @[Main.scala 181:21]
-  wire [15:0] vram16x16_2_io_portA_dout; // @[Main.scala 181:21]
-  wire [9:0] vram16x16_2_io_portB_addr; // @[Main.scala 181:21]
-  wire [31:0] vram16x16_2_io_portB_dout; // @[Main.scala 181:21]
-  wire  lineRam_0_clock; // @[Main.scala 196:21]
-  wire  lineRam_0_io_clockB; // @[Main.scala 196:21]
-  wire  lineRam_0_io_portA_rd; // @[Main.scala 196:21]
-  wire  lineRam_0_io_portA_wr; // @[Main.scala 196:21]
-  wire [9:0] lineRam_0_io_portA_addr; // @[Main.scala 196:21]
-  wire [1:0] lineRam_0_io_portA_mask; // @[Main.scala 196:21]
-  wire [15:0] lineRam_0_io_portA_din; // @[Main.scala 196:21]
-  wire [15:0] lineRam_0_io_portA_dout; // @[Main.scala 196:21]
-  wire [8:0] lineRam_0_io_portB_addr; // @[Main.scala 196:21]
-  wire [31:0] lineRam_0_io_portB_dout; // @[Main.scala 196:21]
-  wire  lineRam_1_clock; // @[Main.scala 196:21]
-  wire  lineRam_1_io_clockB; // @[Main.scala 196:21]
-  wire  lineRam_1_io_portA_rd; // @[Main.scala 196:21]
-  wire  lineRam_1_io_portA_wr; // @[Main.scala 196:21]
-  wire [9:0] lineRam_1_io_portA_addr; // @[Main.scala 196:21]
-  wire [1:0] lineRam_1_io_portA_mask; // @[Main.scala 196:21]
-  wire [15:0] lineRam_1_io_portA_din; // @[Main.scala 196:21]
-  wire [15:0] lineRam_1_io_portA_dout; // @[Main.scala 196:21]
-  wire [8:0] lineRam_1_io_portB_addr; // @[Main.scala 196:21]
-  wire [31:0] lineRam_1_io_portB_dout; // @[Main.scala 196:21]
-  wire  lineRam_2_clock; // @[Main.scala 196:21]
-  wire  lineRam_2_io_clockB; // @[Main.scala 196:21]
-  wire  lineRam_2_io_portA_rd; // @[Main.scala 196:21]
-  wire  lineRam_2_io_portA_wr; // @[Main.scala 196:21]
-  wire [9:0] lineRam_2_io_portA_addr; // @[Main.scala 196:21]
-  wire [1:0] lineRam_2_io_portA_mask; // @[Main.scala 196:21]
-  wire [15:0] lineRam_2_io_portA_din; // @[Main.scala 196:21]
-  wire [15:0] lineRam_2_io_portA_dout; // @[Main.scala 196:21]
-  wire [8:0] lineRam_2_io_portB_addr; // @[Main.scala 196:21]
-  wire [31:0] lineRam_2_io_portB_dout; // @[Main.scala 196:21]
-  wire  scratchRam_0_clock; // @[Main.scala 210:20]
-  wire  scratchRam_0_io_rd; // @[Main.scala 210:20]
-  wire  scratchRam_0_io_wr; // @[Main.scala 210:20]
-  wire [13:0] scratchRam_0_io_addr; // @[Main.scala 210:20]
-  wire [1:0] scratchRam_0_io_mask; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_0_io_din; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_0_io_dout; // @[Main.scala 210:20]
-  wire  scratchRam_1_clock; // @[Main.scala 210:20]
-  wire  scratchRam_1_io_rd; // @[Main.scala 210:20]
-  wire  scratchRam_1_io_wr; // @[Main.scala 210:20]
-  wire [13:0] scratchRam_1_io_addr; // @[Main.scala 210:20]
-  wire [1:0] scratchRam_1_io_mask; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_1_io_din; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_1_io_dout; // @[Main.scala 210:20]
-  wire  scratchRam_2_clock; // @[Main.scala 210:20]
-  wire  scratchRam_2_io_rd; // @[Main.scala 210:20]
-  wire  scratchRam_2_io_wr; // @[Main.scala 210:20]
-  wire [13:0] scratchRam_2_io_addr; // @[Main.scala 210:20]
-  wire [1:0] scratchRam_2_io_mask; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_2_io_din; // @[Main.scala 210:20]
-  wire [15:0] scratchRam_2_io_dout; // @[Main.scala 210:20]
-  wire  paletteRam_clock; // @[Main.scala 220:26]
-  wire  paletteRam_io_clockB; // @[Main.scala 220:26]
-  wire  paletteRam_io_portA_rd; // @[Main.scala 220:26]
-  wire  paletteRam_io_portA_wr; // @[Main.scala 220:26]
-  wire [14:0] paletteRam_io_portA_addr; // @[Main.scala 220:26]
-  wire [1:0] paletteRam_io_portA_mask; // @[Main.scala 220:26]
-  wire [15:0] paletteRam_io_portA_din; // @[Main.scala 220:26]
-  wire [15:0] paletteRam_io_portA_dout; // @[Main.scala 220:26]
-  wire [14:0] paletteRam_io_portB_addr; // @[Main.scala 220:26]
-  wire [15:0] paletteRam_io_portB_dout; // @[Main.scala 220:26]
-  wire  layerRegs_0_clock; // @[Main.scala 233:22]
-  wire  layerRegs_0_io_mem_wr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_0_io_mem_addr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_0_io_mem_mask; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_0_io_mem_din; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_0_io_mem_dout; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_0_io_regs_0; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_0_io_regs_1; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_0_io_regs_2; // @[Main.scala 233:22]
-  wire  layerRegs_1_clock; // @[Main.scala 233:22]
-  wire  layerRegs_1_io_mem_wr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_1_io_mem_addr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_1_io_mem_mask; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_1_io_mem_din; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_1_io_mem_dout; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_1_io_regs_0; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_1_io_regs_1; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_1_io_regs_2; // @[Main.scala 233:22]
-  wire  layerRegs_2_clock; // @[Main.scala 233:22]
-  wire  layerRegs_2_io_mem_wr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_2_io_mem_addr; // @[Main.scala 233:22]
-  wire [1:0] layerRegs_2_io_mem_mask; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_2_io_mem_din; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_2_io_mem_dout; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_2_io_regs_0; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_2_io_regs_1; // @[Main.scala 233:22]
-  wire [15:0] layerRegs_2_io_regs_2; // @[Main.scala 233:22]
-  wire  spriteRegs_clock; // @[Main.scala 240:26]
-  wire  spriteRegs_io_mem_wr; // @[Main.scala 240:26]
-  wire [2:0] spriteRegs_io_mem_addr; // @[Main.scala 240:26]
-  wire [1:0] spriteRegs_io_mem_mask; // @[Main.scala 240:26]
-  wire [15:0] spriteRegs_io_mem_din; // @[Main.scala 240:26]
-  wire [15:0] spriteRegs_io_regs_0; // @[Main.scala 240:26]
-  wire [15:0] spriteRegs_io_regs_1; // @[Main.scala 240:26]
-  wire [15:0] spriteRegs_io_regs_4; // @[Main.scala 240:26]
-  wire [15:0] spriteRegs_io_regs_5; // @[Main.scala 240:26]
+  wire  cpu_clock; // @[Main.scala 97:19]
+  wire  cpu_reset; // @[Main.scala 97:19]
+  wire  cpu_io_halt; // @[Main.scala 97:19]
+  wire  cpu_io_as; // @[Main.scala 97:19]
+  wire  cpu_io_rw; // @[Main.scala 97:19]
+  wire  cpu_io_uds; // @[Main.scala 97:19]
+  wire  cpu_io_lds; // @[Main.scala 97:19]
+  wire  cpu_io_dtack; // @[Main.scala 97:19]
+  wire  cpu_io_vpa; // @[Main.scala 97:19]
+  wire [2:0] cpu_io_ipl; // @[Main.scala 97:19]
+  wire [2:0] cpu_io_fc; // @[Main.scala 97:19]
+  wire [22:0] cpu_io_addr; // @[Main.scala 97:19]
+  wire [15:0] cpu_io_din; // @[Main.scala 97:19]
+  wire [15:0] cpu_io_dout; // @[Main.scala 97:19]
+  wire  eeprom_clock; // @[Main.scala 116:22]
+  wire  eeprom_reset; // @[Main.scala 116:22]
+  wire  eeprom_io_mem_rd; // @[Main.scala 116:22]
+  wire  eeprom_io_mem_wr; // @[Main.scala 116:22]
+  wire [6:0] eeprom_io_mem_addr; // @[Main.scala 116:22]
+  wire [15:0] eeprom_io_mem_din; // @[Main.scala 116:22]
+  wire [15:0] eeprom_io_mem_dout; // @[Main.scala 116:22]
+  wire  eeprom_io_mem_wait_n; // @[Main.scala 116:22]
+  wire  eeprom_io_mem_valid; // @[Main.scala 116:22]
+  wire  eeprom_io_serial_cs; // @[Main.scala 116:22]
+  wire  eeprom_io_serial_sck; // @[Main.scala 116:22]
+  wire  eeprom_io_serial_sdi; // @[Main.scala 116:22]
+  wire  eeprom_io_serial_sdo; // @[Main.scala 116:22]
+  wire  mainRam_clock; // @[Main.scala 130:23]
+  wire  mainRam_io_rd; // @[Main.scala 130:23]
+  wire  mainRam_io_wr; // @[Main.scala 130:23]
+  wire [15:0] mainRam_io_addr; // @[Main.scala 130:23]
+  wire [1:0] mainRam_io_mask; // @[Main.scala 130:23]
+  wire [15:0] mainRam_io_din; // @[Main.scala 130:23]
+  wire [15:0] mainRam_io_dout; // @[Main.scala 130:23]
+  wire  spriteRam_clock; // @[Main.scala 154:25]
+  wire  spriteRam_io_clockB; // @[Main.scala 154:25]
+  wire  spriteRam_io_portA_rd; // @[Main.scala 154:25]
+  wire  spriteRam_io_portA_wr; // @[Main.scala 154:25]
+  wire [14:0] spriteRam_io_portA_addr; // @[Main.scala 154:25]
+  wire [1:0] spriteRam_io_portA_mask; // @[Main.scala 154:25]
+  wire [15:0] spriteRam_io_portA_din; // @[Main.scala 154:25]
+  wire [15:0] spriteRam_io_portA_dout; // @[Main.scala 154:25]
+  wire  spriteRam_io_portB_rd; // @[Main.scala 154:25]
+  wire [11:0] spriteRam_io_portB_addr; // @[Main.scala 154:25]
+  wire [127:0] spriteRam_io_portB_dout; // @[Main.scala 154:25]
+  wire  vram8x8_0_clock; // @[Main.scala 167:21]
+  wire  vram8x8_0_io_clockB; // @[Main.scala 167:21]
+  wire  vram8x8_0_io_portA_rd; // @[Main.scala 167:21]
+  wire  vram8x8_0_io_portA_wr; // @[Main.scala 167:21]
+  wire [12:0] vram8x8_0_io_portA_addr; // @[Main.scala 167:21]
+  wire [1:0] vram8x8_0_io_portA_mask; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_0_io_portA_din; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_0_io_portA_dout; // @[Main.scala 167:21]
+  wire [11:0] vram8x8_0_io_portB_addr; // @[Main.scala 167:21]
+  wire [31:0] vram8x8_0_io_portB_dout; // @[Main.scala 167:21]
+  wire  vram8x8_1_clock; // @[Main.scala 167:21]
+  wire  vram8x8_1_io_clockB; // @[Main.scala 167:21]
+  wire  vram8x8_1_io_portA_rd; // @[Main.scala 167:21]
+  wire  vram8x8_1_io_portA_wr; // @[Main.scala 167:21]
+  wire [12:0] vram8x8_1_io_portA_addr; // @[Main.scala 167:21]
+  wire [1:0] vram8x8_1_io_portA_mask; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_1_io_portA_din; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_1_io_portA_dout; // @[Main.scala 167:21]
+  wire [11:0] vram8x8_1_io_portB_addr; // @[Main.scala 167:21]
+  wire [31:0] vram8x8_1_io_portB_dout; // @[Main.scala 167:21]
+  wire  vram8x8_2_clock; // @[Main.scala 167:21]
+  wire  vram8x8_2_io_clockB; // @[Main.scala 167:21]
+  wire  vram8x8_2_io_portA_rd; // @[Main.scala 167:21]
+  wire  vram8x8_2_io_portA_wr; // @[Main.scala 167:21]
+  wire [12:0] vram8x8_2_io_portA_addr; // @[Main.scala 167:21]
+  wire [1:0] vram8x8_2_io_portA_mask; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_2_io_portA_din; // @[Main.scala 167:21]
+  wire [15:0] vram8x8_2_io_portA_dout; // @[Main.scala 167:21]
+  wire [11:0] vram8x8_2_io_portB_addr; // @[Main.scala 167:21]
+  wire [31:0] vram8x8_2_io_portB_dout; // @[Main.scala 167:21]
+  wire  vram16x16_0_clock; // @[Main.scala 182:21]
+  wire  vram16x16_0_io_clockB; // @[Main.scala 182:21]
+  wire  vram16x16_0_io_portA_rd; // @[Main.scala 182:21]
+  wire  vram16x16_0_io_portA_wr; // @[Main.scala 182:21]
+  wire [10:0] vram16x16_0_io_portA_addr; // @[Main.scala 182:21]
+  wire [1:0] vram16x16_0_io_portA_mask; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_0_io_portA_din; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_0_io_portA_dout; // @[Main.scala 182:21]
+  wire [9:0] vram16x16_0_io_portB_addr; // @[Main.scala 182:21]
+  wire [31:0] vram16x16_0_io_portB_dout; // @[Main.scala 182:21]
+  wire  vram16x16_1_clock; // @[Main.scala 182:21]
+  wire  vram16x16_1_io_clockB; // @[Main.scala 182:21]
+  wire  vram16x16_1_io_portA_rd; // @[Main.scala 182:21]
+  wire  vram16x16_1_io_portA_wr; // @[Main.scala 182:21]
+  wire [10:0] vram16x16_1_io_portA_addr; // @[Main.scala 182:21]
+  wire [1:0] vram16x16_1_io_portA_mask; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_1_io_portA_din; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_1_io_portA_dout; // @[Main.scala 182:21]
+  wire [9:0] vram16x16_1_io_portB_addr; // @[Main.scala 182:21]
+  wire [31:0] vram16x16_1_io_portB_dout; // @[Main.scala 182:21]
+  wire  vram16x16_2_clock; // @[Main.scala 182:21]
+  wire  vram16x16_2_io_clockB; // @[Main.scala 182:21]
+  wire  vram16x16_2_io_portA_rd; // @[Main.scala 182:21]
+  wire  vram16x16_2_io_portA_wr; // @[Main.scala 182:21]
+  wire [10:0] vram16x16_2_io_portA_addr; // @[Main.scala 182:21]
+  wire [1:0] vram16x16_2_io_portA_mask; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_2_io_portA_din; // @[Main.scala 182:21]
+  wire [15:0] vram16x16_2_io_portA_dout; // @[Main.scala 182:21]
+  wire [9:0] vram16x16_2_io_portB_addr; // @[Main.scala 182:21]
+  wire [31:0] vram16x16_2_io_portB_dout; // @[Main.scala 182:21]
+  wire  lineRam_0_clock; // @[Main.scala 197:21]
+  wire  lineRam_0_io_clockB; // @[Main.scala 197:21]
+  wire  lineRam_0_io_portA_rd; // @[Main.scala 197:21]
+  wire  lineRam_0_io_portA_wr; // @[Main.scala 197:21]
+  wire [9:0] lineRam_0_io_portA_addr; // @[Main.scala 197:21]
+  wire [1:0] lineRam_0_io_portA_mask; // @[Main.scala 197:21]
+  wire [15:0] lineRam_0_io_portA_din; // @[Main.scala 197:21]
+  wire [15:0] lineRam_0_io_portA_dout; // @[Main.scala 197:21]
+  wire [8:0] lineRam_0_io_portB_addr; // @[Main.scala 197:21]
+  wire [31:0] lineRam_0_io_portB_dout; // @[Main.scala 197:21]
+  wire  lineRam_1_clock; // @[Main.scala 197:21]
+  wire  lineRam_1_io_clockB; // @[Main.scala 197:21]
+  wire  lineRam_1_io_portA_rd; // @[Main.scala 197:21]
+  wire  lineRam_1_io_portA_wr; // @[Main.scala 197:21]
+  wire [9:0] lineRam_1_io_portA_addr; // @[Main.scala 197:21]
+  wire [1:0] lineRam_1_io_portA_mask; // @[Main.scala 197:21]
+  wire [15:0] lineRam_1_io_portA_din; // @[Main.scala 197:21]
+  wire [15:0] lineRam_1_io_portA_dout; // @[Main.scala 197:21]
+  wire [8:0] lineRam_1_io_portB_addr; // @[Main.scala 197:21]
+  wire [31:0] lineRam_1_io_portB_dout; // @[Main.scala 197:21]
+  wire  lineRam_2_clock; // @[Main.scala 197:21]
+  wire  lineRam_2_io_clockB; // @[Main.scala 197:21]
+  wire  lineRam_2_io_portA_rd; // @[Main.scala 197:21]
+  wire  lineRam_2_io_portA_wr; // @[Main.scala 197:21]
+  wire [9:0] lineRam_2_io_portA_addr; // @[Main.scala 197:21]
+  wire [1:0] lineRam_2_io_portA_mask; // @[Main.scala 197:21]
+  wire [15:0] lineRam_2_io_portA_din; // @[Main.scala 197:21]
+  wire [15:0] lineRam_2_io_portA_dout; // @[Main.scala 197:21]
+  wire [8:0] lineRam_2_io_portB_addr; // @[Main.scala 197:21]
+  wire [31:0] lineRam_2_io_portB_dout; // @[Main.scala 197:21]
+  wire  scratchRam_0_clock; // @[Main.scala 211:20]
+  wire  scratchRam_0_io_rd; // @[Main.scala 211:20]
+  wire  scratchRam_0_io_wr; // @[Main.scala 211:20]
+  wire [13:0] scratchRam_0_io_addr; // @[Main.scala 211:20]
+  wire [1:0] scratchRam_0_io_mask; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_0_io_din; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_0_io_dout; // @[Main.scala 211:20]
+  wire  scratchRam_1_clock; // @[Main.scala 211:20]
+  wire  scratchRam_1_io_rd; // @[Main.scala 211:20]
+  wire  scratchRam_1_io_wr; // @[Main.scala 211:20]
+  wire [13:0] scratchRam_1_io_addr; // @[Main.scala 211:20]
+  wire [1:0] scratchRam_1_io_mask; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_1_io_din; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_1_io_dout; // @[Main.scala 211:20]
+  wire  scratchRam_2_clock; // @[Main.scala 211:20]
+  wire  scratchRam_2_io_rd; // @[Main.scala 211:20]
+  wire  scratchRam_2_io_wr; // @[Main.scala 211:20]
+  wire [13:0] scratchRam_2_io_addr; // @[Main.scala 211:20]
+  wire [1:0] scratchRam_2_io_mask; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_2_io_din; // @[Main.scala 211:20]
+  wire [15:0] scratchRam_2_io_dout; // @[Main.scala 211:20]
+  wire  paletteRam_clock; // @[Main.scala 221:26]
+  wire  paletteRam_io_clockB; // @[Main.scala 221:26]
+  wire  paletteRam_io_portA_rd; // @[Main.scala 221:26]
+  wire  paletteRam_io_portA_wr; // @[Main.scala 221:26]
+  wire [14:0] paletteRam_io_portA_addr; // @[Main.scala 221:26]
+  wire [1:0] paletteRam_io_portA_mask; // @[Main.scala 221:26]
+  wire [15:0] paletteRam_io_portA_din; // @[Main.scala 221:26]
+  wire [15:0] paletteRam_io_portA_dout; // @[Main.scala 221:26]
+  wire [14:0] paletteRam_io_portB_addr; // @[Main.scala 221:26]
+  wire [15:0] paletteRam_io_portB_dout; // @[Main.scala 221:26]
+  wire  layerRegs_0_clock; // @[Main.scala 234:22]
+  wire  layerRegs_0_io_mem_wr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_0_io_mem_addr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_0_io_mem_mask; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_0_io_mem_din; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_0_io_mem_dout; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_0_io_regs_0; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_0_io_regs_1; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_0_io_regs_2; // @[Main.scala 234:22]
+  wire  layerRegs_1_clock; // @[Main.scala 234:22]
+  wire  layerRegs_1_io_mem_wr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_1_io_mem_addr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_1_io_mem_mask; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_1_io_mem_din; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_1_io_mem_dout; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_1_io_regs_0; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_1_io_regs_1; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_1_io_regs_2; // @[Main.scala 234:22]
+  wire  layerRegs_2_clock; // @[Main.scala 234:22]
+  wire  layerRegs_2_io_mem_wr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_2_io_mem_addr; // @[Main.scala 234:22]
+  wire [1:0] layerRegs_2_io_mem_mask; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_2_io_mem_din; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_2_io_mem_dout; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_2_io_regs_0; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_2_io_regs_1; // @[Main.scala 234:22]
+  wire [15:0] layerRegs_2_io_regs_2; // @[Main.scala 234:22]
+  wire  spriteRegs_clock; // @[Main.scala 241:26]
+  wire  spriteRegs_io_mem_wr; // @[Main.scala 241:26]
+  wire [2:0] spriteRegs_io_mem_addr; // @[Main.scala 241:26]
+  wire [1:0] spriteRegs_io_mem_mask; // @[Main.scala 241:26]
+  wire [15:0] spriteRegs_io_mem_din; // @[Main.scala 241:26]
+  wire [15:0] spriteRegs_io_regs_0; // @[Main.scala 241:26]
+  wire [15:0] spriteRegs_io_regs_1; // @[Main.scala 241:26]
+  wire [15:0] spriteRegs_io_regs_4; // @[Main.scala 241:26]
+  wire [15:0] spriteRegs_io_regs_5; // @[Main.scala 241:26]
   reg  vBlank_r; // @[Reg.scala 19:16]
   reg  vBlank; // @[Reg.scala 19:16]
   reg  vBlankRising_REG; // @[Util.scala 158:44]
   wire  vBlankRising = vBlank & ~vBlankRising_REG; // @[Util.scala 158:33]
-  wire  _pauseReg_T = io_player_0_pause | io_player_1_pause; // @[Main.scala 87:61]
+  wire  _pauseReg_T = io_player_0_pause | io_player_1_pause; // @[Main.scala 88:61]
   reg  pauseReg_REG; // @[Util.scala 158:44]
   wire  _pauseReg_T_2 = _pauseReg_T & ~pauseReg_REG; // @[Util.scala 158:33]
   reg  pauseReg; // @[Util.scala 242:26]
-  reg  videoIrq; // @[Main.scala 90:25]
-  reg  agalletIrq; // @[Main.scala 91:27]
+  reg  videoIrq; // @[Main.scala 91:25]
+  reg  agalletIrq; // @[Main.scala 92:27]
   reg [15:0] dinReg; // @[MemMap.scala 48:23]
   reg  dtackReg; // @[MemMap.scala 49:25]
   reg  readStrobe_REG; // @[Util.scala 158:44]
@@ -8564,37 +9027,38 @@ module Main(
   wire  _lowerWriteStrobe_T_1 = cpu_io_lds & ~lowerWriteStrobe_REG; // @[Util.scala 158:33]
   wire  lowerWriteStrobe = cpu_io_as & _lowerWriteStrobe_T_1 & _upperWriteStrobe_T_3; // @[MemMap.scala 54:57]
   wire  writeStrobe = upperWriteStrobe | lowerWriteStrobe; // @[MemMap.scala 55:38]
-  wire  _cpu_io_ipl_T = videoIrq | io_soundCtrl_irq; // @[Main.scala 101:26]
-  wire  _smnLayerBank_T = io_gameIndex == 4'h9; // @[Main.scala 118:39]
-  wire  _T_272 = io_gameIndex == 4'h5; // @[Main.scala 469:27]
-  wire  _T_325 = io_gameIndex == 4'h7; // @[Main.scala 492:27]
-  wire [15:0] _GEN_1208 = cpu_io_dout; // @[Main.scala 511:46 MemMap.scala 107:15]
-  wire [15:0] _GEN_1250 = io_gameIndex == 4'h7 ? cpu_io_dout : _GEN_1208; // @[Main.scala 492:48 MemMap.scala 107:15]
-  wire [15:0] _GEN_1322 = io_gameIndex == 4'h5 ? cpu_io_dout : _GEN_1250; // @[Main.scala 469:47 MemMap.scala 107:15]
-  wire [15:0] _GEN_1530 = io_gameIndex == 4'h3 ? cpu_io_dout : _GEN_1322; // @[Main.scala 431:47 MemMap.scala 153:15]
-  wire [15:0] _GEN_1599 = io_gameIndex == 4'h1 ? cpu_io_dout : _GEN_1530; // @[Main.scala 413:48 MemMap.scala 153:15]
-  wire [15:0] _GEN_1681 = io_gameIndex == 4'h2 ? cpu_io_dout : _GEN_1599; // @[Main.scala 394:48 MemMap.scala 153:15]
-  wire [15:0] _GEN_1756 = io_gameIndex == 4'h0 ? cpu_io_dout : _GEN_1681; // @[Main.scala 378:48 MemMap.scala 153:15]
-  wire [15:0] eepromMem_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1756; // @[Main.scala 342:81 MemMap.scala 153:15]
-  wire  smnLayerBank = io_gameIndex == 4'h9 & eepromMem_din[8]; // @[Main.scala 118:25]
+  wire  _cpu_io_ipl_T = videoIrq | io_soundCtrl_irq; // @[Main.scala 102:26]
+  wire  _smnLayerBank_T = io_gameIndex == 4'h9; // @[Main.scala 119:39]
+  wire  _T_229 = 4'h6 == io_gameIndex; // @[Main.scala 342:24]
+  wire  _T_271 = 4'h5 == io_gameIndex; // @[Main.scala 342:24]
+  wire [15:0] _GEN_1194 = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1228 = 4'h7 == io_gameIndex ? cpu_io_dout : _GEN_1194; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1301 = 4'h5 == io_gameIndex ? cpu_io_dout : _GEN_1228; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1479 = 4'h3 == io_gameIndex ? cpu_io_dout : _GEN_1301; // @[Main.scala 342:24 MemMap.scala 153:15]
+  wire [15:0] _GEN_1540 = 4'h1 == io_gameIndex ? cpu_io_dout : _GEN_1479; // @[Main.scala 342:24 MemMap.scala 153:15]
+  wire [15:0] _GEN_1614 = 4'h2 == io_gameIndex ? cpu_io_dout : _GEN_1540; // @[Main.scala 342:24 MemMap.scala 153:15]
+  wire [15:0] _GEN_1681 = 4'h0 == io_gameIndex ? cpu_io_dout : _GEN_1614; // @[Main.scala 342:24 MemMap.scala 153:15]
+  wire [15:0] eepromMem_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1681; // @[Main.scala 342:24 MemMap.scala 153:15]
+  wire  smnLayerBank = io_gameIndex == 4'h9 & eepromMem_din[8]; // @[Main.scala 119:25]
+  wire  _cs_T = io_gameIndex == 4'h5; // @[Main.scala 120:29]
   reg  io_tileBank_r; // @[Reg.scala 35:20]
-  wire [23:0] addr_40 = {cpu_io_addr,1'h0}; // @[MemMap.scala 81:25]
-  wire  cs_41 = addr_40 >= 24'h700000 & addr_40 <= 24'h700000; // @[Util.scala 64:67]
-  wire  cs_68 = addr_40 >= 24'hc00000 & addr_40 <= 24'hc00000; // @[Util.scala 64:67]
-  wire  cs_97 = addr_40 >= 24'hd00000 & addr_40 <= 24'hd00000; // @[Util.scala 64:67]
-  wire  cs_125 = addr_40 >= 24'he00000 & addr_40 <= 24'he00000; // @[Util.scala 64:67]
-  wire  cs_226 = addr_40 >= 24'hd00010 & addr_40 <= 24'hd00010; // @[Util.scala 64:67]
-  wire  _eepromMem_wr_T_5 = cs_226 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  cs_280 = addr_40 >= 24'ha00000 & addr_40 <= 24'ha00000; // @[Util.scala 64:67]
-  wire  _GEN_1238 = io_gameIndex == 4'h4 & (cs_280 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 150:14 MemIO.scala 207:8]
-  wire  _GEN_1302 = io_gameIndex == 4'h7 ? cs_97 & writeStrobe : _GEN_1238; // @[Main.scala 492:48 MemMap.scala 150:14]
-  wire  _GEN_1381 = io_gameIndex == 4'h5 ? cs_226 & writeStrobe : _GEN_1302; // @[Main.scala 469:47 MemMap.scala 150:14]
-  wire  _GEN_1453 = io_gameIndex == 4'h6 ? 1'h0 : _GEN_1381; // @[Main.scala 449:44 MemIO.scala 207:8]
-  wire  _GEN_1527 = io_gameIndex == 4'h3 ? cs_125 & writeStrobe : _GEN_1453; // @[Main.scala 431:47 MemMap.scala 150:14]
-  wire  _GEN_1596 = io_gameIndex == 4'h1 ? cs_125 & writeStrobe : _GEN_1527; // @[Main.scala 413:48 MemMap.scala 150:14]
-  wire  _GEN_1678 = io_gameIndex == 4'h2 ? cs_97 & writeStrobe : _GEN_1596; // @[Main.scala 394:48 MemMap.scala 150:14]
-  wire  _GEN_1753 = io_gameIndex == 4'h0 ? cs_68 & writeStrobe : _GEN_1678; // @[Main.scala 378:48 MemMap.scala 150:14]
-  wire  eepromMem_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_41 & writeStrobe : _GEN_1753; // @[Main.scala 342:81 MemMap.scala 150:14]
+  wire [23:0] addr_48 = {cpu_io_addr,1'h0}; // @[MemMap.scala 81:25]
+  wire  cs_49 = addr_48 >= 24'h700000 & addr_48 <= 24'h700000; // @[Util.scala 64:67]
+  wire  cs_72 = addr_48 >= 24'hc00000 & addr_48 <= 24'hc00000; // @[Util.scala 64:67]
+  wire  cs_98 = addr_48 >= 24'hd00000 & addr_48 <= 24'hd00000; // @[Util.scala 64:67]
+  wire  cs_123 = addr_48 >= 24'he00000 & addr_48 <= 24'he00000; // @[Util.scala 64:67]
+  wire  cs_215 = addr_48 >= 24'hd00010 & addr_48 <= 24'hd00010; // @[Util.scala 64:67]
+  wire  _eepromMem_wr_T_5 = cs_215 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  cs_263 = addr_48 >= 24'ha00000 & addr_48 <= 24'ha00000; // @[Util.scala 64:67]
+  wire  _GEN_1219 = 4'h4 == io_gameIndex & (cs_263 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 150:14 MemIO.scala 207:8]
+  wire  _GEN_1278 = 4'h7 == io_gameIndex ? cs_98 & writeStrobe : _GEN_1219; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  _GEN_1346 = 4'h5 == io_gameIndex ? cs_215 & writeStrobe : _GEN_1278; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  _GEN_1410 = 4'h6 == io_gameIndex ? 1'h0 : _GEN_1346; // @[Main.scala 342:24 MemIO.scala 207:8]
+  wire  _GEN_1476 = 4'h3 == io_gameIndex ? cs_123 & writeStrobe : _GEN_1410; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  _GEN_1537 = 4'h1 == io_gameIndex ? cs_123 & writeStrobe : _GEN_1476; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  _GEN_1611 = 4'h2 == io_gameIndex ? cs_98 & writeStrobe : _GEN_1537; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  _GEN_1678 = 4'h0 == io_gameIndex ? cs_72 & writeStrobe : _GEN_1611; // @[Main.scala 342:24 MemMap.scala 150:14]
+  wire  eepromMem_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_49 & writeStrobe : _GEN_1678; // @[Main.scala 342:24 MemMap.scala 150:14]
   reg  eeprom_io_serial_cs_r; // @[Reg.scala 35:20]
   reg  eeprom_io_serial_sck_r; // @[Reg.scala 35:20]
   reg  eeprom_io_serial_sdi_r; // @[Reg.scala 35:20]
@@ -8648,9 +9112,9 @@ module Main(
   reg [8:0] io_gpuMem_layer_2_regs_r_1_scroll_y; // @[Reg.scala 19:16]
   reg  REG; // @[Util.scala 165:45]
   wire  _T_1 = ~vBlank & REG; // @[Util.scala 165:35]
-  wire  _GEN_61 = _T_1 ? 1'h0 : agalletIrq; // @[Main.scala 248:36 249:16 91:27]
-  wire  _GEN_62 = vBlankRising | videoIrq; // @[Main.scala 245:22 246:14 90:25]
-  wire  _GEN_63 = vBlankRising | _GEN_61; // @[Main.scala 245:22 247:16]
+  wire  _GEN_61 = _T_1 ? 1'h0 : agalletIrq; // @[Main.scala 249:36 250:16 92:27]
+  wire  _GEN_62 = vBlankRising | videoIrq; // @[Main.scala 246:22 247:14 91:25]
+  wire  _GEN_63 = vBlankRising | _GEN_61; // @[Main.scala 246:22 248:16]
   reg [21:0] coin1_pulseCounterWrap_value; // @[Counter.scala 40:34]
   wire  coin1_pulseCounterWrap_wrap_wrap = coin1_pulseCounterWrap_value == 22'h30d3ff; // @[Counter.scala 45:24]
   wire [21:0] _coin1_pulseCounterWrap_wrap_value_T_1 = coin1_pulseCounterWrap_value + 22'h1; // @[Counter.scala 46:22]
@@ -8675,1422 +9139,1362 @@ module Main(
   reg  service_s_REG; // @[Util.scala 158:44]
   wire  _service_s_T_1 = io_options_service & ~service_s_REG; // @[Util.scala 158:33]
   wire  _GEN_83 = _service_s_T_1 | service_s_enableReg; // @[Util.scala 218:28 219:{54,66}]
-  wire  _default1_T = ~service_s_enableReg; // @[Main.scala 545:37]
-  wire  _default1_T_1 = ~coin1_s_enableReg; // @[Main.scala 545:47]
-  wire  _default1_T_2 = ~io_player_0_start; // @[Main.scala 545:55]
-  wire [2:0] _default1_T_4 = ~io_player_0_buttons[2:0]; // @[Main.scala 545:73]
-  wire  _default1_T_5 = ~io_player_0_right; // @[Main.scala 545:99]
-  wire  _default1_T_6 = ~io_player_0_left; // @[Main.scala 545:117]
-  wire  _default1_T_7 = ~io_player_0_down; // @[Main.scala 545:134]
-  wire  _default1_T_8 = ~io_player_0_up; // @[Main.scala 545:151]
+  wire  _default1_T = ~service_s_enableReg; // @[Main.scala 527:37]
+  wire  _default1_T_1 = ~coin1_s_enableReg; // @[Main.scala 527:47]
+  wire  _default1_T_2 = ~io_player_0_start; // @[Main.scala 527:55]
+  wire [2:0] _default1_T_4 = ~io_player_0_buttons[2:0]; // @[Main.scala 527:73]
+  wire  _default1_T_5 = ~io_player_0_right; // @[Main.scala 527:99]
+  wire  _default1_T_6 = ~io_player_0_left; // @[Main.scala 527:117]
+  wire  _default1_T_7 = ~io_player_0_down; // @[Main.scala 527:134]
+  wire  _default1_T_8 = ~io_player_0_up; // @[Main.scala 527:151]
   wire [15:0] default1 = {6'h3f,_default1_T,_default1_T_1,_default1_T_2,_default1_T_4,_default1_T_5,_default1_T_6,
     _default1_T_7,_default1_T_8}; // @[Cat.scala 33:92]
-  wire  _default2_T = ~coin2_s_enableReg; // @[Main.scala 546:66]
-  wire  _default2_T_1 = ~io_player_1_start; // @[Main.scala 546:74]
-  wire [2:0] _default2_T_3 = ~io_player_1_buttons[2:0]; // @[Main.scala 546:92]
-  wire  _default2_T_4 = ~io_player_1_right; // @[Main.scala 546:118]
-  wire  _default2_T_5 = ~io_player_1_left; // @[Main.scala 546:136]
-  wire  _default2_T_6 = ~io_player_1_down; // @[Main.scala 546:153]
-  wire  _default2_T_7 = ~io_player_1_up; // @[Main.scala 546:170]
+  wire  _default2_T = ~coin2_s_enableReg; // @[Main.scala 528:66]
+  wire  _default2_T_1 = ~io_player_1_start; // @[Main.scala 528:74]
+  wire [2:0] _default2_T_3 = ~io_player_1_buttons[2:0]; // @[Main.scala 528:92]
+  wire  _default2_T_4 = ~io_player_1_right; // @[Main.scala 528:118]
+  wire  _default2_T_5 = ~io_player_1_left; // @[Main.scala 528:136]
+  wire  _default2_T_6 = ~io_player_1_down; // @[Main.scala 528:153]
+  wire  _default2_T_7 = ~io_player_1_up; // @[Main.scala 528:170]
   wire [15:0] default2 = {4'hf,eeprom_io_serial_sdo,2'h3,_default2_T,_default2_T_1,_default2_T_3,_default2_T_4,
     _default2_T_5,_default2_T_6,_default2_T_7}; // @[Cat.scala 33:92]
-  wire [3:0] _left_T_1 = ~io_player_1_buttons; // @[Main.scala 549:26]
-  wire [3:0] _left_T_7 = ~io_player_0_buttons; // @[Main.scala 549:119]
+  wire [3:0] _left_T_1 = ~io_player_1_buttons; // @[Main.scala 531:26]
+  wire [3:0] _left_T_7 = ~io_player_0_buttons; // @[Main.scala 531:119]
   wire [15:0] _left_T_12 = {_left_T_1,_default2_T_4,_default2_T_5,_default2_T_6,_default2_T_7,_left_T_7,_default1_T_5,
     _default1_T_6,_default1_T_7,_default1_T_8}; // @[Cat.scala 33:92]
   wire [7:0] left_lo_1 = {_default1_T_4,_default1_T_5,_default1_T_6,_default1_T_7,_default1_T_8,_default1_T_2}; // @[Cat.scala 33:92]
   wire [15:0] _left_T_27 = {_default2_T_3,_default2_T_4,_default2_T_5,_default2_T_6,_default2_T_7,_default2_T_1,
     left_lo_1}; // @[Cat.scala 33:92]
-  wire [15:0] _left_T_29 = 4'h6 == io_gameIndex ? _left_T_12 : default1; // @[Mux.scala 81:58]
-  wire [15:0] input0 = 4'h5 == io_gameIndex ? _left_T_27 : _left_T_29; // @[Mux.scala 81:58]
+  wire [15:0] _left_T_29 = _T_229 ? _left_T_12 : default1; // @[Mux.scala 81:58]
+  wire [15:0] input0 = _T_271 ? _left_T_27 : _left_T_29; // @[Mux.scala 81:58]
   wire [11:0] _right_T_5 = {6'h3f,_default2_T_1,_default1_T_2,1'h1,_default1_T,_default2_T,_default1_T_1}; // @[Cat.scala 33:92]
   wire [15:0] _right_T_9 = {8'hff,eeprom_io_serial_sdo,4'hf,_default1_T,_default2_T,_default1_T_1}; // @[Cat.scala 33:92]
-  wire [15:0] _right_T_11 = 4'h6 == io_gameIndex ? {{4'd0}, _right_T_5} : default2; // @[Mux.scala 81:58]
-  wire [15:0] input1 = 4'h5 == io_gameIndex ? _right_T_9 : _right_T_11; // @[Mux.scala 81:58]
+  wire [15:0] _right_T_11 = _T_229 ? {{4'd0}, _right_T_5} : default2; // @[Mux.scala 81:58]
+  wire [15:0] input1 = _T_271 ? _right_T_9 : _right_T_11; // @[Mux.scala 81:58]
+  wire  _io_spriteFrameBufferSwap_T = io_gameIndex == 4'h7; // @[Main.scala 268:61]
   reg  ackLatchReg; // @[Reg.scala 35:20]
   wire  _GEN_85 = io_soundCtrl_ack | ackLatchReg; // @[Reg.scala 36:18 35:20 36:22]
   reg [7:0] ackDataReg; // @[Reg.scala 35:20]
-  wire  cs_1 = addr_40 <= 24'h7ffff; // @[Util.scala 64:72]
+  wire  _T_6 = io_gameIndex == 4'h8 | _smnLayerBank_T | io_gameIndex == 4'h2; // @[Main.scala 315:77]
+  wire  cs_1 = addr_48 <= 24'h7ffff; // @[Util.scala 64:72]
   wire  _GEN_87 = ~cpu_io_as ? 1'h0 : dtackReg; // @[MemMap.scala 226:{19,30} 49:25]
   wire [15:0] _GEN_88 = cs_1 & cpu_io_rw & io_progRom_valid ? io_progRom_dout : dinReg; // @[MemMap.scala 130:39 131:16 48:23]
   wire  _GEN_89 = cs_1 & cpu_io_rw & io_progRom_valid | _GEN_87; // @[MemMap.scala 130:39 132:18]
   wire  _GEN_90 = ~cpu_io_as ? 1'h0 : _GEN_89; // @[MemMap.scala 226:{19,30}]
   wire  _GEN_91 = cs_1 & writeStrobe | _GEN_90; // @[MemMap.scala 192:31 194:18]
-  wire  cs_3 = addr_40 >= 24'h100000 & addr_40 <= 24'h10ffff; // @[Util.scala 64:67]
-  wire  _GEN_92 = ~cpu_io_as ? 1'h0 : _GEN_91; // @[MemMap.scala 226:{19,30}]
-  wire [1:0] _mainRam_io_mask_T = {cpu_io_uds,cpu_io_lds}; // @[MemMap.scala 106:27]
-  wire [15:0] _GEN_93 = cs_3 ? mainRam_io_dout : _GEN_88; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_94 = cs_3 | _GEN_92; // @[MemMap.scala 108:16 110:18]
-  wire  cs_4 = addr_40 >= 24'h200000 & addr_40 <= 24'h3fffff; // @[Util.scala 64:67]
+  wire  cs_3 = addr_48 <= 24'hfffff; // @[Util.scala 64:72]
+  wire [15:0] _GEN_93 = cs_3 & cpu_io_rw & io_progRom_valid ? io_progRom_dout : dinReg; // @[MemMap.scala 130:39 131:16 48:23]
+  wire  _GEN_94 = cs_3 & cpu_io_rw & io_progRom_valid | _GEN_87; // @[MemMap.scala 130:39 132:18]
   wire  _GEN_95 = ~cpu_io_as ? 1'h0 : _GEN_94; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_96 = cs_4 & cpu_io_rw & io_highProgRom_valid ? io_highProgRom_dout : _GEN_93; // @[MemMap.scala 130:39 131:16]
-  wire  _GEN_97 = cs_4 & cpu_io_rw & io_highProgRom_valid | _GEN_95; // @[MemMap.scala 130:39 132:18]
-  wire  _GEN_98 = ~cpu_io_as ? 1'h0 : _GEN_97; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_99 = cs_4 & writeStrobe | _GEN_98; // @[MemMap.scala 192:31 194:18]
-  wire  cs_6 = addr_40 >= 24'h408000 & addr_40 <= 24'h40bfff; // @[Util.scala 64:67]
-  wire  _GEN_100 = ~cpu_io_as ? 1'h0 : _GEN_99; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_101 = cs_6 ? paletteRam_io_portA_dout : _GEN_96; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_102 = cs_6 | _GEN_100; // @[MemMap.scala 108:16 110:18]
-  wire  cs_7 = addr_40 >= 24'h400000 & addr_40 <= 24'h407fff; // @[Util.scala 64:67]
-  wire  _GEN_103 = ~cpu_io_as ? 1'h0 : _GEN_102; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_105 = readStrobe ? tmp : _GEN_101; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_107 = cs_7 ? _GEN_105 : _GEN_101; // @[MemMap.scala 164:16]
-  wire  _GEN_109 = cs_7 | _GEN_103; // @[MemMap.scala 164:16 170:18]
-  wire  cs_8 = addr_40 >= 24'h40c000 & addr_40 <= 24'h40ffff; // @[Util.scala 64:67]
-  wire  _GEN_110 = ~cpu_io_as ? 1'h0 : _GEN_109; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_1; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_112 = readStrobe ? tmp_1 : _GEN_107; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_114 = cs_8 ? _GEN_112 : _GEN_107; // @[MemMap.scala 164:16]
-  wire  _GEN_116 = cs_8 | _GEN_110; // @[MemMap.scala 164:16 170:18]
-  wire  cs_9 = addr_40 >= 24'h410000 & addr_40 <= 24'h410001; // @[Util.scala 64:67]
-  wire  _GEN_117 = ~cpu_io_as ? 1'h0 : _GEN_116; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_2; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_119 = readStrobe ? tmp_2 : _GEN_114; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_121 = cs_9 ? _GEN_119 : _GEN_114; // @[MemMap.scala 164:16]
-  wire  _GEN_123 = cs_9 | _GEN_117; // @[MemMap.scala 164:16 170:18]
-  wire  cs_10 = addr_40 >= 24'h510000 & addr_40 <= 24'h510001; // @[Util.scala 64:67]
-  wire  _GEN_124 = ~cpu_io_as ? 1'h0 : _GEN_123; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_3; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_126 = readStrobe ? tmp_3 : _GEN_121; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_128 = cs_10 ? _GEN_126 : _GEN_121; // @[MemMap.scala 164:16]
-  wire  _GEN_130 = cs_10 | _GEN_124; // @[MemMap.scala 164:16 170:18]
-  wire  cs_11 = addr_40 >= 24'h908000 & addr_40 <= 24'h908001; // @[Util.scala 64:67]
-  wire  _GEN_131 = ~cpu_io_as ? 1'h0 : _GEN_130; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_4; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_133 = readStrobe ? tmp_4 : _GEN_128; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_135 = cs_11 ? _GEN_133 : _GEN_128; // @[MemMap.scala 164:16]
-  wire  _GEN_137 = cs_11 | _GEN_131; // @[MemMap.scala 164:16 170:18]
-  wire [23:0] offset_11 = addr_40 - 24'h800000; // @[MemMap.scala 84:23]
-  wire  cs_12 = addr_40 >= 24'h800000 & addr_40 <= 24'h800fff; // @[Util.scala 64:67]
-  wire  _GEN_138 = ~cpu_io_as ? 1'h0 : _GEN_137; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_139 = cs_12 ? vram16x16_0_io_portA_dout : _GEN_135; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_140 = cs_12 | _GEN_138; // @[MemMap.scala 108:16 110:18]
-  wire  cs_13 = addr_40 >= 24'h801000 & addr_40 <= 24'h8017ff; // @[Util.scala 64:67]
-  wire  _GEN_141 = ~cpu_io_as ? 1'h0 : _GEN_140; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_142 = cs_13 ? lineRam_0_io_portA_dout : _GEN_139; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_143 = cs_13 | _GEN_141; // @[MemMap.scala 108:16 110:18]
-  wire  cs_14 = addr_40 >= 24'h801800 & addr_40 <= 24'h803fff; // @[Util.scala 64:67]
-  wire  _GEN_144 = ~cpu_io_as ? 1'h0 : _GEN_143; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_5; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_146 = readStrobe ? tmp_5 : _GEN_142; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_148 = cs_14 ? _GEN_146 : _GEN_142; // @[MemMap.scala 164:16]
-  wire  _GEN_150 = cs_14 | _GEN_144; // @[MemMap.scala 164:16 170:18]
-  wire  cs_15 = addr_40 >= 24'h804000 & addr_40 <= 24'h807fff; // @[Util.scala 64:67]
-  wire  _GEN_151 = ~cpu_io_as ? 1'h0 : _GEN_150; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_152 = cs_15 ? vram8x8_0_io_portA_dout : _GEN_148; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_153 = cs_15 | _GEN_151; // @[MemMap.scala 108:16 110:18]
-  wire  cs_16 = addr_40 >= 24'h808000 & addr_40 <= 24'h80ffff; // @[Util.scala 64:67]
-  wire  _GEN_154 = ~cpu_io_as ? 1'h0 : _GEN_153; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_6; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_156 = readStrobe ? tmp_6 : _GEN_152; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_158 = cs_16 ? _GEN_156 : _GEN_152; // @[MemMap.scala 164:16]
-  wire  _GEN_160 = cs_16 | _GEN_154; // @[MemMap.scala 164:16 170:18]
-  wire  cs_17 = addr_40 >= 24'h880000 & addr_40 <= 24'h880fff; // @[Util.scala 64:67]
-  wire  _GEN_161 = ~cpu_io_as ? 1'h0 : _GEN_160; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_162 = cs_17 ? vram16x16_1_io_portA_dout : _GEN_158; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_163 = cs_17 | _GEN_161; // @[MemMap.scala 108:16 110:18]
-  wire  cs_18 = addr_40 >= 24'h881000 & addr_40 <= 24'h8817ff; // @[Util.scala 64:67]
+  wire  _GEN_96 = cs_3 & writeStrobe | _GEN_95; // @[MemMap.scala 192:31 194:18]
+  wire  _GEN_97 = io_gameIndex == 4'h8 | _smnLayerBank_T | io_gameIndex == 4'h2 ? _GEN_91 : _GEN_96; // @[Main.scala 315:114]
+  wire [23:0] _GEN_101 = io_gameIndex == 4'h8 | _smnLayerBank_T | io_gameIndex == 4'h2 ? addr_48 : addr_48; // @[Main.scala 315:114 MemMap.scala 129:{16,16}]
+  wire [15:0] _GEN_102 = io_gameIndex == 4'h8 | _smnLayerBank_T | io_gameIndex == 4'h2 ? _GEN_88 : _GEN_93; // @[Main.scala 315:114]
+  wire  cs_5 = addr_48 >= 24'h200000 & addr_48 <= 24'h20ffff; // @[Util.scala 64:67]
+  wire  _GEN_103 = ~cpu_io_as ? 1'h0 : _GEN_97; // @[MemMap.scala 226:{19,30}]
+  wire [1:0] _mainRam_io_mask_T = {cpu_io_uds,cpu_io_lds}; // @[MemMap.scala 106:27]
+  wire [15:0] _GEN_104 = cs_5 ? mainRam_io_dout : _GEN_102; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_105 = cs_5 | _GEN_103; // @[MemMap.scala 108:16 110:18]
+  wire [23:0] offset_5 = addr_48 - 24'h300000; // @[MemMap.scala 84:23]
+  wire  cs_6 = addr_48 >= 24'h300000 & addr_48 <= 24'h30ffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_107 = cs_6 ? mainRam_io_dout : _GEN_102; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_108 = cs_6 | _GEN_103; // @[MemMap.scala 108:16 110:18]
+  wire  cs_7 = addr_48 >= 24'h100000 & addr_48 <= 24'h10ffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_110 = cs_7 ? mainRam_io_dout : _GEN_102; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_111 = cs_7 | _GEN_103; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_112 = _io_spriteFrameBufferSwap_T ? _GEN_108 : _GEN_111; // @[Main.scala 327:48]
+  wire  _GEN_115 = _io_spriteFrameBufferSwap_T ? cs_6 & readStrobe : cs_7 & readStrobe; // @[Main.scala 327:48 MemMap.scala 103:{14,14}]
+  wire  _GEN_116 = _io_spriteFrameBufferSwap_T ? cs_6 & writeStrobe : cs_7 & writeStrobe; // @[Main.scala 327:48 MemMap.scala 104:{14,14}]
+  wire [22:0] _GEN_117 = cpu_io_addr; // @[Main.scala 327:48 MemMap.scala 105:{16,16}]
+  wire [1:0] _GEN_118 = _io_spriteFrameBufferSwap_T ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 327:48 MemMap.scala 106:{16,16}]
+  wire [15:0] _GEN_120 = _io_spriteFrameBufferSwap_T ? _GEN_107 : _GEN_110; // @[Main.scala 327:48]
+  wire  _GEN_121 = _cs_T ? _GEN_105 : _GEN_112; // @[Main.scala 325:41]
+  wire [22:0] _GEN_126 = _cs_T ? cpu_io_addr : _GEN_117; // @[Main.scala 325:41 MemMap.scala 105:16]
+  wire [15:0] _GEN_129 = _cs_T ? _GEN_104 : _GEN_120; // @[Main.scala 325:41]
+  wire  cs_8 = addr_48 >= 24'hf00000 & addr_48 <= 24'hf0ffff; // @[Util.scala 64:67]
+  wire  _GEN_130 = ~cpu_io_as ? 1'h0 : _GEN_121; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_131 = cs_8 ? spriteRam_io_portA_dout : _GEN_129; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_132 = cs_8 | _GEN_130; // @[MemMap.scala 108:16 110:18]
+  wire  cs_9 = addr_48 >= 24'h500000 & addr_48 <= 24'h50ffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_134 = cs_9 ? spriteRam_io_portA_dout : _GEN_129; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_135 = cs_9 | _GEN_130; // @[MemMap.scala 108:16 110:18]
+  wire  cs_10 = addr_48 >= 24'h400000 & addr_48 <= 24'h40ffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_137 = cs_10 ? spriteRam_io_portA_dout : _GEN_129; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_138 = cs_10 | _GEN_130; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_139 = _T_6 ? _GEN_135 : _GEN_138; // @[Main.scala 336:119]
+  wire  _GEN_142 = _T_6 ? cs_9 & readStrobe : cs_10 & readStrobe; // @[Main.scala 336:119 MemMap.scala 103:{14,14}]
+  wire  _GEN_143 = _T_6 ? cs_9 & writeStrobe : cs_10 & writeStrobe; // @[Main.scala 336:119 MemMap.scala 104:{14,14}]
+  wire [1:0] _GEN_145 = _T_6 ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 336:119 MemMap.scala 106:{16,16}]
+  wire [15:0] _GEN_147 = _T_6 ? _GEN_134 : _GEN_137; // @[Main.scala 336:119]
+  wire  _GEN_148 = _io_spriteFrameBufferSwap_T ? _GEN_132 : _GEN_139; // @[Main.scala 334:42]
+  wire [22:0] _GEN_153 = _io_spriteFrameBufferSwap_T ? cpu_io_addr : _GEN_117; // @[Main.scala 334:42 MemMap.scala 105:16]
+  wire [15:0] _GEN_156 = _io_spriteFrameBufferSwap_T ? _GEN_131 : _GEN_147; // @[Main.scala 334:42]
+  wire  _GEN_157 = ~cpu_io_as ? 1'h0 : _GEN_148; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_158 = cs_1 & writeStrobe | _GEN_157; // @[MemMap.scala 192:31 194:18]
+  wire  cs_12 = addr_48 >= 24'h200000 & addr_48 <= 24'h3fffff; // @[Util.scala 64:67]
+  wire  _GEN_159 = ~cpu_io_as ? 1'h0 : _GEN_158; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_160 = cs_12 & cpu_io_rw & io_highProgRom_valid ? io_highProgRom_dout : _GEN_156; // @[MemMap.scala 130:39 131:16]
+  wire  _GEN_161 = cs_12 & cpu_io_rw & io_highProgRom_valid | _GEN_159; // @[MemMap.scala 130:39 132:18]
+  wire  _GEN_162 = ~cpu_io_as ? 1'h0 : _GEN_161; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_163 = cs_12 & writeStrobe | _GEN_162; // @[MemMap.scala 192:31 194:18]
+  wire  cs_14 = addr_48 >= 24'h408000 & addr_48 <= 24'h40bfff; // @[Util.scala 64:67]
   wire  _GEN_164 = ~cpu_io_as ? 1'h0 : _GEN_163; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_165 = cs_18 ? lineRam_1_io_portA_dout : _GEN_162; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_166 = cs_18 | _GEN_164; // @[MemMap.scala 108:16 110:18]
-  wire  cs_19 = addr_40 >= 24'h881800 & addr_40 <= 24'h883fff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_165 = cs_14 ? paletteRam_io_portA_dout : _GEN_160; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_166 = cs_14 | _GEN_164; // @[MemMap.scala 108:16 110:18]
+  wire  cs_15 = addr_48 >= 24'h400000 & addr_48 <= 24'h407fff; // @[Util.scala 64:67]
   wire  _GEN_167 = ~cpu_io_as ? 1'h0 : _GEN_166; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_7; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_169 = readStrobe ? tmp_7 : _GEN_165; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_171 = cs_19 ? _GEN_169 : _GEN_165; // @[MemMap.scala 164:16]
-  wire  _GEN_173 = cs_19 | _GEN_167; // @[MemMap.scala 164:16 170:18]
-  wire  cs_20 = addr_40 >= 24'h884000 & addr_40 <= 24'h887fff; // @[Util.scala 64:67]
+  reg [15:0] tmp; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_169 = readStrobe ? tmp : _GEN_165; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_171 = cs_15 ? _GEN_169 : _GEN_165; // @[MemMap.scala 164:16]
+  wire  _GEN_173 = cs_15 | _GEN_167; // @[MemMap.scala 164:16 170:18]
+  wire  cs_16 = addr_48 >= 24'h40c000 & addr_48 <= 24'h40ffff; // @[Util.scala 64:67]
   wire  _GEN_174 = ~cpu_io_as ? 1'h0 : _GEN_173; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_175 = cs_20 ? vram8x8_1_io_portA_dout : _GEN_171; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_176 = cs_20 | _GEN_174; // @[MemMap.scala 108:16 110:18]
-  wire  cs_21 = addr_40 >= 24'h888000 & addr_40 <= 24'h88ffff; // @[Util.scala 64:67]
-  wire  _GEN_177 = ~cpu_io_as ? 1'h0 : _GEN_176; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_1; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_176 = readStrobe ? tmp_1 : _GEN_171; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_178 = cs_16 ? _GEN_176 : _GEN_171; // @[MemMap.scala 164:16]
+  wire  _GEN_180 = cs_16 | _GEN_174; // @[MemMap.scala 164:16 170:18]
+  wire  cs_17 = addr_48 >= 24'h410000 & addr_48 <= 24'h410001; // @[Util.scala 64:67]
+  wire  _GEN_181 = ~cpu_io_as ? 1'h0 : _GEN_180; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_2; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_183 = readStrobe ? tmp_2 : _GEN_178; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_185 = cs_17 ? _GEN_183 : _GEN_178; // @[MemMap.scala 164:16]
+  wire  _GEN_187 = cs_17 | _GEN_181; // @[MemMap.scala 164:16 170:18]
+  wire  cs_18 = addr_48 >= 24'h510000 & addr_48 <= 24'h510001; // @[Util.scala 64:67]
+  wire  _GEN_188 = ~cpu_io_as ? 1'h0 : _GEN_187; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_3; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_190 = readStrobe ? tmp_3 : _GEN_185; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_192 = cs_18 ? _GEN_190 : _GEN_185; // @[MemMap.scala 164:16]
+  wire  _GEN_194 = cs_18 | _GEN_188; // @[MemMap.scala 164:16 170:18]
+  wire  cs_19 = addr_48 >= 24'h908000 & addr_48 <= 24'h908001; // @[Util.scala 64:67]
+  wire  _GEN_195 = ~cpu_io_as ? 1'h0 : _GEN_194; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_4; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_197 = readStrobe ? tmp_4 : _GEN_192; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_199 = cs_19 ? _GEN_197 : _GEN_192; // @[MemMap.scala 164:16]
+  wire  _GEN_201 = cs_19 | _GEN_195; // @[MemMap.scala 164:16 170:18]
+  wire [23:0] offset_19 = addr_48 - 24'h800000; // @[MemMap.scala 84:23]
+  wire  cs_20 = addr_48 >= 24'h800000 & addr_48 <= 24'h800fff; // @[Util.scala 64:67]
+  wire  _GEN_202 = ~cpu_io_as ? 1'h0 : _GEN_201; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_203 = cs_20 ? vram16x16_0_io_portA_dout : _GEN_199; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_204 = cs_20 | _GEN_202; // @[MemMap.scala 108:16 110:18]
+  wire  cs_21 = addr_48 >= 24'h801000 & addr_48 <= 24'h8017ff; // @[Util.scala 64:67]
+  wire  _GEN_205 = ~cpu_io_as ? 1'h0 : _GEN_204; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_206 = cs_21 ? lineRam_0_io_portA_dout : _GEN_203; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_207 = cs_21 | _GEN_205; // @[MemMap.scala 108:16 110:18]
+  wire  cs_22 = addr_48 >= 24'h801800 & addr_48 <= 24'h803fff; // @[Util.scala 64:67]
+  wire  _GEN_208 = ~cpu_io_as ? 1'h0 : _GEN_207; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_5; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_210 = readStrobe ? tmp_5 : _GEN_206; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_212 = cs_22 ? _GEN_210 : _GEN_206; // @[MemMap.scala 164:16]
+  wire  _GEN_214 = cs_22 | _GEN_208; // @[MemMap.scala 164:16 170:18]
+  wire  cs_23 = addr_48 >= 24'h804000 & addr_48 <= 24'h807fff; // @[Util.scala 64:67]
+  wire  _GEN_215 = ~cpu_io_as ? 1'h0 : _GEN_214; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_216 = cs_23 ? vram8x8_0_io_portA_dout : _GEN_212; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_217 = cs_23 | _GEN_215; // @[MemMap.scala 108:16 110:18]
+  wire  cs_24 = addr_48 >= 24'h808000 & addr_48 <= 24'h80ffff; // @[Util.scala 64:67]
+  wire  _GEN_218 = ~cpu_io_as ? 1'h0 : _GEN_217; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_6; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_220 = readStrobe ? tmp_6 : _GEN_216; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_222 = cs_24 ? _GEN_220 : _GEN_216; // @[MemMap.scala 164:16]
+  wire  _GEN_224 = cs_24 | _GEN_218; // @[MemMap.scala 164:16 170:18]
+  wire  cs_25 = addr_48 >= 24'h880000 & addr_48 <= 24'h880fff; // @[Util.scala 64:67]
+  wire  _GEN_225 = ~cpu_io_as ? 1'h0 : _GEN_224; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_226 = cs_25 ? vram16x16_1_io_portA_dout : _GEN_222; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_227 = cs_25 | _GEN_225; // @[MemMap.scala 108:16 110:18]
+  wire  cs_26 = addr_48 >= 24'h881000 & addr_48 <= 24'h8817ff; // @[Util.scala 64:67]
+  wire  _GEN_228 = ~cpu_io_as ? 1'h0 : _GEN_227; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_229 = cs_26 ? lineRam_1_io_portA_dout : _GEN_226; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_230 = cs_26 | _GEN_228; // @[MemMap.scala 108:16 110:18]
+  wire  cs_27 = addr_48 >= 24'h881800 & addr_48 <= 24'h883fff; // @[Util.scala 64:67]
+  wire  _GEN_231 = ~cpu_io_as ? 1'h0 : _GEN_230; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_7; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_233 = readStrobe ? tmp_7 : _GEN_229; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_235 = cs_27 ? _GEN_233 : _GEN_229; // @[MemMap.scala 164:16]
+  wire  _GEN_237 = cs_27 | _GEN_231; // @[MemMap.scala 164:16 170:18]
+  wire  cs_28 = addr_48 >= 24'h884000 & addr_48 <= 24'h887fff; // @[Util.scala 64:67]
+  wire  _GEN_238 = ~cpu_io_as ? 1'h0 : _GEN_237; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_239 = cs_28 ? vram8x8_1_io_portA_dout : _GEN_235; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_240 = cs_28 | _GEN_238; // @[MemMap.scala 108:16 110:18]
+  wire  cs_29 = addr_48 >= 24'h888000 & addr_48 <= 24'h88ffff; // @[Util.scala 64:67]
+  wire  _GEN_241 = ~cpu_io_as ? 1'h0 : _GEN_240; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_8; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_179 = readStrobe ? tmp_8 : _GEN_175; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_181 = cs_21 ? _GEN_179 : _GEN_175; // @[MemMap.scala 164:16]
-  wire  _GEN_183 = cs_21 | _GEN_177; // @[MemMap.scala 164:16 170:18]
-  wire [23:0] offset_21 = addr_40 - 24'h900000; // @[MemMap.scala 84:23]
-  wire  cs_22 = addr_40 >= 24'h900000 & addr_40 <= 24'h900fff; // @[Util.scala 64:67]
-  wire  _GEN_184 = ~cpu_io_as ? 1'h0 : _GEN_183; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_185 = cs_22 ? vram16x16_2_io_portA_dout : _GEN_181; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_186 = cs_22 | _GEN_184; // @[MemMap.scala 108:16 110:18]
-  wire  cs_23 = addr_40 >= 24'h901000 & addr_40 <= 24'h9017ff; // @[Util.scala 64:67]
-  wire  _GEN_187 = ~cpu_io_as ? 1'h0 : _GEN_186; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_188 = cs_23 ? lineRam_2_io_portA_dout : _GEN_185; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_189 = cs_23 | _GEN_187; // @[MemMap.scala 108:16 110:18]
-  wire  cs_24 = addr_40 >= 24'h901800 & addr_40 <= 24'h903fff; // @[Util.scala 64:67]
-  wire  _GEN_190 = ~cpu_io_as ? 1'h0 : _GEN_189; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_243 = readStrobe ? tmp_8 : _GEN_239; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_245 = cs_29 ? _GEN_243 : _GEN_239; // @[MemMap.scala 164:16]
+  wire  _GEN_247 = cs_29 | _GEN_241; // @[MemMap.scala 164:16 170:18]
+  wire [23:0] offset_29 = addr_48 - 24'h900000; // @[MemMap.scala 84:23]
+  wire  cs_30 = addr_48 >= 24'h900000 & addr_48 <= 24'h900fff; // @[Util.scala 64:67]
+  wire  _GEN_248 = ~cpu_io_as ? 1'h0 : _GEN_247; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_249 = cs_30 ? vram16x16_2_io_portA_dout : _GEN_245; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_250 = cs_30 | _GEN_248; // @[MemMap.scala 108:16 110:18]
+  wire  cs_31 = addr_48 >= 24'h901000 & addr_48 <= 24'h9017ff; // @[Util.scala 64:67]
+  wire  _GEN_251 = ~cpu_io_as ? 1'h0 : _GEN_250; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_252 = cs_31 ? lineRam_2_io_portA_dout : _GEN_249; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_253 = cs_31 | _GEN_251; // @[MemMap.scala 108:16 110:18]
+  wire  cs_32 = addr_48 >= 24'h901800 & addr_48 <= 24'h903fff; // @[Util.scala 64:67]
+  wire  _GEN_254 = ~cpu_io_as ? 1'h0 : _GEN_253; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_9; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_192 = readStrobe ? tmp_9 : _GEN_188; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_194 = cs_24 ? _GEN_192 : _GEN_188; // @[MemMap.scala 164:16]
-  wire  _GEN_196 = cs_24 | _GEN_190; // @[MemMap.scala 164:16 170:18]
-  wire  cs_25 = addr_40 >= 24'h904000 & addr_40 <= 24'h907fff; // @[Util.scala 64:67]
-  wire  _GEN_197 = ~cpu_io_as ? 1'h0 : _GEN_196; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_198 = cs_25 ? vram8x8_2_io_portA_dout : _GEN_194; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_199 = cs_25 | _GEN_197; // @[MemMap.scala 108:16 110:18]
-  wire  cs_26 = addr_40 >= 24'h908000 & addr_40 <= 24'h90ffff; // @[Util.scala 64:67]
-  wire  _GEN_200 = ~cpu_io_as ? 1'h0 : _GEN_199; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_256 = readStrobe ? tmp_9 : _GEN_252; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_258 = cs_32 ? _GEN_256 : _GEN_252; // @[MemMap.scala 164:16]
+  wire  _GEN_260 = cs_32 | _GEN_254; // @[MemMap.scala 164:16 170:18]
+  wire  cs_33 = addr_48 >= 24'h904000 & addr_48 <= 24'h907fff; // @[Util.scala 64:67]
+  wire  _GEN_261 = ~cpu_io_as ? 1'h0 : _GEN_260; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_262 = cs_33 ? vram8x8_2_io_portA_dout : _GEN_258; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_263 = cs_33 | _GEN_261; // @[MemMap.scala 108:16 110:18]
+  wire  cs_34 = addr_48 >= 24'h908000 & addr_48 <= 24'h90ffff; // @[Util.scala 64:67]
+  wire  _GEN_264 = ~cpu_io_as ? 1'h0 : _GEN_263; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_10; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_202 = readStrobe ? tmp_10 : _GEN_198; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_204 = cs_26 ? _GEN_202 : _GEN_198; // @[MemMap.scala 164:16]
-  wire  _GEN_206 = cs_26 | _GEN_200; // @[MemMap.scala 164:16 170:18]
-  wire [23:0] offset_26 = addr_40 - 24'hb80000; // @[MemMap.scala 84:23]
-  wire  cs_27 = addr_40 >= 24'hb80000 & addr_40 <= 24'hb80007; // @[Util.scala 64:67]
-  wire  _GEN_207 = ~cpu_io_as ? 1'h0 : _GEN_206; // @[MemMap.scala 226:{19,30}]
-  wire  dinReg_a = offset_26 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _dinReg_T_2 = ~dinReg_a; // @[Main.scala 259:9]
-  wire  _dinReg_T_4 = ~videoIrq; // @[Main.scala 259:17]
+  wire [15:0] _GEN_266 = readStrobe ? tmp_10 : _GEN_262; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_268 = cs_34 ? _GEN_266 : _GEN_262; // @[MemMap.scala 164:16]
+  wire  _GEN_270 = cs_34 | _GEN_264; // @[MemMap.scala 164:16 170:18]
+  wire [23:0] offset_34 = addr_48 - 24'hb80000; // @[MemMap.scala 84:23]
+  wire  cs_35 = addr_48 >= 24'hb80000 & addr_48 <= 24'hb80007; // @[Util.scala 64:67]
+  wire  _GEN_271 = ~cpu_io_as ? 1'h0 : _GEN_270; // @[MemMap.scala 226:{19,30}]
+  wire  dinReg_a = offset_34 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _dinReg_T_2 = ~dinReg_a; // @[Main.scala 260:9]
+  wire  _dinReg_T_4 = ~videoIrq; // @[Main.scala 260:17]
   wire [2:0] _dinReg_T_5 = {_dinReg_T_2,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire [15:0] _GEN_212 = cs_27 & readStrobe ? {{13'd0}, _dinReg_T_5} : _GEN_204; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_213 = cs_27 & readStrobe | _GEN_207; // @[MemMap.scala 180:30 182:18]
-  wire  cs_28 = addr_40 >= 24'hb80000 & addr_40 <= 24'hb8000f; // @[Util.scala 64:67]
-  wire  _GEN_214 = ~cpu_io_as ? 1'h0 : _GEN_213; // @[MemMap.scala 226:{19,30}]
-  wire  mem_wr = cs_28 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_215 = cs_28 & _upperWriteStrobe_T_3 | _GEN_214; // @[MemMap.scala 154:{27,38}]
-  wire  cs_29 = addr_40 >= 24'hb80008 & addr_40 <= 24'hb80008; // @[Util.scala 64:67]
-  wire  _GEN_216 = ~cpu_io_as ? 1'h0 : _GEN_215; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_217 = cs_29 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_218 = cs_29 & writeStrobe | _GEN_216; // @[MemMap.scala 192:31 194:18]
-  wire  cs_30 = addr_40 >= 24'hb80010 & addr_40 <= 24'hb8007f; // @[Util.scala 64:67]
-  wire  _GEN_219 = ~cpu_io_as ? 1'h0 : _GEN_218; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_11; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_221 = readStrobe ? tmp_11 : _GEN_212; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_223 = cs_30 ? _GEN_221 : _GEN_212; // @[MemMap.scala 164:16]
-  wire  _GEN_225 = cs_30 | _GEN_219; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_226 = ~cpu_io_as ? 1'h0 : _GEN_225; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_227 = cs_14 ? scratchRam_0_io_dout : _GEN_223; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_228 = cs_14 | _GEN_226; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_229 = ~cpu_io_as ? 1'h0 : _GEN_228; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_230 = cs_19 ? scratchRam_1_io_dout : _GEN_227; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_231 = cs_19 | _GEN_229; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_232 = ~cpu_io_as ? 1'h0 : _GEN_231; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_233 = cs_24 ? scratchRam_2_io_dout : _GEN_230; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_234 = cs_24 | _GEN_232; // @[MemMap.scala 108:16 110:18]
-  wire  cs_34 = addr_40 >= 24'hb8006e & addr_40 <= 24'hb8006f; // @[Util.scala 64:67]
-  wire  _GEN_235 = ~cpu_io_as ? 1'h0 : _GEN_234; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_237 = readStrobe ? 1'h0 : _GEN_85; // @[MemMap.scala 165:26 Main.scala 308:17]
-  wire [15:0] _GEN_238 = readStrobe ? {{8'd0}, ackDataReg} : _GEN_233; // @[MemMap.scala 165:26 166:18]
-  wire  _GEN_239 = readStrobe ? 1'h0 : writeStrobe; // @[Main.scala 109:20 MemMap.scala 165:26]
-  wire  _GEN_240 = cs_34 ? _GEN_237 : _GEN_85; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_241 = cs_34 ? _GEN_238 : _GEN_233; // @[MemMap.scala 164:16]
-  wire  _GEN_242 = cs_34 & _GEN_239; // @[MemMap.scala 164:16 Main.scala 109:20]
-  wire  _GEN_243 = cs_34 | _GEN_235; // @[MemMap.scala 164:16 170:18]
-  wire  cs_35 = addr_40 >= 24'hb8006c & addr_40 <= 24'hb8006d; // @[Util.scala 64:67]
-  wire  _GEN_244 = ~cpu_io_as ? 1'h0 : _GEN_243; // @[MemMap.scala 226:{19,30}]
-  wire  _dinReg_T_6 = ~ackLatchReg; // @[Main.scala 304:22]
-  wire [2:0] _dinReg_T_7 = {1'h0,_dinReg_T_6,1'h0}; // @[Cat.scala 33:92]
-  wire [15:0] _GEN_246 = readStrobe ? {{13'd0}, _dinReg_T_7} : _GEN_241; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_248 = cs_35 ? _GEN_246 : _GEN_241; // @[MemMap.scala 164:16]
-  wire  _GEN_249 = cs_35 | _GEN_244; // @[MemMap.scala 164:16 170:18]
-  wire  cs_36 = addr_40 >= 24'ha00000 & addr_40 <= 24'ha00005; // @[Util.scala 64:67]
-  wire  _GEN_250 = ~cpu_io_as ? 1'h0 : _GEN_249; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_251 = cs_36 ? layerRegs_0_io_mem_dout : _GEN_248; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_252 = cs_36 | _GEN_250; // @[MemMap.scala 108:16 110:18]
-  wire [23:0] offset_36 = addr_40 - 24'ha80000; // @[MemMap.scala 84:23]
-  wire  cs_37 = addr_40 >= 24'ha80000 & addr_40 <= 24'ha80005; // @[Util.scala 64:67]
-  wire  _GEN_253 = ~cpu_io_as ? 1'h0 : _GEN_252; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_254 = cs_37 ? layerRegs_1_io_mem_dout : _GEN_251; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_255 = cs_37 | _GEN_253; // @[MemMap.scala 108:16 110:18]
-  wire  cs_38 = addr_40 >= 24'hb00000 & addr_40 <= 24'hb00005; // @[Util.scala 64:67]
-  wire  _GEN_256 = ~cpu_io_as ? 1'h0 : _GEN_255; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_257 = cs_38 ? layerRegs_2_io_mem_dout : _GEN_254; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_258 = cs_38 | _GEN_256; // @[MemMap.scala 108:16 110:18]
-  wire [23:0] offset_38 = addr_40 - 24'h600000; // @[MemMap.scala 84:23]
-  wire  cs_39 = addr_40 >= 24'h600000 & addr_40 <= 24'h600000; // @[Util.scala 64:67]
-  wire  _GEN_259 = ~cpu_io_as ? 1'h0 : _GEN_258; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_260 = cs_39 & readStrobe ? input0 : _GEN_257; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_261 = cs_39 & readStrobe | _GEN_259; // @[MemMap.scala 180:30 182:18]
-  wire  cs_40 = addr_40 >= 24'h600002 & addr_40 <= 24'h600002; // @[Util.scala 64:67]
-  wire  _GEN_262 = ~cpu_io_as ? 1'h0 : _GEN_261; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_263 = cs_40 & readStrobe ? input1 : _GEN_260; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_264 = cs_40 & readStrobe | _GEN_262; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_265 = ~cpu_io_as ? 1'h0 : _GEN_264; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_266 = cs_41 & _upperWriteStrobe_T_3 | _GEN_265; // @[MemMap.scala 154:{27,38}]
-  wire  cs_42 = addr_40 >= 24'h500000 & addr_40 <= 24'h50ffff; // @[Util.scala 64:67]
-  wire  _GEN_267 = ~cpu_io_as ? 1'h0 : _GEN_266; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_268 = cs_42 ? spriteRam_io_portA_dout : _GEN_263; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_269 = cs_42 | _GEN_267; // @[MemMap.scala 108:16 110:18]
-  wire  cs_43 = addr_40 >= 24'h110000 & addr_40 <= 24'h110001; // @[Util.scala 64:67]
-  wire  _GEN_270 = ~cpu_io_as ? 1'h0 : _GEN_269; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_12; // @[MemMap.scala 206:20]
-  wire  _GEN_276 = cs_43 | _GEN_270; // @[MemMap.scala 164:16 170:18]
-  wire  cs_44 = addr_40 <= 24'hfffff; // @[Util.scala 64:72]
-  wire [15:0] _GEN_278 = cs_44 & cpu_io_rw & io_progRom_valid ? io_progRom_dout : dinReg; // @[MemMap.scala 130:39 131:16 48:23]
-  wire  _GEN_279 = cs_44 & cpu_io_rw & io_progRom_valid | _GEN_87; // @[MemMap.scala 130:39 132:18]
+  wire [15:0] _GEN_276 = cs_35 & readStrobe ? {{13'd0}, _dinReg_T_5} : _GEN_268; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_277 = cs_35 & readStrobe | _GEN_271; // @[MemMap.scala 180:30 182:18]
+  wire  cs_36 = addr_48 >= 24'hb80000 & addr_48 <= 24'hb8000f; // @[Util.scala 64:67]
+  wire  _GEN_278 = ~cpu_io_as ? 1'h0 : _GEN_277; // @[MemMap.scala 226:{19,30}]
+  wire  mem_wr = cs_36 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_279 = cs_36 & _upperWriteStrobe_T_3 | _GEN_278; // @[MemMap.scala 154:{27,38}]
+  wire  cs_37 = addr_48 >= 24'hb80008 & addr_48 <= 24'hb80008; // @[Util.scala 64:67]
   wire  _GEN_280 = ~cpu_io_as ? 1'h0 : _GEN_279; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_281 = cs_3 ? mainRam_io_dout : _GEN_278; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_282 = cs_3 | _GEN_280; // @[MemMap.scala 108:16 110:18]
-  wire [23:0] offset_45 = addr_40 - 24'h300000; // @[MemMap.scala 84:23]
-  wire  cs_46 = addr_40 >= 24'h300000 & addr_40 <= 24'h300003; // @[Util.scala 64:67]
+  wire  _GEN_281 = cs_37 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_282 = cs_37 & writeStrobe | _GEN_280; // @[MemMap.scala 192:31 194:18]
+  wire  cs_38 = addr_48 >= 24'hb80010 & addr_48 <= 24'hb8007f; // @[Util.scala 64:67]
   wire  _GEN_283 = ~cpu_io_as ? 1'h0 : _GEN_282; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_284 = cs_46 ? io_soundCtrl_ymz_dout : _GEN_281; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_285 = cs_46 | _GEN_283; // @[MemMap.scala 108:16 110:18]
-  wire  cs_47 = addr_40 >= 24'h400000 & addr_40 <= 24'h40ffff; // @[Util.scala 64:67]
-  wire  _GEN_286 = ~cpu_io_as ? 1'h0 : _GEN_285; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_287 = cs_47 ? spriteRam_io_portA_dout : _GEN_284; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_288 = cs_47 | _GEN_286; // @[MemMap.scala 108:16 110:18]
-  wire  cs_48 = addr_40 >= 24'h500000 & addr_40 <= 24'h500fff; // @[Util.scala 64:67]
-  wire  _GEN_289 = ~cpu_io_as ? 1'h0 : _GEN_288; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_290 = cs_48 ? vram16x16_0_io_portA_dout : _GEN_287; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_291 = cs_48 | _GEN_289; // @[MemMap.scala 108:16 110:18]
-  wire  cs_49 = addr_40 >= 24'h501000 & addr_40 <= 24'h5017ff; // @[Util.scala 64:67]
-  wire  _GEN_292 = ~cpu_io_as ? 1'h0 : _GEN_291; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_293 = cs_49 ? lineRam_0_io_portA_dout : _GEN_290; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_294 = cs_49 | _GEN_292; // @[MemMap.scala 108:16 110:18]
-  wire  cs_50 = addr_40 >= 24'h501800 & addr_40 <= 24'h503fff; // @[Util.scala 64:67]
-  wire  _GEN_295 = ~cpu_io_as ? 1'h0 : _GEN_294; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_11; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_285 = readStrobe ? tmp_11 : _GEN_276; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_287 = cs_38 ? _GEN_285 : _GEN_276; // @[MemMap.scala 164:16]
+  wire  _GEN_289 = cs_38 | _GEN_283; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_290 = ~cpu_io_as ? 1'h0 : _GEN_289; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_291 = cs_22 ? scratchRam_0_io_dout : _GEN_287; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_292 = cs_22 | _GEN_290; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_293 = ~cpu_io_as ? 1'h0 : _GEN_292; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_294 = cs_27 ? scratchRam_1_io_dout : _GEN_291; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_295 = cs_27 | _GEN_293; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_296 = ~cpu_io_as ? 1'h0 : _GEN_295; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_297 = cs_32 ? scratchRam_2_io_dout : _GEN_294; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_298 = cs_32 | _GEN_296; // @[MemMap.scala 108:16 110:18]
+  wire  cs_42 = addr_48 >= 24'hb8006e & addr_48 <= 24'hb8006f; // @[Util.scala 64:67]
+  wire  _GEN_299 = ~cpu_io_as ? 1'h0 : _GEN_298; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_301 = readStrobe ? 1'h0 : _GEN_85; // @[MemMap.scala 165:26 Main.scala 309:17]
+  wire [15:0] _GEN_302 = readStrobe ? {{8'd0}, ackDataReg} : _GEN_297; // @[MemMap.scala 165:26 166:18]
+  wire  _GEN_303 = readStrobe ? 1'h0 : writeStrobe; // @[Main.scala 110:20 MemMap.scala 165:26]
+  wire  _GEN_304 = cs_42 ? _GEN_301 : _GEN_85; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_305 = cs_42 ? _GEN_302 : _GEN_297; // @[MemMap.scala 164:16]
+  wire  _GEN_306 = cs_42 & _GEN_303; // @[MemMap.scala 164:16 Main.scala 110:20]
+  wire  _GEN_307 = cs_42 | _GEN_299; // @[MemMap.scala 164:16 170:18]
+  wire  cs_43 = addr_48 >= 24'hb8006c & addr_48 <= 24'hb8006d; // @[Util.scala 64:67]
+  wire  _GEN_308 = ~cpu_io_as ? 1'h0 : _GEN_307; // @[MemMap.scala 226:{19,30}]
+  wire  _dinReg_T_6 = ~ackLatchReg; // @[Main.scala 305:22]
+  wire [2:0] _dinReg_T_7 = {1'h0,_dinReg_T_6,1'h0}; // @[Cat.scala 33:92]
+  wire [15:0] _GEN_310 = readStrobe ? {{13'd0}, _dinReg_T_7} : _GEN_305; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_312 = cs_43 ? _GEN_310 : _GEN_305; // @[MemMap.scala 164:16]
+  wire  _GEN_313 = cs_43 | _GEN_308; // @[MemMap.scala 164:16 170:18]
+  wire  cs_44 = addr_48 >= 24'ha00000 & addr_48 <= 24'ha00005; // @[Util.scala 64:67]
+  wire  _GEN_314 = ~cpu_io_as ? 1'h0 : _GEN_313; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_315 = cs_44 ? layerRegs_0_io_mem_dout : _GEN_312; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_316 = cs_44 | _GEN_314; // @[MemMap.scala 108:16 110:18]
+  wire [23:0] offset_44 = addr_48 - 24'ha80000; // @[MemMap.scala 84:23]
+  wire  cs_45 = addr_48 >= 24'ha80000 & addr_48 <= 24'ha80005; // @[Util.scala 64:67]
+  wire  _GEN_317 = ~cpu_io_as ? 1'h0 : _GEN_316; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_318 = cs_45 ? layerRegs_1_io_mem_dout : _GEN_315; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_319 = cs_45 | _GEN_317; // @[MemMap.scala 108:16 110:18]
+  wire  cs_46 = addr_48 >= 24'hb00000 & addr_48 <= 24'hb00005; // @[Util.scala 64:67]
+  wire  _GEN_320 = ~cpu_io_as ? 1'h0 : _GEN_319; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_321 = cs_46 ? layerRegs_2_io_mem_dout : _GEN_318; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_322 = cs_46 | _GEN_320; // @[MemMap.scala 108:16 110:18]
+  wire [23:0] offset_46 = addr_48 - 24'h600000; // @[MemMap.scala 84:23]
+  wire  cs_47 = addr_48 >= 24'h600000 & addr_48 <= 24'h600000; // @[Util.scala 64:67]
+  wire  _GEN_323 = ~cpu_io_as ? 1'h0 : _GEN_322; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_324 = cs_47 & readStrobe ? input0 : _GEN_321; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_325 = cs_47 & readStrobe | _GEN_323; // @[MemMap.scala 180:30 182:18]
+  wire  cs_48 = addr_48 >= 24'h600002 & addr_48 <= 24'h600002; // @[Util.scala 64:67]
+  wire  _GEN_326 = ~cpu_io_as ? 1'h0 : _GEN_325; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_327 = cs_48 & readStrobe ? input1 : _GEN_324; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_328 = cs_48 & readStrobe | _GEN_326; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_329 = ~cpu_io_as ? 1'h0 : _GEN_328; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_330 = cs_49 & _upperWriteStrobe_T_3 | _GEN_329; // @[MemMap.scala 154:{27,38}]
+  wire  cs_50 = addr_48 >= 24'h110000 & addr_48 <= 24'h110001; // @[Util.scala 64:67]
+  wire  _GEN_331 = ~cpu_io_as ? 1'h0 : _GEN_330; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_12; // @[MemMap.scala 206:20]
+  wire  _GEN_337 = cs_50 | _GEN_331; // @[MemMap.scala 164:16 170:18]
+  wire  cs_51 = addr_48 >= 24'h300000 & addr_48 <= 24'h300003; // @[Util.scala 64:67]
+  wire [15:0] _GEN_339 = cs_51 ? io_soundCtrl_ymz_dout : _GEN_156; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_340 = cs_51 | _GEN_157; // @[MemMap.scala 108:16 110:18]
+  wire  cs_52 = addr_48 >= 24'h500000 & addr_48 <= 24'h500fff; // @[Util.scala 64:67]
+  wire  _GEN_341 = ~cpu_io_as ? 1'h0 : _GEN_340; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_342 = cs_52 ? vram16x16_0_io_portA_dout : _GEN_339; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_343 = cs_52 | _GEN_341; // @[MemMap.scala 108:16 110:18]
+  wire  cs_53 = addr_48 >= 24'h501000 & addr_48 <= 24'h5017ff; // @[Util.scala 64:67]
+  wire  _GEN_344 = ~cpu_io_as ? 1'h0 : _GEN_343; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_345 = cs_53 ? lineRam_0_io_portA_dout : _GEN_342; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_346 = cs_53 | _GEN_344; // @[MemMap.scala 108:16 110:18]
+  wire  cs_54 = addr_48 >= 24'h501800 & addr_48 <= 24'h503fff; // @[Util.scala 64:67]
+  wire  _GEN_347 = ~cpu_io_as ? 1'h0 : _GEN_346; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_13; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_297 = readStrobe ? tmp_13 : _GEN_293; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_299 = cs_50 ? _GEN_297 : _GEN_293; // @[MemMap.scala 164:16]
-  wire  _GEN_301 = cs_50 | _GEN_295; // @[MemMap.scala 164:16 170:18]
-  wire  cs_51 = addr_40 >= 24'h504000 & addr_40 <= 24'h507fff; // @[Util.scala 64:67]
-  wire  _GEN_302 = ~cpu_io_as ? 1'h0 : _GEN_301; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_303 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_299; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_304 = cs_51 | _GEN_302; // @[MemMap.scala 108:16 110:18]
-  wire  cs_52 = addr_40 >= 24'h508000 & addr_40 <= 24'h50ffff; // @[Util.scala 64:67]
-  wire  _GEN_305 = ~cpu_io_as ? 1'h0 : _GEN_304; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_14; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_307 = readStrobe ? tmp_14 : _GEN_303; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_309 = cs_52 ? _GEN_307 : _GEN_303; // @[MemMap.scala 164:16]
-  wire  _GEN_311 = cs_52 | _GEN_305; // @[MemMap.scala 164:16 170:18]
-  wire  cs_53 = addr_40 >= 24'h600000 & addr_40 <= 24'h600fff; // @[Util.scala 64:67]
-  wire  _GEN_312 = ~cpu_io_as ? 1'h0 : _GEN_311; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_313 = cs_53 ? vram16x16_1_io_portA_dout : _GEN_309; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_314 = cs_53 | _GEN_312; // @[MemMap.scala 108:16 110:18]
-  wire  cs_54 = addr_40 >= 24'h601000 & addr_40 <= 24'h6017ff; // @[Util.scala 64:67]
-  wire  _GEN_315 = ~cpu_io_as ? 1'h0 : _GEN_314; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_316 = cs_54 ? lineRam_1_io_portA_dout : _GEN_313; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_317 = cs_54 | _GEN_315; // @[MemMap.scala 108:16 110:18]
-  wire  cs_55 = addr_40 >= 24'h601800 & addr_40 <= 24'h603fff; // @[Util.scala 64:67]
-  wire  _GEN_318 = ~cpu_io_as ? 1'h0 : _GEN_317; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_15; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_320 = readStrobe ? tmp_15 : _GEN_316; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_322 = cs_55 ? _GEN_320 : _GEN_316; // @[MemMap.scala 164:16]
-  wire  _GEN_324 = cs_55 | _GEN_318; // @[MemMap.scala 164:16 170:18]
-  wire  cs_56 = addr_40 >= 24'h604000 & addr_40 <= 24'h607fff; // @[Util.scala 64:67]
-  wire  _GEN_325 = ~cpu_io_as ? 1'h0 : _GEN_324; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_326 = cs_56 ? vram8x8_1_io_portA_dout : _GEN_322; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_327 = cs_56 | _GEN_325; // @[MemMap.scala 108:16 110:18]
-  wire  cs_57 = addr_40 >= 24'h608000 & addr_40 <= 24'h60ffff; // @[Util.scala 64:67]
-  wire  _GEN_328 = ~cpu_io_as ? 1'h0 : _GEN_327; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_16; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_330 = readStrobe ? tmp_16 : _GEN_326; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_332 = cs_57 ? _GEN_330 : _GEN_326; // @[MemMap.scala 164:16]
-  wire  _GEN_334 = cs_57 | _GEN_328; // @[MemMap.scala 164:16 170:18]
-  wire  cs_58 = addr_40 >= 24'h708000 & addr_40 <= 24'h708fff; // @[Util.scala 64:67]
-  wire  _GEN_335 = ~cpu_io_as ? 1'h0 : _GEN_334; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_336 = cs_58 ? paletteRam_io_portA_dout : _GEN_332; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_337 = cs_58 | _GEN_335; // @[MemMap.scala 108:16 110:18]
-  wire  cs_59 = addr_40 >= 24'h710c12 & addr_40 <= 24'h710c1f; // @[Util.scala 64:67]
-  wire  _GEN_338 = ~cpu_io_as ? 1'h0 : _GEN_337; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_339 = readStrobe ? 16'h0 : _GEN_336; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_340 = cs_59 ? _GEN_339 : _GEN_336; // @[MemMap.scala 164:16]
-  wire  _GEN_341 = cs_59 | _GEN_338; // @[MemMap.scala 164:16 170:18]
-  wire  cs_60 = addr_40 >= 24'h800000 & addr_40 <= 24'h800007; // @[Util.scala 64:67]
-  wire  _GEN_342 = ~cpu_io_as ? 1'h0 : _GEN_341; // @[MemMap.scala 226:{19,30}]
-  wire  dinReg_a_1 = offset_11 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _GEN_343 = offset_11 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 257:{26,37}]
-  wire  _dinReg_T_10 = ~dinReg_a_1; // @[Main.scala 259:9]
-  wire [2:0] _dinReg_T_13 = {_dinReg_T_10,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire  _GEN_345 = cs_60 & readStrobe ? _GEN_343 : _GEN_62; // @[MemMap.scala 180:30]
-  wire [15:0] _GEN_347 = cs_60 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_340; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_348 = cs_60 & readStrobe | _GEN_342; // @[MemMap.scala 180:30 182:18]
-  wire  cs_61 = addr_40 >= 24'h800000 & addr_40 <= 24'h80000f; // @[Util.scala 64:67]
-  wire  _GEN_349 = ~cpu_io_as ? 1'h0 : _GEN_348; // @[MemMap.scala 226:{19,30}]
-  wire  mem_1_wr = cs_61 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_350 = cs_61 & _upperWriteStrobe_T_3 | _GEN_349; // @[MemMap.scala 154:{27,38}]
-  wire  cs_62 = addr_40 >= 24'h800008 & addr_40 <= 24'h800008; // @[Util.scala 64:67]
-  wire  _GEN_351 = ~cpu_io_as ? 1'h0 : _GEN_350; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_352 = cs_62 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_353 = cs_62 & writeStrobe | _GEN_351; // @[MemMap.scala 192:31 194:18]
-  wire  cs_63 = addr_40 >= 24'h800010 & addr_40 <= 24'h80007f; // @[Util.scala 64:67]
+  wire [15:0] _GEN_349 = readStrobe ? tmp_13 : _GEN_345; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_351 = cs_54 ? _GEN_349 : _GEN_345; // @[MemMap.scala 164:16]
+  wire  _GEN_353 = cs_54 | _GEN_347; // @[MemMap.scala 164:16 170:18]
+  wire  cs_55 = addr_48 >= 24'h504000 & addr_48 <= 24'h507fff; // @[Util.scala 64:67]
   wire  _GEN_354 = ~cpu_io_as ? 1'h0 : _GEN_353; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_17; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_356 = readStrobe ? tmp_17 : _GEN_347; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_358 = cs_63 ? _GEN_356 : _GEN_347; // @[MemMap.scala 164:16]
-  wire  _GEN_360 = cs_63 | _GEN_354; // @[MemMap.scala 164:16 170:18]
-  wire  cs_64 = addr_40 >= 24'h900000 & addr_40 <= 24'h900005; // @[Util.scala 64:67]
-  wire  _GEN_361 = ~cpu_io_as ? 1'h0 : _GEN_360; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_362 = cs_64 ? layerRegs_0_io_mem_dout : _GEN_358; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_363 = cs_64 | _GEN_361; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_355 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_351; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_356 = cs_55 | _GEN_354; // @[MemMap.scala 108:16 110:18]
+  wire  cs_56 = addr_48 >= 24'h508000 & addr_48 <= 24'h50ffff; // @[Util.scala 64:67]
+  wire  _GEN_357 = ~cpu_io_as ? 1'h0 : _GEN_356; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_14; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_359 = readStrobe ? tmp_14 : _GEN_355; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_361 = cs_56 ? _GEN_359 : _GEN_355; // @[MemMap.scala 164:16]
+  wire  _GEN_363 = cs_56 | _GEN_357; // @[MemMap.scala 164:16 170:18]
+  wire  cs_57 = addr_48 >= 24'h600000 & addr_48 <= 24'h600fff; // @[Util.scala 64:67]
   wire  _GEN_364 = ~cpu_io_as ? 1'h0 : _GEN_363; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_365 = cs_36 ? layerRegs_1_io_mem_dout : _GEN_362; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_366 = cs_36 | _GEN_364; // @[MemMap.scala 108:16 110:18]
-  wire  cs_66 = addr_40 >= 24'hb00000 & addr_40 <= 24'hb00000; // @[Util.scala 64:67]
+  wire [15:0] _GEN_365 = cs_57 ? vram16x16_1_io_portA_dout : _GEN_361; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_366 = cs_57 | _GEN_364; // @[MemMap.scala 108:16 110:18]
+  wire  cs_58 = addr_48 >= 24'h601000 & addr_48 <= 24'h6017ff; // @[Util.scala 64:67]
   wire  _GEN_367 = ~cpu_io_as ? 1'h0 : _GEN_366; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_368 = cs_66 & readStrobe ? input0 : _GEN_365; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_369 = cs_66 & readStrobe | _GEN_367; // @[MemMap.scala 180:30 182:18]
-  wire  cs_67 = addr_40 >= 24'hb00002 & addr_40 <= 24'hb00002; // @[Util.scala 64:67]
+  wire [15:0] _GEN_368 = cs_58 ? lineRam_1_io_portA_dout : _GEN_365; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_369 = cs_58 | _GEN_367; // @[MemMap.scala 108:16 110:18]
+  wire  cs_59 = addr_48 >= 24'h601800 & addr_48 <= 24'h603fff; // @[Util.scala 64:67]
   wire  _GEN_370 = ~cpu_io_as ? 1'h0 : _GEN_369; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_371 = cs_67 & readStrobe ? input1 : _GEN_368; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_372 = cs_67 & readStrobe | _GEN_370; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_373 = ~cpu_io_as ? 1'h0 : _GEN_372; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_374 = cs_68 & _upperWriteStrobe_T_3 | _GEN_373; // @[MemMap.scala 154:{27,38}]
-  wire  cs_69 = addr_40 >= 24'h110000 & addr_40 <= 24'h1fffff; // @[Util.scala 64:67]
-  wire  _GEN_375 = ~cpu_io_as ? 1'h0 : _GEN_374; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_376 = readStrobe ? 16'h0 : _GEN_371; // @[MemMap.scala 165:26 166:18]
-  wire  _GEN_378 = cs_69 | _GEN_375; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_384 = cs_3 | _GEN_90; // @[MemMap.scala 108:16 110:18]
-  wire  cs_72 = addr_40 >= 24'h200000 & addr_40 <= 24'h200fff; // @[Util.scala 64:67]
-  wire  _GEN_385 = ~cpu_io_as ? 1'h0 : _GEN_384; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_386 = cs_72 ? vram16x16_1_io_portA_dout : _GEN_93; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_387 = cs_72 | _GEN_385; // @[MemMap.scala 108:16 110:18]
-  wire  cs_73 = addr_40 >= 24'h201000 & addr_40 <= 24'h2017ff; // @[Util.scala 64:67]
-  wire  _GEN_388 = ~cpu_io_as ? 1'h0 : _GEN_387; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_389 = cs_73 ? lineRam_1_io_portA_dout : _GEN_386; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_390 = cs_73 | _GEN_388; // @[MemMap.scala 108:16 110:18]
-  wire  cs_74 = addr_40 >= 24'h201800 & addr_40 <= 24'h203fff; // @[Util.scala 64:67]
-  wire  _GEN_391 = ~cpu_io_as ? 1'h0 : _GEN_390; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_18; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_393 = readStrobe ? tmp_18 : _GEN_389; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_395 = cs_74 ? _GEN_393 : _GEN_389; // @[MemMap.scala 164:16]
-  wire  _GEN_397 = cs_74 | _GEN_391; // @[MemMap.scala 164:16 170:18]
-  wire  cs_75 = addr_40 >= 24'h204000 & addr_40 <= 24'h207fff; // @[Util.scala 64:67]
-  wire  _GEN_398 = ~cpu_io_as ? 1'h0 : _GEN_397; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_399 = cs_75 ? vram8x8_1_io_portA_dout : _GEN_395; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_400 = cs_75 | _GEN_398; // @[MemMap.scala 108:16 110:18]
-  wire  cs_76 = addr_40 >= 24'h208000 & addr_40 <= 24'h20ffff; // @[Util.scala 64:67]
+  reg [15:0] tmp_15; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_372 = readStrobe ? tmp_15 : _GEN_368; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_374 = cs_59 ? _GEN_372 : _GEN_368; // @[MemMap.scala 164:16]
+  wire  _GEN_376 = cs_59 | _GEN_370; // @[MemMap.scala 164:16 170:18]
+  wire  cs_60 = addr_48 >= 24'h604000 & addr_48 <= 24'h607fff; // @[Util.scala 64:67]
+  wire  _GEN_377 = ~cpu_io_as ? 1'h0 : _GEN_376; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_378 = cs_60 ? vram8x8_1_io_portA_dout : _GEN_374; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_379 = cs_60 | _GEN_377; // @[MemMap.scala 108:16 110:18]
+  wire  cs_61 = addr_48 >= 24'h608000 & addr_48 <= 24'h60ffff; // @[Util.scala 64:67]
+  wire  _GEN_380 = ~cpu_io_as ? 1'h0 : _GEN_379; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_16; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_382 = readStrobe ? tmp_16 : _GEN_378; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_384 = cs_61 ? _GEN_382 : _GEN_378; // @[MemMap.scala 164:16]
+  wire  _GEN_386 = cs_61 | _GEN_380; // @[MemMap.scala 164:16 170:18]
+  wire  cs_62 = addr_48 >= 24'h708000 & addr_48 <= 24'h708fff; // @[Util.scala 64:67]
+  wire  _GEN_387 = ~cpu_io_as ? 1'h0 : _GEN_386; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_388 = cs_62 ? paletteRam_io_portA_dout : _GEN_384; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_389 = cs_62 | _GEN_387; // @[MemMap.scala 108:16 110:18]
+  wire  cs_63 = addr_48 >= 24'h710c12 & addr_48 <= 24'h710c1f; // @[Util.scala 64:67]
+  wire  _GEN_390 = ~cpu_io_as ? 1'h0 : _GEN_389; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_391 = readStrobe ? 16'h0 : _GEN_388; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_392 = cs_63 ? _GEN_391 : _GEN_388; // @[MemMap.scala 164:16]
+  wire  _GEN_393 = cs_63 | _GEN_390; // @[MemMap.scala 164:16 170:18]
+  wire  cs_64 = addr_48 >= 24'h800000 & addr_48 <= 24'h800007; // @[Util.scala 64:67]
+  wire  _GEN_394 = ~cpu_io_as ? 1'h0 : _GEN_393; // @[MemMap.scala 226:{19,30}]
+  wire  dinReg_a_1 = offset_19 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _GEN_395 = offset_19 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 258:{26,37}]
+  wire  _dinReg_T_10 = ~dinReg_a_1; // @[Main.scala 260:9]
+  wire [2:0] _dinReg_T_13 = {_dinReg_T_10,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
+  wire  _GEN_397 = cs_64 & readStrobe ? _GEN_395 : _GEN_62; // @[MemMap.scala 180:30]
+  wire [15:0] _GEN_399 = cs_64 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_392; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_400 = cs_64 & readStrobe | _GEN_394; // @[MemMap.scala 180:30 182:18]
+  wire  cs_65 = addr_48 >= 24'h800000 & addr_48 <= 24'h80000f; // @[Util.scala 64:67]
   wire  _GEN_401 = ~cpu_io_as ? 1'h0 : _GEN_400; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_19; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_403 = readStrobe ? tmp_19 : _GEN_399; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_405 = cs_76 ? _GEN_403 : _GEN_399; // @[MemMap.scala 164:16]
-  wire  _GEN_407 = cs_76 | _GEN_401; // @[MemMap.scala 164:16 170:18]
-  wire  cs_77 = addr_40 >= 24'h300000 & addr_40 <= 24'h300fff; // @[Util.scala 64:67]
-  wire  _GEN_408 = ~cpu_io_as ? 1'h0 : _GEN_407; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_409 = cs_77 ? vram16x16_0_io_portA_dout : _GEN_405; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_410 = cs_77 | _GEN_408; // @[MemMap.scala 108:16 110:18]
-  wire  cs_78 = addr_40 >= 24'h301000 & addr_40 <= 24'h3017ff; // @[Util.scala 64:67]
-  wire  _GEN_411 = ~cpu_io_as ? 1'h0 : _GEN_410; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_412 = cs_78 ? lineRam_0_io_portA_dout : _GEN_409; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_413 = cs_78 | _GEN_411; // @[MemMap.scala 108:16 110:18]
-  wire  cs_79 = addr_40 >= 24'h301800 & addr_40 <= 24'h303fff; // @[Util.scala 64:67]
-  wire  _GEN_414 = ~cpu_io_as ? 1'h0 : _GEN_413; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_20; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_416 = readStrobe ? tmp_20 : _GEN_412; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_418 = cs_79 ? _GEN_416 : _GEN_412; // @[MemMap.scala 164:16]
-  wire  _GEN_420 = cs_79 | _GEN_414; // @[MemMap.scala 164:16 170:18]
-  wire  cs_80 = addr_40 >= 24'h304000 & addr_40 <= 24'h307fff; // @[Util.scala 64:67]
-  wire  _GEN_421 = ~cpu_io_as ? 1'h0 : _GEN_420; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_422 = cs_80 ? vram8x8_0_io_portA_dout : _GEN_418; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_423 = cs_80 | _GEN_421; // @[MemMap.scala 108:16 110:18]
-  wire  cs_81 = addr_40 >= 24'h308000 & addr_40 <= 24'h30ffff; // @[Util.scala 64:67]
-  wire  _GEN_424 = ~cpu_io_as ? 1'h0 : _GEN_423; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_21; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_426 = readStrobe ? tmp_21 : _GEN_422; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_428 = cs_81 ? _GEN_426 : _GEN_422; // @[MemMap.scala 164:16]
-  wire  _GEN_430 = cs_81 | _GEN_424; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_431 = ~cpu_io_as ? 1'h0 : _GEN_430; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_432 = cs_47 ? vram8x8_2_io_portA_dout : _GEN_428; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_433 = cs_47 | _GEN_431; // @[MemMap.scala 108:16 110:18]
+  wire  mem_1_wr = cs_65 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_402 = cs_65 & _upperWriteStrobe_T_3 | _GEN_401; // @[MemMap.scala 154:{27,38}]
+  wire  cs_66 = addr_48 >= 24'h800008 & addr_48 <= 24'h800008; // @[Util.scala 64:67]
+  wire  _GEN_403 = ~cpu_io_as ? 1'h0 : _GEN_402; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_404 = cs_66 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_405 = cs_66 & writeStrobe | _GEN_403; // @[MemMap.scala 192:31 194:18]
+  wire  cs_67 = addr_48 >= 24'h800010 & addr_48 <= 24'h80007f; // @[Util.scala 64:67]
+  wire  _GEN_406 = ~cpu_io_as ? 1'h0 : _GEN_405; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_17; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_408 = readStrobe ? tmp_17 : _GEN_399; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_410 = cs_67 ? _GEN_408 : _GEN_399; // @[MemMap.scala 164:16]
+  wire  _GEN_412 = cs_67 | _GEN_406; // @[MemMap.scala 164:16 170:18]
+  wire  cs_68 = addr_48 >= 24'h900000 & addr_48 <= 24'h900005; // @[Util.scala 64:67]
+  wire  _GEN_413 = ~cpu_io_as ? 1'h0 : _GEN_412; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_414 = cs_68 ? layerRegs_0_io_mem_dout : _GEN_410; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_415 = cs_68 | _GEN_413; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_416 = ~cpu_io_as ? 1'h0 : _GEN_415; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_417 = cs_44 ? layerRegs_1_io_mem_dout : _GEN_414; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_418 = cs_44 | _GEN_416; // @[MemMap.scala 108:16 110:18]
+  wire  cs_70 = addr_48 >= 24'hb00000 & addr_48 <= 24'hb00000; // @[Util.scala 64:67]
+  wire  _GEN_419 = ~cpu_io_as ? 1'h0 : _GEN_418; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_420 = cs_70 & readStrobe ? input0 : _GEN_417; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_421 = cs_70 & readStrobe | _GEN_419; // @[MemMap.scala 180:30 182:18]
+  wire  cs_71 = addr_48 >= 24'hb00002 & addr_48 <= 24'hb00002; // @[Util.scala 64:67]
+  wire  _GEN_422 = ~cpu_io_as ? 1'h0 : _GEN_421; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_423 = cs_71 & readStrobe ? input1 : _GEN_420; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_424 = cs_71 & readStrobe | _GEN_422; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_425 = ~cpu_io_as ? 1'h0 : _GEN_424; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_426 = cs_72 & _upperWriteStrobe_T_3 | _GEN_425; // @[MemMap.scala 154:{27,38}]
+  wire  cs_73 = addr_48 >= 24'h110000 & addr_48 <= 24'h1fffff; // @[Util.scala 64:67]
+  wire  _GEN_427 = ~cpu_io_as ? 1'h0 : _GEN_426; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_428 = readStrobe ? 16'h0 : _GEN_423; // @[MemMap.scala 165:26 166:18]
+  wire  _GEN_430 = cs_73 | _GEN_427; // @[MemMap.scala 164:16 170:18]
+  wire  cs_74 = addr_48 >= 24'h200000 & addr_48 <= 24'h200fff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_432 = cs_74 ? vram16x16_1_io_portA_dout : _GEN_156; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_433 = cs_74 | _GEN_157; // @[MemMap.scala 108:16 110:18]
+  wire  cs_75 = addr_48 >= 24'h201000 & addr_48 <= 24'h2017ff; // @[Util.scala 64:67]
   wire  _GEN_434 = ~cpu_io_as ? 1'h0 : _GEN_433; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_435 = cs_42 ? spriteRam_io_portA_dout : _GEN_432; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_436 = cs_42 | _GEN_434; // @[MemMap.scala 108:16 110:18]
-  wire  cs_84 = addr_40 >= 24'h600000 & addr_40 <= 24'h600005; // @[Util.scala 64:67]
+  wire [15:0] _GEN_435 = cs_75 ? lineRam_1_io_portA_dout : _GEN_432; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_436 = cs_75 | _GEN_434; // @[MemMap.scala 108:16 110:18]
+  wire  cs_76 = addr_48 >= 24'h201800 & addr_48 <= 24'h203fff; // @[Util.scala 64:67]
   wire  _GEN_437 = ~cpu_io_as ? 1'h0 : _GEN_436; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_438 = cs_84 ? layerRegs_1_io_mem_dout : _GEN_435; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_439 = cs_84 | _GEN_437; // @[MemMap.scala 108:16 110:18]
-  wire  cs_85 = addr_40 >= 24'h700000 & addr_40 <= 24'h700005; // @[Util.scala 64:67]
-  wire  _GEN_440 = ~cpu_io_as ? 1'h0 : _GEN_439; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_441 = cs_85 ? layerRegs_0_io_mem_dout : _GEN_438; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_442 = cs_85 | _GEN_440; // @[MemMap.scala 108:16 110:18]
-  wire  cs_86 = addr_40 >= 24'h800000 & addr_40 <= 24'h800005; // @[Util.scala 64:67]
-  wire  _GEN_443 = ~cpu_io_as ? 1'h0 : _GEN_442; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_444 = cs_86 ? layerRegs_2_io_mem_dout : _GEN_441; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_445 = cs_86 | _GEN_443; // @[MemMap.scala 108:16 110:18]
-  wire  cs_87 = addr_40 >= 24'h900000 & addr_40 <= 24'h900007; // @[Util.scala 64:67]
-  wire  _GEN_446 = ~cpu_io_as ? 1'h0 : _GEN_445; // @[MemMap.scala 226:{19,30}]
-  wire  dinReg_a_2 = offset_21 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _GEN_447 = offset_21 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 257:{26,37}]
-  wire  _dinReg_T_16 = ~dinReg_a_2; // @[Main.scala 259:9]
+  reg [15:0] tmp_18; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_439 = readStrobe ? tmp_18 : _GEN_435; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_441 = cs_76 ? _GEN_439 : _GEN_435; // @[MemMap.scala 164:16]
+  wire  _GEN_443 = cs_76 | _GEN_437; // @[MemMap.scala 164:16 170:18]
+  wire  cs_77 = addr_48 >= 24'h204000 & addr_48 <= 24'h207fff; // @[Util.scala 64:67]
+  wire  _GEN_444 = ~cpu_io_as ? 1'h0 : _GEN_443; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_445 = cs_77 ? vram8x8_1_io_portA_dout : _GEN_441; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_446 = cs_77 | _GEN_444; // @[MemMap.scala 108:16 110:18]
+  wire  cs_78 = addr_48 >= 24'h208000 & addr_48 <= 24'h20ffff; // @[Util.scala 64:67]
+  wire  _GEN_447 = ~cpu_io_as ? 1'h0 : _GEN_446; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_19; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_449 = readStrobe ? tmp_19 : _GEN_445; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_451 = cs_78 ? _GEN_449 : _GEN_445; // @[MemMap.scala 164:16]
+  wire  _GEN_453 = cs_78 | _GEN_447; // @[MemMap.scala 164:16 170:18]
+  wire  cs_79 = addr_48 >= 24'h300000 & addr_48 <= 24'h300fff; // @[Util.scala 64:67]
+  wire  _GEN_454 = ~cpu_io_as ? 1'h0 : _GEN_453; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_455 = cs_79 ? vram16x16_0_io_portA_dout : _GEN_451; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_456 = cs_79 | _GEN_454; // @[MemMap.scala 108:16 110:18]
+  wire  cs_80 = addr_48 >= 24'h301000 & addr_48 <= 24'h3017ff; // @[Util.scala 64:67]
+  wire  _GEN_457 = ~cpu_io_as ? 1'h0 : _GEN_456; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_458 = cs_80 ? lineRam_0_io_portA_dout : _GEN_455; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_459 = cs_80 | _GEN_457; // @[MemMap.scala 108:16 110:18]
+  wire  cs_81 = addr_48 >= 24'h301800 & addr_48 <= 24'h303fff; // @[Util.scala 64:67]
+  wire  _GEN_460 = ~cpu_io_as ? 1'h0 : _GEN_459; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_20; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_462 = readStrobe ? tmp_20 : _GEN_458; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_464 = cs_81 ? _GEN_462 : _GEN_458; // @[MemMap.scala 164:16]
+  wire  _GEN_466 = cs_81 | _GEN_460; // @[MemMap.scala 164:16 170:18]
+  wire  cs_82 = addr_48 >= 24'h304000 & addr_48 <= 24'h307fff; // @[Util.scala 64:67]
+  wire  _GEN_467 = ~cpu_io_as ? 1'h0 : _GEN_466; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_468 = cs_82 ? vram8x8_0_io_portA_dout : _GEN_464; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_469 = cs_82 | _GEN_467; // @[MemMap.scala 108:16 110:18]
+  wire  cs_83 = addr_48 >= 24'h308000 & addr_48 <= 24'h30ffff; // @[Util.scala 64:67]
+  wire  _GEN_470 = ~cpu_io_as ? 1'h0 : _GEN_469; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_21; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_472 = readStrobe ? tmp_21 : _GEN_468; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_474 = cs_83 ? _GEN_472 : _GEN_468; // @[MemMap.scala 164:16]
+  wire  _GEN_476 = cs_83 | _GEN_470; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_477 = ~cpu_io_as ? 1'h0 : _GEN_476; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_478 = cs_10 ? vram8x8_2_io_portA_dout : _GEN_474; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_479 = cs_10 | _GEN_477; // @[MemMap.scala 108:16 110:18]
+  wire  cs_85 = addr_48 >= 24'h600000 & addr_48 <= 24'h600005; // @[Util.scala 64:67]
+  wire  _GEN_480 = ~cpu_io_as ? 1'h0 : _GEN_479; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_481 = cs_85 ? layerRegs_1_io_mem_dout : _GEN_478; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_482 = cs_85 | _GEN_480; // @[MemMap.scala 108:16 110:18]
+  wire  cs_86 = addr_48 >= 24'h700000 & addr_48 <= 24'h700005; // @[Util.scala 64:67]
+  wire  _GEN_483 = ~cpu_io_as ? 1'h0 : _GEN_482; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_484 = cs_86 ? layerRegs_0_io_mem_dout : _GEN_481; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_485 = cs_86 | _GEN_483; // @[MemMap.scala 108:16 110:18]
+  wire  cs_87 = addr_48 >= 24'h800000 & addr_48 <= 24'h800005; // @[Util.scala 64:67]
+  wire  _GEN_486 = ~cpu_io_as ? 1'h0 : _GEN_485; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_487 = cs_87 ? layerRegs_2_io_mem_dout : _GEN_484; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_488 = cs_87 | _GEN_486; // @[MemMap.scala 108:16 110:18]
+  wire  cs_88 = addr_48 >= 24'h900000 & addr_48 <= 24'h900007; // @[Util.scala 64:67]
+  wire  _GEN_489 = ~cpu_io_as ? 1'h0 : _GEN_488; // @[MemMap.scala 226:{19,30}]
+  wire  dinReg_a_2 = offset_29 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _GEN_490 = offset_29 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 258:{26,37}]
+  wire  _dinReg_T_16 = ~dinReg_a_2; // @[Main.scala 260:9]
   wire [2:0] _dinReg_T_19 = {_dinReg_T_16,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire  _GEN_449 = cs_87 & readStrobe ? _GEN_447 : _GEN_62; // @[MemMap.scala 180:30]
-  wire [15:0] _GEN_451 = cs_87 & readStrobe ? {{13'd0}, _dinReg_T_19} : _GEN_444; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_452 = cs_87 & readStrobe | _GEN_446; // @[MemMap.scala 180:30 182:18]
-  wire  cs_88 = addr_40 >= 24'h900000 & addr_40 <= 24'h90000f; // @[Util.scala 64:67]
-  wire  _GEN_453 = ~cpu_io_as ? 1'h0 : _GEN_452; // @[MemMap.scala 226:{19,30}]
-  wire  mem_2_wr = cs_88 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_454 = cs_88 & _upperWriteStrobe_T_3 | _GEN_453; // @[MemMap.scala 154:{27,38}]
-  wire  cs_89 = addr_40 >= 24'h900008 & addr_40 <= 24'h900008; // @[Util.scala 64:67]
-  wire  _GEN_455 = ~cpu_io_as ? 1'h0 : _GEN_454; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_456 = cs_89 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_457 = cs_89 & writeStrobe | _GEN_455; // @[MemMap.scala 192:31 194:18]
-  wire  cs_90 = addr_40 >= 24'h900010 & addr_40 <= 24'h90007f; // @[Util.scala 64:67]
-  wire  _GEN_458 = ~cpu_io_as ? 1'h0 : _GEN_457; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_492 = cs_88 & readStrobe ? _GEN_490 : _GEN_62; // @[MemMap.scala 180:30]
+  wire [15:0] _GEN_494 = cs_88 & readStrobe ? {{13'd0}, _dinReg_T_19} : _GEN_487; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_495 = cs_88 & readStrobe | _GEN_489; // @[MemMap.scala 180:30 182:18]
+  wire  cs_89 = addr_48 >= 24'h900000 & addr_48 <= 24'h90000f; // @[Util.scala 64:67]
+  wire  _GEN_496 = ~cpu_io_as ? 1'h0 : _GEN_495; // @[MemMap.scala 226:{19,30}]
+  wire  mem_2_wr = cs_89 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_497 = cs_89 & _upperWriteStrobe_T_3 | _GEN_496; // @[MemMap.scala 154:{27,38}]
+  wire  cs_90 = addr_48 >= 24'h900008 & addr_48 <= 24'h900008; // @[Util.scala 64:67]
+  wire  _GEN_498 = ~cpu_io_as ? 1'h0 : _GEN_497; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_499 = cs_90 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_500 = cs_90 & writeStrobe | _GEN_498; // @[MemMap.scala 192:31 194:18]
+  wire  cs_91 = addr_48 >= 24'h900010 & addr_48 <= 24'h90007f; // @[Util.scala 64:67]
+  wire  _GEN_501 = ~cpu_io_as ? 1'h0 : _GEN_500; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_22; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_460 = readStrobe ? tmp_22 : _GEN_451; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_462 = cs_90 ? _GEN_460 : _GEN_451; // @[MemMap.scala 164:16]
-  wire  _GEN_464 = cs_90 | _GEN_458; // @[MemMap.scala 164:16 170:18]
-  wire  cs_91 = addr_40 >= 24'ha08000 & addr_40 <= 24'ha08fff; // @[Util.scala 64:67]
-  wire  _GEN_465 = ~cpu_io_as ? 1'h0 : _GEN_464; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_466 = cs_91 ? paletteRam_io_portA_dout : _GEN_462; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_467 = cs_91 | _GEN_465; // @[MemMap.scala 108:16 110:18]
-  wire  cs_92 = addr_40 >= 24'hb00000 & addr_40 <= 24'hb00003; // @[Util.scala 64:67]
-  wire  _GEN_468 = ~cpu_io_as ? 1'h0 : _GEN_467; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_469 = cs_92 ? io_soundCtrl_oki_0_dout : _GEN_466; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_470 = cs_92 | _GEN_468; // @[MemMap.scala 108:16 110:18]
-  wire  cs_93 = addr_40 >= 24'hb00010 & addr_40 <= 24'hb00013; // @[Util.scala 64:67]
-  wire  _GEN_471 = ~cpu_io_as ? 1'h0 : _GEN_470; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_472 = cs_93 ? io_soundCtrl_oki_1_dout : _GEN_469; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_473 = cs_93 | _GEN_471; // @[MemMap.scala 108:16 110:18]
-  wire  cs_94 = addr_40 >= 24'hb00020 & addr_40 <= 24'hb0002f; // @[Util.scala 64:67]
-  wire  _GEN_474 = ~cpu_io_as ? 1'h0 : _GEN_473; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_475 = cs_94 & _upperWriteStrobe_T_3 | _GEN_474; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_476 = ~cpu_io_as ? 1'h0 : _GEN_475; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_477 = cs_68 & readStrobe ? input0 : _GEN_472; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_478 = cs_68 & readStrobe | _GEN_476; // @[MemMap.scala 180:30 182:18]
-  wire  cs_96 = addr_40 >= 24'hc00002 & addr_40 <= 24'hc00002; // @[Util.scala 64:67]
-  wire  _GEN_479 = ~cpu_io_as ? 1'h0 : _GEN_478; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_480 = cs_96 & readStrobe ? input1 : _GEN_477; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_481 = cs_96 & readStrobe | _GEN_479; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_482 = ~cpu_io_as ? 1'h0 : _GEN_481; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_483 = cs_97 & _upperWriteStrobe_T_3 | _GEN_482; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_484 = ~cpu_io_as ? 1'h0 : _GEN_483; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_485 = readStrobe ? 16'h0 : _GEN_480; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_486 = cs_69 ? _GEN_485 : _GEN_480; // @[MemMap.scala 164:16]
-  wire  _GEN_487 = cs_69 | _GEN_484; // @[MemMap.scala 164:16 170:18]
-  reg [15:0] tmp_23; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_508 = readStrobe ? tmp_23 : _GEN_293; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_510 = cs_50 ? _GEN_508 : _GEN_293; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_514 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_510; // @[MemMap.scala 108:16 109:16]
-  reg [15:0] tmp_24; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_518 = readStrobe ? tmp_24 : _GEN_514; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_520 = cs_52 ? _GEN_518 : _GEN_514; // @[MemMap.scala 164:16]
-  wire  cs_108 = addr_40 >= 24'h5fff00 & addr_40 <= 24'h5fffff; // @[Util.scala 64:67]
-  wire  _GEN_524 = cs_108 & writeStrobe | _GEN_312; // @[MemMap.scala 192:31 194:18]
+  wire [15:0] _GEN_503 = readStrobe ? tmp_22 : _GEN_494; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_505 = cs_91 ? _GEN_503 : _GEN_494; // @[MemMap.scala 164:16]
+  wire  _GEN_507 = cs_91 | _GEN_501; // @[MemMap.scala 164:16 170:18]
+  wire  cs_92 = addr_48 >= 24'ha08000 & addr_48 <= 24'ha08fff; // @[Util.scala 64:67]
+  wire  _GEN_508 = ~cpu_io_as ? 1'h0 : _GEN_507; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_509 = cs_92 ? paletteRam_io_portA_dout : _GEN_505; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_510 = cs_92 | _GEN_508; // @[MemMap.scala 108:16 110:18]
+  wire  cs_93 = addr_48 >= 24'hb00000 & addr_48 <= 24'hb00003; // @[Util.scala 64:67]
+  wire  _GEN_511 = ~cpu_io_as ? 1'h0 : _GEN_510; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_512 = cs_93 ? io_soundCtrl_oki_0_dout : _GEN_509; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_513 = cs_93 | _GEN_511; // @[MemMap.scala 108:16 110:18]
+  wire  cs_94 = addr_48 >= 24'hb00010 & addr_48 <= 24'hb00013; // @[Util.scala 64:67]
+  wire  _GEN_514 = ~cpu_io_as ? 1'h0 : _GEN_513; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_515 = cs_94 ? io_soundCtrl_oki_1_dout : _GEN_512; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_516 = cs_94 | _GEN_514; // @[MemMap.scala 108:16 110:18]
+  wire  cs_95 = addr_48 >= 24'hb00020 & addr_48 <= 24'hb0002f; // @[Util.scala 64:67]
+  wire  _GEN_517 = ~cpu_io_as ? 1'h0 : _GEN_516; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_518 = cs_95 & _upperWriteStrobe_T_3 | _GEN_517; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_519 = ~cpu_io_as ? 1'h0 : _GEN_518; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_520 = cs_72 & readStrobe ? input0 : _GEN_515; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_521 = cs_72 & readStrobe | _GEN_519; // @[MemMap.scala 180:30 182:18]
+  wire  cs_97 = addr_48 >= 24'hc00002 & addr_48 <= 24'hc00002; // @[Util.scala 64:67]
+  wire  _GEN_522 = ~cpu_io_as ? 1'h0 : _GEN_521; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_523 = cs_97 & readStrobe ? input1 : _GEN_520; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_524 = cs_97 & readStrobe | _GEN_522; // @[MemMap.scala 180:30 182:18]
   wire  _GEN_525 = ~cpu_io_as ? 1'h0 : _GEN_524; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_526 = cs_53 ? vram16x16_1_io_portA_dout : _GEN_520; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_527 = cs_53 | _GEN_525; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_528 = ~cpu_io_as ? 1'h0 : _GEN_527; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_529 = cs_54 ? lineRam_1_io_portA_dout : _GEN_526; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_530 = cs_54 | _GEN_528; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_531 = ~cpu_io_as ? 1'h0 : _GEN_530; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_526 = cs_98 & _upperWriteStrobe_T_3 | _GEN_525; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_527 = ~cpu_io_as ? 1'h0 : _GEN_526; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_528 = readStrobe ? 16'h0 : _GEN_523; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_529 = cs_73 ? _GEN_528 : _GEN_523; // @[MemMap.scala 164:16]
+  wire  _GEN_530 = cs_73 | _GEN_527; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_23; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_542 = readStrobe ? tmp_23 : _GEN_345; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_544 = cs_54 ? _GEN_542 : _GEN_345; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_548 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_544; // @[MemMap.scala 108:16 109:16]
+  reg [15:0] tmp_24; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_552 = readStrobe ? tmp_24 : _GEN_548; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_554 = cs_56 ? _GEN_552 : _GEN_548; // @[MemMap.scala 164:16]
+  wire  cs_106 = addr_48 >= 24'h5fff00 & addr_48 <= 24'h5fffff; // @[Util.scala 64:67]
+  wire  _GEN_558 = cs_106 & writeStrobe | _GEN_364; // @[MemMap.scala 192:31 194:18]
+  wire  _GEN_559 = ~cpu_io_as ? 1'h0 : _GEN_558; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_560 = cs_57 ? vram16x16_1_io_portA_dout : _GEN_554; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_561 = cs_57 | _GEN_559; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_562 = ~cpu_io_as ? 1'h0 : _GEN_561; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_563 = cs_58 ? lineRam_1_io_portA_dout : _GEN_560; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_564 = cs_58 | _GEN_562; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_565 = ~cpu_io_as ? 1'h0 : _GEN_564; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_25; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_533 = readStrobe ? tmp_25 : _GEN_529; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_535 = cs_55 ? _GEN_533 : _GEN_529; // @[MemMap.scala 164:16]
-  wire  _GEN_537 = cs_55 | _GEN_531; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_538 = ~cpu_io_as ? 1'h0 : _GEN_537; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_539 = cs_56 ? vram8x8_1_io_portA_dout : _GEN_535; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_540 = cs_56 | _GEN_538; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_541 = ~cpu_io_as ? 1'h0 : _GEN_540; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_567 = readStrobe ? tmp_25 : _GEN_563; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_569 = cs_59 ? _GEN_567 : _GEN_563; // @[MemMap.scala 164:16]
+  wire  _GEN_571 = cs_59 | _GEN_565; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_572 = ~cpu_io_as ? 1'h0 : _GEN_571; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_573 = cs_60 ? vram8x8_1_io_portA_dout : _GEN_569; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_574 = cs_60 | _GEN_572; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_575 = ~cpu_io_as ? 1'h0 : _GEN_574; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_26; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_543 = readStrobe ? tmp_26 : _GEN_539; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_545 = cs_57 ? _GEN_543 : _GEN_539; // @[MemMap.scala 164:16]
-  wire  _GEN_547 = cs_57 | _GEN_541; // @[MemMap.scala 164:16 170:18]
-  wire  cs_114 = addr_40 >= 24'h700000 & addr_40 <= 24'h70ffff; // @[Util.scala 64:67]
-  wire  _GEN_548 = ~cpu_io_as ? 1'h0 : _GEN_547; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_549 = cs_114 ? vram8x8_2_io_portA_dout : _GEN_545; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_550 = cs_114 | _GEN_548; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_551 = ~cpu_io_as ? 1'h0 : _GEN_550; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_556 = cs_60 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_549; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_557 = cs_60 & readStrobe | _GEN_551; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_558 = ~cpu_io_as ? 1'h0 : _GEN_557; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_559 = cs_61 & _upperWriteStrobe_T_3 | _GEN_558; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_560 = ~cpu_io_as ? 1'h0 : _GEN_559; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_562 = cs_62 & writeStrobe | _GEN_560; // @[MemMap.scala 192:31 194:18]
-  wire  _GEN_563 = ~cpu_io_as ? 1'h0 : _GEN_562; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_27; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_565 = readStrobe ? tmp_27 : _GEN_556; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_567 = cs_63 ? _GEN_565 : _GEN_556; // @[MemMap.scala 164:16]
-  wire  _GEN_569 = cs_63 | _GEN_563; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_570 = ~cpu_io_as ? 1'h0 : _GEN_569; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_571 = cs_64 ? layerRegs_0_io_mem_dout : _GEN_567; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_572 = cs_64 | _GEN_570; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_573 = ~cpu_io_as ? 1'h0 : _GEN_572; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_574 = cs_36 ? layerRegs_1_io_mem_dout : _GEN_571; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_575 = cs_36 | _GEN_573; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_576 = ~cpu_io_as ? 1'h0 : _GEN_575; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_577 = cs_38 ? layerRegs_2_io_mem_dout : _GEN_574; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_578 = cs_38 | _GEN_576; // @[MemMap.scala 108:16 110:18]
-  wire  cs_122 = addr_40 >= 24'hc00000 & addr_40 <= 24'hc0ffff; // @[Util.scala 64:67]
-  wire  _GEN_579 = ~cpu_io_as ? 1'h0 : _GEN_578; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_580 = cs_122 ? paletteRam_io_portA_dout : _GEN_577; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_581 = cs_122 | _GEN_579; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_577 = readStrobe ? tmp_26 : _GEN_573; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_579 = cs_61 ? _GEN_577 : _GEN_573; // @[MemMap.scala 164:16]
+  wire  _GEN_581 = cs_61 | _GEN_575; // @[MemMap.scala 164:16 170:18]
+  wire  cs_112 = addr_48 >= 24'h700000 & addr_48 <= 24'h70ffff; // @[Util.scala 64:67]
   wire  _GEN_582 = ~cpu_io_as ? 1'h0 : _GEN_581; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_583 = cs_97 & readStrobe ? input0 : _GEN_580; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_584 = cs_97 & readStrobe | _GEN_582; // @[MemMap.scala 180:30 182:18]
-  wire  cs_124 = addr_40 >= 24'hd00002 & addr_40 <= 24'hd00002; // @[Util.scala 64:67]
+  wire [15:0] _GEN_583 = cs_112 ? vram8x8_2_io_portA_dout : _GEN_579; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_584 = cs_112 | _GEN_582; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_585 = ~cpu_io_as ? 1'h0 : _GEN_584; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_586 = cs_124 & readStrobe ? input1 : _GEN_583; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_587 = cs_124 & readStrobe | _GEN_585; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_588 = ~cpu_io_as ? 1'h0 : _GEN_587; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_589 = cs_125 & _upperWriteStrobe_T_3 | _GEN_588; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_590 = ~cpu_io_as ? 1'h0 : _GEN_589; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_591 = readStrobe ? 16'h0 : _GEN_586; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_592 = cs_69 ? _GEN_591 : _GEN_586; // @[MemMap.scala 164:16]
-  wire  _GEN_593 = cs_69 | _GEN_590; // @[MemMap.scala 164:16 170:18]
+  wire [15:0] _GEN_590 = cs_64 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_583; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_591 = cs_64 & readStrobe | _GEN_585; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_592 = ~cpu_io_as ? 1'h0 : _GEN_591; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_593 = cs_65 & _upperWriteStrobe_T_3 | _GEN_592; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_594 = ~cpu_io_as ? 1'h0 : _GEN_593; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_596 = cs_66 & writeStrobe | _GEN_594; // @[MemMap.scala 192:31 194:18]
+  wire  _GEN_597 = ~cpu_io_as ? 1'h0 : _GEN_596; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_27; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_599 = readStrobe ? tmp_27 : _GEN_590; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_601 = cs_67 ? _GEN_599 : _GEN_590; // @[MemMap.scala 164:16]
+  wire  _GEN_603 = cs_67 | _GEN_597; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_604 = ~cpu_io_as ? 1'h0 : _GEN_603; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_605 = cs_68 ? layerRegs_0_io_mem_dout : _GEN_601; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_606 = cs_68 | _GEN_604; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_607 = ~cpu_io_as ? 1'h0 : _GEN_606; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_608 = cs_44 ? layerRegs_1_io_mem_dout : _GEN_605; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_609 = cs_44 | _GEN_607; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_610 = ~cpu_io_as ? 1'h0 : _GEN_609; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_611 = cs_46 ? layerRegs_2_io_mem_dout : _GEN_608; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_612 = cs_46 | _GEN_610; // @[MemMap.scala 108:16 110:18]
+  wire  cs_120 = addr_48 >= 24'hc00000 & addr_48 <= 24'hc0ffff; // @[Util.scala 64:67]
+  wire  _GEN_613 = ~cpu_io_as ? 1'h0 : _GEN_612; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_614 = cs_120 ? paletteRam_io_portA_dout : _GEN_611; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_615 = cs_120 | _GEN_613; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_616 = ~cpu_io_as ? 1'h0 : _GEN_615; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_617 = cs_98 & readStrobe ? input0 : _GEN_614; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_618 = cs_98 & readStrobe | _GEN_616; // @[MemMap.scala 180:30 182:18]
+  wire  cs_122 = addr_48 >= 24'hd00002 & addr_48 <= 24'hd00002; // @[Util.scala 64:67]
+  wire  _GEN_619 = ~cpu_io_as ? 1'h0 : _GEN_618; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_620 = cs_122 & readStrobe ? input1 : _GEN_617; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_621 = cs_122 & readStrobe | _GEN_619; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_622 = ~cpu_io_as ? 1'h0 : _GEN_621; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_623 = cs_123 & _upperWriteStrobe_T_3 | _GEN_622; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_624 = ~cpu_io_as ? 1'h0 : _GEN_623; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_625 = readStrobe ? 16'h0 : _GEN_620; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_626 = cs_73 ? _GEN_625 : _GEN_620; // @[MemMap.scala 164:16]
+  wire  _GEN_627 = cs_73 | _GEN_624; // @[MemMap.scala 164:16 170:18]
   reg [15:0] tmp_28; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_614 = readStrobe ? tmp_28 : _GEN_293; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_616 = cs_50 ? _GEN_614 : _GEN_293; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_620 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_616; // @[MemMap.scala 108:16 109:16]
+  wire [15:0] _GEN_639 = readStrobe ? tmp_28 : _GEN_345; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_641 = cs_54 ? _GEN_639 : _GEN_345; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_645 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_641; // @[MemMap.scala 108:16 109:16]
   reg [15:0] tmp_29; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_624 = readStrobe ? tmp_29 : _GEN_620; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_626 = cs_52 ? _GEN_624 : _GEN_620; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_630 = cs_53 ? vram16x16_1_io_portA_dout : _GEN_626; // @[MemMap.scala 108:16 109:16]
-  wire [15:0] _GEN_633 = cs_54 ? lineRam_1_io_portA_dout : _GEN_630; // @[MemMap.scala 108:16 109:16]
+  wire [15:0] _GEN_649 = readStrobe ? tmp_29 : _GEN_645; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_651 = cs_56 ? _GEN_649 : _GEN_645; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_655 = cs_57 ? vram16x16_1_io_portA_dout : _GEN_651; // @[MemMap.scala 108:16 109:16]
+  wire [15:0] _GEN_658 = cs_58 ? lineRam_1_io_portA_dout : _GEN_655; // @[MemMap.scala 108:16 109:16]
   reg [15:0] tmp_30; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_637 = readStrobe ? tmp_30 : _GEN_633; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_639 = cs_55 ? _GEN_637 : _GEN_633; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_643 = cs_56 ? vram8x8_1_io_portA_dout : _GEN_639; // @[MemMap.scala 108:16 109:16]
+  wire [15:0] _GEN_662 = readStrobe ? tmp_30 : _GEN_658; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_664 = cs_59 ? _GEN_662 : _GEN_658; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_668 = cs_60 ? vram8x8_1_io_portA_dout : _GEN_664; // @[MemMap.scala 108:16 109:16]
   reg [15:0] tmp_31; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_647 = readStrobe ? tmp_31 : _GEN_643; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_649 = cs_57 ? _GEN_647 : _GEN_643; // @[MemMap.scala 164:16]
-  wire  cs_141 = addr_40 >= 24'h700000 & addr_40 <= 24'h700fff; // @[Util.scala 64:67]
-  wire [15:0] _GEN_653 = cs_141 ? vram16x16_2_io_portA_dout : _GEN_649; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_654 = cs_141 | _GEN_335; // @[MemMap.scala 108:16 110:18]
-  wire  cs_142 = addr_40 >= 24'h701000 & addr_40 <= 24'h7017ff; // @[Util.scala 64:67]
-  wire  _GEN_655 = ~cpu_io_as ? 1'h0 : _GEN_654; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_656 = cs_142 ? lineRam_2_io_portA_dout : _GEN_653; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_657 = cs_142 | _GEN_655; // @[MemMap.scala 108:16 110:18]
-  wire  cs_143 = addr_40 >= 24'h701800 & addr_40 <= 24'h703fff; // @[Util.scala 64:67]
-  wire  _GEN_658 = ~cpu_io_as ? 1'h0 : _GEN_657; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_672 = readStrobe ? tmp_31 : _GEN_668; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_674 = cs_61 ? _GEN_672 : _GEN_668; // @[MemMap.scala 164:16]
+  wire  cs_136 = addr_48 >= 24'h700000 & addr_48 <= 24'h700fff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_678 = cs_136 ? vram16x16_2_io_portA_dout : _GEN_674; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_679 = cs_136 | _GEN_387; // @[MemMap.scala 108:16 110:18]
+  wire  cs_137 = addr_48 >= 24'h701000 & addr_48 <= 24'h7017ff; // @[Util.scala 64:67]
+  wire  _GEN_680 = ~cpu_io_as ? 1'h0 : _GEN_679; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_681 = cs_137 ? lineRam_2_io_portA_dout : _GEN_678; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_682 = cs_137 | _GEN_680; // @[MemMap.scala 108:16 110:18]
+  wire  cs_138 = addr_48 >= 24'h701800 & addr_48 <= 24'h703fff; // @[Util.scala 64:67]
+  wire  _GEN_683 = ~cpu_io_as ? 1'h0 : _GEN_682; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_32; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_660 = readStrobe ? tmp_32 : _GEN_656; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_662 = cs_143 ? _GEN_660 : _GEN_656; // @[MemMap.scala 164:16]
-  wire  _GEN_664 = cs_143 | _GEN_658; // @[MemMap.scala 164:16 170:18]
-  wire  cs_144 = addr_40 >= 24'h704000 & addr_40 <= 24'h707fff; // @[Util.scala 64:67]
-  wire  _GEN_665 = ~cpu_io_as ? 1'h0 : _GEN_664; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_666 = cs_144 ? vram8x8_2_io_portA_dout : _GEN_662; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_667 = cs_144 | _GEN_665; // @[MemMap.scala 108:16 110:18]
-  wire  cs_145 = addr_40 >= 24'h708000 & addr_40 <= 24'h70ffff; // @[Util.scala 64:67]
-  wire  _GEN_668 = ~cpu_io_as ? 1'h0 : _GEN_667; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_685 = readStrobe ? tmp_32 : _GEN_681; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_687 = cs_138 ? _GEN_685 : _GEN_681; // @[MemMap.scala 164:16]
+  wire  _GEN_689 = cs_138 | _GEN_683; // @[MemMap.scala 164:16 170:18]
+  wire  cs_139 = addr_48 >= 24'h704000 & addr_48 <= 24'h707fff; // @[Util.scala 64:67]
+  wire  _GEN_690 = ~cpu_io_as ? 1'h0 : _GEN_689; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_691 = cs_139 ? vram8x8_2_io_portA_dout : _GEN_687; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_692 = cs_139 | _GEN_690; // @[MemMap.scala 108:16 110:18]
+  wire  cs_140 = addr_48 >= 24'h708000 & addr_48 <= 24'h70ffff; // @[Util.scala 64:67]
+  wire  _GEN_693 = ~cpu_io_as ? 1'h0 : _GEN_692; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_33; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_670 = readStrobe ? tmp_33 : _GEN_666; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_672 = cs_145 ? _GEN_670 : _GEN_666; // @[MemMap.scala 164:16]
-  wire  _GEN_674 = cs_145 | _GEN_668; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_675 = ~cpu_io_as ? 1'h0 : _GEN_674; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_680 = cs_60 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_672; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_681 = cs_60 & readStrobe | _GEN_675; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_682 = ~cpu_io_as ? 1'h0 : _GEN_681; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_683 = cs_61 & _upperWriteStrobe_T_3 | _GEN_682; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_684 = ~cpu_io_as ? 1'h0 : _GEN_683; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_686 = cs_62 & writeStrobe | _GEN_684; // @[MemMap.scala 192:31 194:18]
-  wire  _GEN_687 = ~cpu_io_as ? 1'h0 : _GEN_686; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_34; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_689 = readStrobe ? tmp_34 : _GEN_680; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_691 = cs_63 ? _GEN_689 : _GEN_680; // @[MemMap.scala 164:16]
-  wire  _GEN_693 = cs_63 | _GEN_687; // @[MemMap.scala 164:16 170:18]
-  wire  cs_150 = addr_40 >= 24'h800f00 & addr_40 <= 24'h800f03; // @[Util.scala 64:67]
-  wire  _GEN_694 = ~cpu_io_as ? 1'h0 : _GEN_693; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_695 = cs_150 & readStrobe ? 16'h0 : _GEN_691; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_696 = cs_150 & readStrobe | _GEN_694; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_697 = ~cpu_io_as ? 1'h0 : _GEN_696; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_698 = cs_64 ? layerRegs_0_io_mem_dout : _GEN_695; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_699 = cs_64 | _GEN_697; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_695 = readStrobe ? tmp_33 : _GEN_691; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_697 = cs_140 ? _GEN_695 : _GEN_691; // @[MemMap.scala 164:16]
+  wire  _GEN_699 = cs_140 | _GEN_693; // @[MemMap.scala 164:16 170:18]
   wire  _GEN_700 = ~cpu_io_as ? 1'h0 : _GEN_699; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_701 = cs_36 ? layerRegs_1_io_mem_dout : _GEN_698; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_702 = cs_36 | _GEN_700; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_703 = ~cpu_io_as ? 1'h0 : _GEN_702; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_704 = cs_38 ? layerRegs_2_io_mem_dout : _GEN_701; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_705 = cs_38 | _GEN_703; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_706 = ~cpu_io_as ? 1'h0 : _GEN_705; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_707 = cs_122 ? paletteRam_io_portA_dout : _GEN_704; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_708 = cs_122 | _GEN_706; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_705 = cs_64 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_697; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_706 = cs_64 & readStrobe | _GEN_700; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_707 = ~cpu_io_as ? 1'h0 : _GEN_706; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_708 = cs_65 & _upperWriteStrobe_T_3 | _GEN_707; // @[MemMap.scala 154:{27,38}]
   wire  _GEN_709 = ~cpu_io_as ? 1'h0 : _GEN_708; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_710 = cs_97 & readStrobe ? input0 : _GEN_707; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_711 = cs_97 & readStrobe | _GEN_709; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_711 = cs_66 & writeStrobe | _GEN_709; // @[MemMap.scala 192:31 194:18]
   wire  _GEN_712 = ~cpu_io_as ? 1'h0 : _GEN_711; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_713 = cs_124 & readStrobe ? input1 : _GEN_710; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_714 = cs_124 & readStrobe | _GEN_712; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_715 = ~cpu_io_as ? 1'h0 : _GEN_714; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_716 = cs_125 & _upperWriteStrobe_T_3 | _GEN_715; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_717 = ~cpu_io_as ? 1'h0 : _GEN_716; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_718 = readStrobe ? 16'h0 : _GEN_713; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_719 = cs_69 ? _GEN_718 : _GEN_713; // @[MemMap.scala 164:16]
-  wire  _GEN_720 = cs_69 | _GEN_717; // @[MemMap.scala 164:16 170:18]
-  wire  cs_160 = addr_40 >= 24'h57e & addr_40 <= 24'h581; // @[Util.scala 64:67]
-  wire  _GEN_725 = cs_160 & writeStrobe | _GEN_280; // @[MemMap.scala 192:31 194:18]
-  wire  _GEN_726 = ~cpu_io_as ? 1'h0 : _GEN_725; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_728 = cs_3 | _GEN_726; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_729 = ~cpu_io_as ? 1'h0 : _GEN_728; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_731 = cs_46 | _GEN_729; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_732 = ~cpu_io_as ? 1'h0 : _GEN_731; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_734 = cs_47 | _GEN_732; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_735 = ~cpu_io_as ? 1'h0 : _GEN_734; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_737 = cs_48 | _GEN_735; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_738 = ~cpu_io_as ? 1'h0 : _GEN_737; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_740 = cs_49 | _GEN_738; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_741 = ~cpu_io_as ? 1'h0 : _GEN_740; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_35; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_743 = readStrobe ? tmp_35 : _GEN_293; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_745 = cs_50 ? _GEN_743 : _GEN_293; // @[MemMap.scala 164:16]
-  wire  _GEN_747 = cs_50 | _GEN_741; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_34; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_714 = readStrobe ? tmp_34 : _GEN_705; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_716 = cs_67 ? _GEN_714 : _GEN_705; // @[MemMap.scala 164:16]
+  wire  _GEN_718 = cs_67 | _GEN_712; // @[MemMap.scala 164:16 170:18]
+  wire  cs_145 = addr_48 >= 24'h800f00 & addr_48 <= 24'h800f03; // @[Util.scala 64:67]
+  wire  _GEN_719 = ~cpu_io_as ? 1'h0 : _GEN_718; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_720 = cs_145 & readStrobe ? 16'h0 : _GEN_716; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_721 = cs_145 & readStrobe | _GEN_719; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_722 = ~cpu_io_as ? 1'h0 : _GEN_721; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_723 = cs_68 ? layerRegs_0_io_mem_dout : _GEN_720; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_724 = cs_68 | _GEN_722; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_725 = ~cpu_io_as ? 1'h0 : _GEN_724; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_726 = cs_44 ? layerRegs_1_io_mem_dout : _GEN_723; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_727 = cs_44 | _GEN_725; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_728 = ~cpu_io_as ? 1'h0 : _GEN_727; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_729 = cs_46 ? layerRegs_2_io_mem_dout : _GEN_726; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_730 = cs_46 | _GEN_728; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_731 = ~cpu_io_as ? 1'h0 : _GEN_730; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_732 = cs_120 ? paletteRam_io_portA_dout : _GEN_729; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_733 = cs_120 | _GEN_731; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_734 = ~cpu_io_as ? 1'h0 : _GEN_733; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_735 = cs_98 & readStrobe ? input0 : _GEN_732; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_736 = cs_98 & readStrobe | _GEN_734; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_737 = ~cpu_io_as ? 1'h0 : _GEN_736; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_738 = cs_122 & readStrobe ? input1 : _GEN_735; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_739 = cs_122 & readStrobe | _GEN_737; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_740 = ~cpu_io_as ? 1'h0 : _GEN_739; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_741 = cs_123 & _upperWriteStrobe_T_3 | _GEN_740; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_742 = ~cpu_io_as ? 1'h0 : _GEN_741; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_743 = readStrobe ? 16'h0 : _GEN_738; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_744 = cs_73 ? _GEN_743 : _GEN_738; // @[MemMap.scala 164:16]
+  wire  _GEN_745 = cs_73 | _GEN_742; // @[MemMap.scala 164:16 170:18]
+  wire  cs_154 = addr_48 >= 24'h57e & addr_48 <= 24'h581; // @[Util.scala 64:67]
+  wire  _GEN_747 = cs_154 & writeStrobe | _GEN_157; // @[MemMap.scala 192:31 194:18]
   wire  _GEN_748 = ~cpu_io_as ? 1'h0 : _GEN_747; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_749 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_745; // @[MemMap.scala 108:16 109:16]
   wire  _GEN_750 = cs_51 | _GEN_748; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_751 = ~cpu_io_as ? 1'h0 : _GEN_750; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_36; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_753 = readStrobe ? tmp_36 : _GEN_749; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_755 = cs_52 ? _GEN_753 : _GEN_749; // @[MemMap.scala 164:16]
-  wire  _GEN_757 = cs_52 | _GEN_751; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_758 = ~cpu_io_as ? 1'h0 : _GEN_757; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_759 = cs_53 ? vram16x16_1_io_portA_dout : _GEN_755; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_760 = cs_53 | _GEN_758; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_761 = ~cpu_io_as ? 1'h0 : _GEN_760; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_762 = cs_54 ? lineRam_1_io_portA_dout : _GEN_759; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_763 = cs_54 | _GEN_761; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_753 = cs_52 | _GEN_751; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_754 = ~cpu_io_as ? 1'h0 : _GEN_753; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_756 = cs_53 | _GEN_754; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_757 = ~cpu_io_as ? 1'h0 : _GEN_756; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_35; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_759 = readStrobe ? tmp_35 : _GEN_345; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_761 = cs_54 ? _GEN_759 : _GEN_345; // @[MemMap.scala 164:16]
+  wire  _GEN_763 = cs_54 | _GEN_757; // @[MemMap.scala 164:16 170:18]
   wire  _GEN_764 = ~cpu_io_as ? 1'h0 : _GEN_763; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_37; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_766 = readStrobe ? tmp_37 : _GEN_762; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_768 = cs_55 ? _GEN_766 : _GEN_762; // @[MemMap.scala 164:16]
-  wire  _GEN_770 = cs_55 | _GEN_764; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_771 = ~cpu_io_as ? 1'h0 : _GEN_770; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_772 = cs_56 ? vram8x8_1_io_portA_dout : _GEN_768; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_773 = cs_56 | _GEN_771; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_765 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_761; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_766 = cs_55 | _GEN_764; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_767 = ~cpu_io_as ? 1'h0 : _GEN_766; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_36; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_769 = readStrobe ? tmp_36 : _GEN_765; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_771 = cs_56 ? _GEN_769 : _GEN_765; // @[MemMap.scala 164:16]
+  wire  _GEN_773 = cs_56 | _GEN_767; // @[MemMap.scala 164:16 170:18]
   wire  _GEN_774 = ~cpu_io_as ? 1'h0 : _GEN_773; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_38; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_776 = readStrobe ? tmp_38 : _GEN_772; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_778 = cs_57 ? _GEN_776 : _GEN_772; // @[MemMap.scala 164:16]
-  wire  _GEN_780 = cs_57 | _GEN_774; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_781 = ~cpu_io_as ? 1'h0 : _GEN_780; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_782 = cs_141 ? vram16x16_2_io_portA_dout : _GEN_778; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_783 = cs_141 | _GEN_781; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_784 = ~cpu_io_as ? 1'h0 : _GEN_783; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_785 = cs_142 ? lineRam_2_io_portA_dout : _GEN_782; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_786 = cs_142 | _GEN_784; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_775 = cs_57 ? vram16x16_1_io_portA_dout : _GEN_771; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_776 = cs_57 | _GEN_774; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_777 = ~cpu_io_as ? 1'h0 : _GEN_776; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_778 = cs_58 ? lineRam_1_io_portA_dout : _GEN_775; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_779 = cs_58 | _GEN_777; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_780 = ~cpu_io_as ? 1'h0 : _GEN_779; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_37; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_782 = readStrobe ? tmp_37 : _GEN_778; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_784 = cs_59 ? _GEN_782 : _GEN_778; // @[MemMap.scala 164:16]
+  wire  _GEN_786 = cs_59 | _GEN_780; // @[MemMap.scala 164:16 170:18]
   wire  _GEN_787 = ~cpu_io_as ? 1'h0 : _GEN_786; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_39; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_789 = readStrobe ? tmp_39 : _GEN_785; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_791 = cs_143 ? _GEN_789 : _GEN_785; // @[MemMap.scala 164:16]
-  wire  _GEN_793 = cs_143 | _GEN_787; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_794 = ~cpu_io_as ? 1'h0 : _GEN_793; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_795 = cs_144 ? vram8x8_2_io_portA_dout : _GEN_791; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_796 = cs_144 | _GEN_794; // @[MemMap.scala 108:16 110:18]
+  wire [15:0] _GEN_788 = cs_60 ? vram8x8_1_io_portA_dout : _GEN_784; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_789 = cs_60 | _GEN_787; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_790 = ~cpu_io_as ? 1'h0 : _GEN_789; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_38; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_792 = readStrobe ? tmp_38 : _GEN_788; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_794 = cs_61 ? _GEN_792 : _GEN_788; // @[MemMap.scala 164:16]
+  wire  _GEN_796 = cs_61 | _GEN_790; // @[MemMap.scala 164:16 170:18]
   wire  _GEN_797 = ~cpu_io_as ? 1'h0 : _GEN_796; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_40; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_799 = readStrobe ? tmp_40 : _GEN_795; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_801 = cs_145 ? _GEN_799 : _GEN_795; // @[MemMap.scala 164:16]
-  wire  _GEN_803 = cs_145 | _GEN_797; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_804 = ~cpu_io_as ? 1'h0 : _GEN_803; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_809 = cs_60 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_801; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_810 = cs_60 & readStrobe | _GEN_804; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_811 = ~cpu_io_as ? 1'h0 : _GEN_810; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_812 = cs_61 & _upperWriteStrobe_T_3 | _GEN_811; // @[MemMap.scala 154:{27,38}]
+  wire [15:0] _GEN_798 = cs_136 ? vram16x16_2_io_portA_dout : _GEN_794; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_799 = cs_136 | _GEN_797; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_800 = ~cpu_io_as ? 1'h0 : _GEN_799; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_801 = cs_137 ? lineRam_2_io_portA_dout : _GEN_798; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_802 = cs_137 | _GEN_800; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_803 = ~cpu_io_as ? 1'h0 : _GEN_802; // @[MemMap.scala 226:{19,30}]
+  reg [15:0] tmp_39; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_805 = readStrobe ? tmp_39 : _GEN_801; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_807 = cs_138 ? _GEN_805 : _GEN_801; // @[MemMap.scala 164:16]
+  wire  _GEN_809 = cs_138 | _GEN_803; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_810 = ~cpu_io_as ? 1'h0 : _GEN_809; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_811 = cs_139 ? vram8x8_2_io_portA_dout : _GEN_807; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_812 = cs_139 | _GEN_810; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_813 = ~cpu_io_as ? 1'h0 : _GEN_812; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_815 = cs_62 & writeStrobe | _GEN_813; // @[MemMap.scala 192:31 194:18]
-  wire  _GEN_816 = ~cpu_io_as ? 1'h0 : _GEN_815; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_41; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_818 = readStrobe ? tmp_41 : _GEN_809; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_820 = cs_63 ? _GEN_818 : _GEN_809; // @[MemMap.scala 164:16]
-  wire  _GEN_822 = cs_63 | _GEN_816; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_823 = ~cpu_io_as ? 1'h0 : _GEN_822; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_824 = cs_64 ? layerRegs_0_io_mem_dout : _GEN_820; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_825 = cs_64 | _GEN_823; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_826 = ~cpu_io_as ? 1'h0 : _GEN_825; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_827 = cs_36 ? layerRegs_1_io_mem_dout : _GEN_824; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_828 = cs_36 | _GEN_826; // @[MemMap.scala 108:16 110:18]
+  reg [15:0] tmp_40; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_815 = readStrobe ? tmp_40 : _GEN_811; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_817 = cs_140 ? _GEN_815 : _GEN_811; // @[MemMap.scala 164:16]
+  wire  _GEN_819 = cs_140 | _GEN_813; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_820 = ~cpu_io_as ? 1'h0 : _GEN_819; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_825 = cs_64 & readStrobe ? {{13'd0}, _dinReg_T_13} : _GEN_817; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_826 = cs_64 & readStrobe | _GEN_820; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_827 = ~cpu_io_as ? 1'h0 : _GEN_826; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_828 = cs_65 & _upperWriteStrobe_T_3 | _GEN_827; // @[MemMap.scala 154:{27,38}]
   wire  _GEN_829 = ~cpu_io_as ? 1'h0 : _GEN_828; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_830 = cs_38 ? layerRegs_2_io_mem_dout : _GEN_827; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_831 = cs_38 | _GEN_829; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_831 = cs_66 & writeStrobe | _GEN_829; // @[MemMap.scala 192:31 194:18]
   wire  _GEN_832 = ~cpu_io_as ? 1'h0 : _GEN_831; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_833 = cs_122 ? paletteRam_io_portA_dout : _GEN_830; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_834 = cs_122 | _GEN_832; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_835 = ~cpu_io_as ? 1'h0 : _GEN_834; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_836 = cs_226 & readStrobe ? input0 : _GEN_833; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_837 = cs_226 & readStrobe | _GEN_835; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_838 = ~cpu_io_as ? 1'h0 : _GEN_837; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_839 = _eepromMem_wr_T_5 | _GEN_838; // @[MemMap.scala 192:31 194:18]
-  wire  cs_189 = addr_40 >= 24'hd00012 & addr_40 <= 24'hd00012; // @[Util.scala 64:67]
-  wire  _GEN_840 = ~cpu_io_as ? 1'h0 : _GEN_839; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_841 = cs_189 & readStrobe ? input1 : _GEN_836; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_842 = cs_189 & readStrobe | _GEN_840; // @[MemMap.scala 180:30 182:18]
-  wire  cs_190 = addr_40 >= 24'hd00014 & addr_40 <= 24'hd00014; // @[Util.scala 64:67]
-  wire  _GEN_843 = ~cpu_io_as ? 1'h0 : _GEN_842; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_844 = cs_190 & readStrobe ? io_dips_0 : _GEN_841; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_845 = cs_190 & readStrobe | _GEN_843; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_846 = ~cpu_io_as ? 1'h0 : _GEN_845; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_847 = cs_190 & writeStrobe | _GEN_846; // @[MemMap.scala 192:31 194:18]
+  reg [15:0] tmp_41; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_834 = readStrobe ? tmp_41 : _GEN_825; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_836 = cs_67 ? _GEN_834 : _GEN_825; // @[MemMap.scala 164:16]
+  wire  _GEN_838 = cs_67 | _GEN_832; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_839 = ~cpu_io_as ? 1'h0 : _GEN_838; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_840 = cs_68 ? layerRegs_0_io_mem_dout : _GEN_836; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_841 = cs_68 | _GEN_839; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_842 = ~cpu_io_as ? 1'h0 : _GEN_841; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_843 = cs_44 ? layerRegs_1_io_mem_dout : _GEN_840; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_844 = cs_44 | _GEN_842; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_845 = ~cpu_io_as ? 1'h0 : _GEN_844; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_846 = cs_46 ? layerRegs_2_io_mem_dout : _GEN_843; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_847 = cs_46 | _GEN_845; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_848 = ~cpu_io_as ? 1'h0 : _GEN_847; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_849 = readStrobe ? 16'h0 : _GEN_844; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_850 = cs_69 ? _GEN_849 : _GEN_844; // @[MemMap.scala 164:16]
-  wire  _GEN_851 = cs_69 | _GEN_848; // @[MemMap.scala 164:16 170:18]
-  wire  cs_194 = addr_40 >= 24'h200000 & addr_40 <= 24'h20ffff; // @[Util.scala 64:67]
-  wire [15:0] _GEN_856 = cs_194 ? mainRam_io_dout : _GEN_278; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_857 = cs_194 | _GEN_280; // @[MemMap.scala 108:16 110:18]
-  wire  cs_195 = addr_40 >= 24'h210000 & addr_40 <= 24'h2fffff; // @[Util.scala 64:67]
-  wire  _GEN_858 = ~cpu_io_as ? 1'h0 : _GEN_857; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_859 = cs_195 & readStrobe ? 16'h0 : _GEN_856; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_860 = cs_195 & readStrobe | _GEN_858; // @[MemMap.scala 180:30 182:18]
-  wire  cs_196 = addr_40 >= 24'h300000 & addr_40 <= 24'h300007; // @[Util.scala 64:67]
-  wire  _GEN_861 = ~cpu_io_as ? 1'h0 : _GEN_860; // @[MemMap.scala 226:{19,30}]
-  wire  dinReg_a_6 = offset_45 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _GEN_862 = offset_45 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 257:{26,37}]
-  wire  _dinReg_T_40 = ~dinReg_a_6; // @[Main.scala 259:9]
+  wire [15:0] _GEN_849 = cs_120 ? paletteRam_io_portA_dout : _GEN_846; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_850 = cs_120 | _GEN_848; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_851 = ~cpu_io_as ? 1'h0 : _GEN_850; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_852 = cs_215 & readStrobe ? input0 : _GEN_849; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_853 = cs_215 & readStrobe | _GEN_851; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_854 = ~cpu_io_as ? 1'h0 : _GEN_853; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_855 = _eepromMem_wr_T_5 | _GEN_854; // @[MemMap.scala 192:31 194:18]
+  wire  cs_181 = addr_48 >= 24'hd00012 & addr_48 <= 24'hd00012; // @[Util.scala 64:67]
+  wire  _GEN_856 = ~cpu_io_as ? 1'h0 : _GEN_855; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_857 = cs_181 & readStrobe ? input1 : _GEN_852; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_858 = cs_181 & readStrobe | _GEN_856; // @[MemMap.scala 180:30 182:18]
+  wire  cs_182 = addr_48 >= 24'hd00014 & addr_48 <= 24'hd00014; // @[Util.scala 64:67]
+  wire  _GEN_859 = ~cpu_io_as ? 1'h0 : _GEN_858; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_860 = cs_182 & readStrobe ? io_dips_0 : _GEN_857; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_861 = cs_182 & readStrobe | _GEN_859; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_862 = ~cpu_io_as ? 1'h0 : _GEN_861; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_863 = cs_182 & writeStrobe | _GEN_862; // @[MemMap.scala 192:31 194:18]
+  wire  _GEN_864 = ~cpu_io_as ? 1'h0 : _GEN_863; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_865 = readStrobe ? 16'h0 : _GEN_860; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_866 = cs_73 ? _GEN_865 : _GEN_860; // @[MemMap.scala 164:16]
+  wire  _GEN_867 = cs_73 | _GEN_864; // @[MemMap.scala 164:16 170:18]
+  wire  cs_185 = addr_48 >= 24'h210000 & addr_48 <= 24'h2fffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_869 = cs_185 & readStrobe ? 16'h0 : _GEN_156; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_870 = cs_185 & readStrobe | _GEN_157; // @[MemMap.scala 180:30 182:18]
+  wire  cs_186 = addr_48 >= 24'h300000 & addr_48 <= 24'h300007; // @[Util.scala 64:67]
+  wire  _GEN_871 = ~cpu_io_as ? 1'h0 : _GEN_870; // @[MemMap.scala 226:{19,30}]
+  wire  dinReg_a_6 = offset_5 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _GEN_872 = offset_5 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 258:{26,37}]
+  wire  _dinReg_T_40 = ~dinReg_a_6; // @[Main.scala 260:9]
   wire [2:0] _dinReg_T_43 = {_dinReg_T_40,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire  _GEN_864 = cs_196 & readStrobe ? _GEN_862 : _GEN_62; // @[MemMap.scala 180:30]
-  wire [15:0] _GEN_866 = cs_196 & readStrobe ? {{13'd0}, _dinReg_T_43} : _GEN_859; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_867 = cs_196 & readStrobe | _GEN_861; // @[MemMap.scala 180:30 182:18]
-  wire  cs_197 = addr_40 >= 24'h300000 & addr_40 <= 24'h30000f; // @[Util.scala 64:67]
-  wire  _GEN_868 = ~cpu_io_as ? 1'h0 : _GEN_867; // @[MemMap.scala 226:{19,30}]
-  wire  mem_6_wr = cs_197 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_869 = cs_197 & _upperWriteStrobe_T_3 | _GEN_868; // @[MemMap.scala 154:{27,38}]
-  wire  cs_198 = addr_40 >= 24'h300008 & addr_40 <= 24'h300008; // @[Util.scala 64:67]
-  wire  _GEN_870 = ~cpu_io_as ? 1'h0 : _GEN_869; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_871 = cs_198 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_872 = cs_198 & writeStrobe | _GEN_870; // @[MemMap.scala 192:31 194:18]
-  wire  cs_199 = addr_40 >= 24'h300010 & addr_40 <= 24'h30007f; // @[Util.scala 64:67]
-  wire  _GEN_873 = ~cpu_io_as ? 1'h0 : _GEN_872; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_42; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_875 = readStrobe ? tmp_42 : _GEN_866; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_877 = cs_199 ? _GEN_875 : _GEN_866; // @[MemMap.scala 164:16]
-  wire  _GEN_879 = cs_199 | _GEN_873; // @[MemMap.scala 164:16 170:18]
-  wire  cs_200 = addr_40 >= 24'h300080 & addr_40 <= 24'h3fffff; // @[Util.scala 64:67]
+  wire  _GEN_874 = cs_186 & readStrobe ? _GEN_872 : _GEN_62; // @[MemMap.scala 180:30]
+  wire [15:0] _GEN_876 = cs_186 & readStrobe ? {{13'd0}, _dinReg_T_43} : _GEN_869; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_877 = cs_186 & readStrobe | _GEN_871; // @[MemMap.scala 180:30 182:18]
+  wire  cs_187 = addr_48 >= 24'h300000 & addr_48 <= 24'h30000f; // @[Util.scala 64:67]
+  wire  _GEN_878 = ~cpu_io_as ? 1'h0 : _GEN_877; // @[MemMap.scala 226:{19,30}]
+  wire  mem_6_wr = cs_187 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_879 = cs_187 & _upperWriteStrobe_T_3 | _GEN_878; // @[MemMap.scala 154:{27,38}]
+  wire  cs_188 = addr_48 >= 24'h300008 & addr_48 <= 24'h300008; // @[Util.scala 64:67]
   wire  _GEN_880 = ~cpu_io_as ? 1'h0 : _GEN_879; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_881 = cs_200 & readStrobe ? 16'h0 : _GEN_877; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_882 = cs_200 & readStrobe | _GEN_880; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_881 = cs_188 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_882 = cs_188 & writeStrobe | _GEN_880; // @[MemMap.scala 192:31 194:18]
+  wire  cs_189 = addr_48 >= 24'h300010 & addr_48 <= 24'h30007f; // @[Util.scala 64:67]
   wire  _GEN_883 = ~cpu_io_as ? 1'h0 : _GEN_882; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_884 = cs_47 ? spriteRam_io_portA_dout : _GEN_881; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_885 = cs_47 | _GEN_883; // @[MemMap.scala 108:16 110:18]
-  wire  cs_202 = addr_40 >= 24'h410000 & addr_40 <= 24'h4fffff; // @[Util.scala 64:67]
-  wire  _GEN_886 = ~cpu_io_as ? 1'h0 : _GEN_885; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_887 = cs_202 & readStrobe ? 16'h0 : _GEN_884; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_888 = cs_202 & readStrobe | _GEN_886; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_889 = ~cpu_io_as ? 1'h0 : _GEN_888; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_890 = cs_48 ? vram16x16_0_io_portA_dout : _GEN_887; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_891 = cs_48 | _GEN_889; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_892 = ~cpu_io_as ? 1'h0 : _GEN_891; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_893 = cs_49 ? lineRam_0_io_portA_dout : _GEN_890; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_894 = cs_49 | _GEN_892; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_895 = ~cpu_io_as ? 1'h0 : _GEN_894; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_43; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_897 = readStrobe ? tmp_43 : _GEN_893; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_899 = cs_50 ? _GEN_897 : _GEN_893; // @[MemMap.scala 164:16]
-  wire  _GEN_901 = cs_50 | _GEN_895; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_42; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_885 = readStrobe ? tmp_42 : _GEN_876; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_887 = cs_189 ? _GEN_885 : _GEN_876; // @[MemMap.scala 164:16]
+  wire  _GEN_889 = cs_189 | _GEN_883; // @[MemMap.scala 164:16 170:18]
+  wire  cs_190 = addr_48 >= 24'h300080 & addr_48 <= 24'h3fffff; // @[Util.scala 64:67]
+  wire  _GEN_890 = ~cpu_io_as ? 1'h0 : _GEN_889; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_891 = cs_190 & readStrobe ? 16'h0 : _GEN_887; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_892 = cs_190 & readStrobe | _GEN_890; // @[MemMap.scala 180:30 182:18]
+  wire  cs_191 = addr_48 >= 24'h410000 & addr_48 <= 24'h4fffff; // @[Util.scala 64:67]
+  wire  _GEN_893 = ~cpu_io_as ? 1'h0 : _GEN_892; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_894 = cs_191 & readStrobe ? 16'h0 : _GEN_891; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_895 = cs_191 & readStrobe | _GEN_893; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_896 = ~cpu_io_as ? 1'h0 : _GEN_895; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_897 = cs_52 ? vram16x16_0_io_portA_dout : _GEN_894; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_898 = cs_52 | _GEN_896; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_899 = ~cpu_io_as ? 1'h0 : _GEN_898; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_900 = cs_53 ? lineRam_0_io_portA_dout : _GEN_897; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_901 = cs_53 | _GEN_899; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_902 = ~cpu_io_as ? 1'h0 : _GEN_901; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_903 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_899; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_904 = cs_51 | _GEN_902; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_905 = ~cpu_io_as ? 1'h0 : _GEN_904; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_44; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_907 = readStrobe ? tmp_44 : _GEN_903; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_909 = cs_52 ? _GEN_907 : _GEN_903; // @[MemMap.scala 164:16]
-  wire  _GEN_911 = cs_52 | _GEN_905; // @[MemMap.scala 164:16 170:18]
-  wire  cs_208 = addr_40 >= 24'h508000 & addr_40 <= 24'h5fffff; // @[Util.scala 64:67]
+  reg [15:0] tmp_43; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_904 = readStrobe ? tmp_43 : _GEN_900; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_906 = cs_54 ? _GEN_904 : _GEN_900; // @[MemMap.scala 164:16]
+  wire  _GEN_908 = cs_54 | _GEN_902; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_909 = ~cpu_io_as ? 1'h0 : _GEN_908; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_910 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_906; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_911 = cs_55 | _GEN_909; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_912 = ~cpu_io_as ? 1'h0 : _GEN_911; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_913 = cs_208 & readStrobe ? 16'h0 : _GEN_909; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_914 = cs_208 & readStrobe | _GEN_912; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_915 = ~cpu_io_as ? 1'h0 : _GEN_914; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_916 = cs_53 ? vram16x16_1_io_portA_dout : _GEN_913; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_917 = cs_53 | _GEN_915; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_918 = ~cpu_io_as ? 1'h0 : _GEN_917; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_919 = cs_54 ? lineRam_1_io_portA_dout : _GEN_916; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_920 = cs_54 | _GEN_918; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_921 = ~cpu_io_as ? 1'h0 : _GEN_920; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_45; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_923 = readStrobe ? tmp_45 : _GEN_919; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_925 = cs_55 ? _GEN_923 : _GEN_919; // @[MemMap.scala 164:16]
-  wire  _GEN_927 = cs_55 | _GEN_921; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_44; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_914 = readStrobe ? tmp_44 : _GEN_910; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_916 = cs_56 ? _GEN_914 : _GEN_910; // @[MemMap.scala 164:16]
+  wire  _GEN_918 = cs_56 | _GEN_912; // @[MemMap.scala 164:16 170:18]
+  wire  cs_197 = addr_48 >= 24'h508000 & addr_48 <= 24'h5fffff; // @[Util.scala 64:67]
+  wire  _GEN_919 = ~cpu_io_as ? 1'h0 : _GEN_918; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_920 = cs_197 & readStrobe ? 16'h0 : _GEN_916; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_921 = cs_197 & readStrobe | _GEN_919; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_922 = ~cpu_io_as ? 1'h0 : _GEN_921; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_923 = cs_57 ? vram16x16_1_io_portA_dout : _GEN_920; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_924 = cs_57 | _GEN_922; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_925 = ~cpu_io_as ? 1'h0 : _GEN_924; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_926 = cs_58 ? lineRam_1_io_portA_dout : _GEN_923; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_927 = cs_58 | _GEN_925; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_928 = ~cpu_io_as ? 1'h0 : _GEN_927; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_929 = cs_56 ? vram8x8_1_io_portA_dout : _GEN_925; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_930 = cs_56 | _GEN_928; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_931 = ~cpu_io_as ? 1'h0 : _GEN_930; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_46; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_933 = readStrobe ? tmp_46 : _GEN_929; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_935 = cs_57 ? _GEN_933 : _GEN_929; // @[MemMap.scala 164:16]
-  wire  _GEN_937 = cs_57 | _GEN_931; // @[MemMap.scala 164:16 170:18]
-  wire  cs_214 = addr_40 >= 24'h608000 & addr_40 <= 24'h6fffff; // @[Util.scala 64:67]
+  reg [15:0] tmp_45; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_930 = readStrobe ? tmp_45 : _GEN_926; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_932 = cs_59 ? _GEN_930 : _GEN_926; // @[MemMap.scala 164:16]
+  wire  _GEN_934 = cs_59 | _GEN_928; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_935 = ~cpu_io_as ? 1'h0 : _GEN_934; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_936 = cs_60 ? vram8x8_1_io_portA_dout : _GEN_932; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_937 = cs_60 | _GEN_935; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_938 = ~cpu_io_as ? 1'h0 : _GEN_937; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_939 = cs_214 & readStrobe ? 16'h0 : _GEN_935; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_940 = cs_214 & readStrobe | _GEN_938; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_941 = ~cpu_io_as ? 1'h0 : _GEN_940; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_942 = cs_141 ? vram16x16_2_io_portA_dout : _GEN_939; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_943 = cs_141 | _GEN_941; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_944 = ~cpu_io_as ? 1'h0 : _GEN_943; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_945 = cs_142 ? lineRam_2_io_portA_dout : _GEN_942; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_946 = cs_142 | _GEN_944; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_947 = ~cpu_io_as ? 1'h0 : _GEN_946; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_47; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_949 = readStrobe ? tmp_47 : _GEN_945; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_951 = cs_143 ? _GEN_949 : _GEN_945; // @[MemMap.scala 164:16]
-  wire  _GEN_953 = cs_143 | _GEN_947; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_46; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_940 = readStrobe ? tmp_46 : _GEN_936; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_942 = cs_61 ? _GEN_940 : _GEN_936; // @[MemMap.scala 164:16]
+  wire  _GEN_944 = cs_61 | _GEN_938; // @[MemMap.scala 164:16 170:18]
+  wire  cs_203 = addr_48 >= 24'h608000 & addr_48 <= 24'h6fffff; // @[Util.scala 64:67]
+  wire  _GEN_945 = ~cpu_io_as ? 1'h0 : _GEN_944; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_946 = cs_203 & readStrobe ? 16'h0 : _GEN_942; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_947 = cs_203 & readStrobe | _GEN_945; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_948 = ~cpu_io_as ? 1'h0 : _GEN_947; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_949 = cs_136 ? vram16x16_2_io_portA_dout : _GEN_946; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_950 = cs_136 | _GEN_948; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_951 = ~cpu_io_as ? 1'h0 : _GEN_950; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_952 = cs_137 ? lineRam_2_io_portA_dout : _GEN_949; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_953 = cs_137 | _GEN_951; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_954 = ~cpu_io_as ? 1'h0 : _GEN_953; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_955 = cs_144 ? vram8x8_2_io_portA_dout : _GEN_951; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_956 = cs_144 | _GEN_954; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_957 = ~cpu_io_as ? 1'h0 : _GEN_956; // @[MemMap.scala 226:{19,30}]
-  reg [15:0] tmp_48; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_959 = readStrobe ? tmp_48 : _GEN_955; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_961 = cs_145 ? _GEN_959 : _GEN_955; // @[MemMap.scala 164:16]
-  wire  _GEN_963 = cs_145 | _GEN_957; // @[MemMap.scala 164:16 170:18]
-  wire  cs_220 = addr_40 >= 24'h800000 & addr_40 <= 24'h800003; // @[Util.scala 64:67]
+  reg [15:0] tmp_47; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_956 = readStrobe ? tmp_47 : _GEN_952; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_958 = cs_138 ? _GEN_956 : _GEN_952; // @[MemMap.scala 164:16]
+  wire  _GEN_960 = cs_138 | _GEN_954; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_961 = ~cpu_io_as ? 1'h0 : _GEN_960; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_962 = cs_139 ? vram8x8_2_io_portA_dout : _GEN_958; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_963 = cs_139 | _GEN_961; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_964 = ~cpu_io_as ? 1'h0 : _GEN_963; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_965 = cs_220 ? io_soundCtrl_ymz_dout : _GEN_961; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_966 = cs_220 | _GEN_964; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_967 = ~cpu_io_as ? 1'h0 : _GEN_966; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_968 = cs_64 ? layerRegs_0_io_mem_dout : _GEN_965; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_969 = cs_64 | _GEN_967; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_970 = ~cpu_io_as ? 1'h0 : _GEN_969; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_971 = cs_36 ? layerRegs_1_io_mem_dout : _GEN_968; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_972 = cs_36 | _GEN_970; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_973 = ~cpu_io_as ? 1'h0 : _GEN_972; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_974 = cs_38 ? layerRegs_2_io_mem_dout : _GEN_971; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_975 = cs_38 | _GEN_973; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_976 = ~cpu_io_as ? 1'h0 : _GEN_975; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_977 = cs_122 ? paletteRam_io_portA_dout : _GEN_974; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_978 = cs_122 | _GEN_976; // @[MemMap.scala 108:16 110:18]
-  wire  cs_225 = addr_40 >= 24'hd00010 & addr_40 <= 24'hd00014; // @[Util.scala 64:67]
-  wire  _GEN_979 = ~cpu_io_as ? 1'h0 : _GEN_978; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_980 = readStrobe ? 16'h0 : _GEN_977; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_981 = cs_225 ? _GEN_980 : _GEN_977; // @[MemMap.scala 164:16]
-  wire  _GEN_982 = cs_225 | _GEN_979; // @[MemMap.scala 164:16 170:18]
+  reg [15:0] tmp_48; // @[MemMap.scala 206:20]
+  wire [15:0] _GEN_966 = readStrobe ? tmp_48 : _GEN_962; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_968 = cs_140 ? _GEN_966 : _GEN_962; // @[MemMap.scala 164:16]
+  wire  _GEN_970 = cs_140 | _GEN_964; // @[MemMap.scala 164:16 170:18]
+  wire  cs_209 = addr_48 >= 24'h800000 & addr_48 <= 24'h800003; // @[Util.scala 64:67]
+  wire  _GEN_971 = ~cpu_io_as ? 1'h0 : _GEN_970; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_972 = cs_209 ? io_soundCtrl_ymz_dout : _GEN_968; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_973 = cs_209 | _GEN_971; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_974 = ~cpu_io_as ? 1'h0 : _GEN_973; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_975 = cs_68 ? layerRegs_0_io_mem_dout : _GEN_972; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_976 = cs_68 | _GEN_974; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_977 = ~cpu_io_as ? 1'h0 : _GEN_976; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_978 = cs_44 ? layerRegs_1_io_mem_dout : _GEN_975; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_979 = cs_44 | _GEN_977; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_980 = ~cpu_io_as ? 1'h0 : _GEN_979; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_981 = cs_46 ? layerRegs_2_io_mem_dout : _GEN_978; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_982 = cs_46 | _GEN_980; // @[MemMap.scala 108:16 110:18]
   wire  _GEN_983 = ~cpu_io_as ? 1'h0 : _GEN_982; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_984 = cs_226 & _upperWriteStrobe_T_3 | _GEN_983; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_985 = ~cpu_io_as ? 1'h0 : _GEN_984; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_986 = cs_226 & readStrobe ? input0 : _GEN_981; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_987 = cs_226 & readStrobe | _GEN_985; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_988 = ~cpu_io_as ? 1'h0 : _GEN_987; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_989 = cs_189 & readStrobe ? input1 : _GEN_986; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_990 = cs_189 & readStrobe | _GEN_988; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_991 = ~cpu_io_as ? 1'h0 : _GEN_990; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_992 = readStrobe ? 16'h0 : _GEN_989; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_993 = cs_69 ? _GEN_992 : _GEN_989; // @[MemMap.scala 164:16]
-  wire  _GEN_994 = cs_69 | _GEN_991; // @[MemMap.scala 164:16 170:18]
-  wire  cs_231 = addr_40 >= 24'h300000 & addr_40 <= 24'h30ffff; // @[Util.scala 64:67]
-  wire [15:0] _GEN_999 = cs_231 ? mainRam_io_dout : _GEN_278; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1000 = cs_231 | _GEN_280; // @[MemMap.scala 108:16 110:18]
-  wire  cs_232 = addr_40 >= 24'h408000 & addr_40 <= 24'h408fff; // @[Util.scala 64:67]
-  wire  _GEN_1001 = ~cpu_io_as ? 1'h0 : _GEN_1000; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1002 = cs_232 ? paletteRam_io_portA_dout : _GEN_999; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1003 = cs_232 | _GEN_1001; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1004 = ~cpu_io_as ? 1'h0 : _GEN_1003; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1005 = cs_39 & readStrobe ? 16'h0 : _GEN_1002; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1006 = cs_39 & readStrobe | _GEN_1004; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_1007 = ~cpu_io_as ? 1'h0 : _GEN_1006; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1008 = cs_17 ? vram16x16_0_io_portA_dout : _GEN_1005; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1009 = cs_17 | _GEN_1007; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1010 = ~cpu_io_as ? 1'h0 : _GEN_1009; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1011 = cs_18 ? lineRam_0_io_portA_dout : _GEN_1008; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1012 = cs_18 | _GEN_1010; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1013 = ~cpu_io_as ? 1'h0 : _GEN_1012; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_984 = cs_120 ? paletteRam_io_portA_dout : _GEN_981; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_985 = cs_120 | _GEN_983; // @[MemMap.scala 108:16 110:18]
+  wire  cs_214 = addr_48 >= 24'hd00010 & addr_48 <= 24'hd00014; // @[Util.scala 64:67]
+  wire  _GEN_986 = ~cpu_io_as ? 1'h0 : _GEN_985; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_987 = readStrobe ? 16'h0 : _GEN_984; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_988 = cs_214 ? _GEN_987 : _GEN_984; // @[MemMap.scala 164:16]
+  wire  _GEN_989 = cs_214 | _GEN_986; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_990 = ~cpu_io_as ? 1'h0 : _GEN_989; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_991 = cs_215 & _upperWriteStrobe_T_3 | _GEN_990; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_992 = ~cpu_io_as ? 1'h0 : _GEN_991; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_993 = cs_215 & readStrobe ? input0 : _GEN_988; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_994 = cs_215 & readStrobe | _GEN_992; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_995 = ~cpu_io_as ? 1'h0 : _GEN_994; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_996 = cs_181 & readStrobe ? input1 : _GEN_993; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_997 = cs_181 & readStrobe | _GEN_995; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_998 = ~cpu_io_as ? 1'h0 : _GEN_997; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_999 = readStrobe ? 16'h0 : _GEN_996; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1000 = cs_73 ? _GEN_999 : _GEN_996; // @[MemMap.scala 164:16]
+  wire  _GEN_1001 = cs_73 | _GEN_998; // @[MemMap.scala 164:16 170:18]
+  wire  cs_219 = addr_48 >= 24'h408000 & addr_48 <= 24'h408fff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_1003 = cs_219 ? paletteRam_io_portA_dout : _GEN_156; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1004 = cs_219 | _GEN_157; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1005 = ~cpu_io_as ? 1'h0 : _GEN_1004; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1006 = cs_47 & readStrobe ? 16'h0 : _GEN_1003; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1007 = cs_47 & readStrobe | _GEN_1005; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_1008 = ~cpu_io_as ? 1'h0 : _GEN_1007; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1009 = cs_25 ? vram16x16_0_io_portA_dout : _GEN_1006; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1010 = cs_25 | _GEN_1008; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1011 = ~cpu_io_as ? 1'h0 : _GEN_1010; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1012 = cs_26 ? lineRam_0_io_portA_dout : _GEN_1009; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1013 = cs_26 | _GEN_1011; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1014 = ~cpu_io_as ? 1'h0 : _GEN_1013; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_49; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1015 = readStrobe ? tmp_49 : _GEN_1011; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1017 = cs_19 ? _GEN_1015 : _GEN_1011; // @[MemMap.scala 164:16]
-  wire  _GEN_1019 = cs_19 | _GEN_1013; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_1020 = ~cpu_io_as ? 1'h0 : _GEN_1019; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1021 = cs_20 ? vram8x8_0_io_portA_dout : _GEN_1017; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1022 = cs_20 | _GEN_1020; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1023 = ~cpu_io_as ? 1'h0 : _GEN_1022; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1016 = readStrobe ? tmp_49 : _GEN_1012; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1018 = cs_27 ? _GEN_1016 : _GEN_1012; // @[MemMap.scala 164:16]
+  wire  _GEN_1020 = cs_27 | _GEN_1014; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1021 = ~cpu_io_as ? 1'h0 : _GEN_1020; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1022 = cs_28 ? vram8x8_0_io_portA_dout : _GEN_1018; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1023 = cs_28 | _GEN_1021; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1024 = ~cpu_io_as ? 1'h0 : _GEN_1023; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_50; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1025 = readStrobe ? tmp_50 : _GEN_1021; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1027 = cs_21 ? _GEN_1025 : _GEN_1021; // @[MemMap.scala 164:16]
-  wire  _GEN_1029 = cs_21 | _GEN_1023; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_1030 = ~cpu_io_as ? 1'h0 : _GEN_1029; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1031 = cs_22 ? vram16x16_1_io_portA_dout : _GEN_1027; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1032 = cs_22 | _GEN_1030; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1033 = ~cpu_io_as ? 1'h0 : _GEN_1032; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1034 = cs_23 ? lineRam_1_io_portA_dout : _GEN_1031; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1035 = cs_23 | _GEN_1033; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1036 = ~cpu_io_as ? 1'h0 : _GEN_1035; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1026 = readStrobe ? tmp_50 : _GEN_1022; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1028 = cs_29 ? _GEN_1026 : _GEN_1022; // @[MemMap.scala 164:16]
+  wire  _GEN_1030 = cs_29 | _GEN_1024; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1031 = ~cpu_io_as ? 1'h0 : _GEN_1030; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1032 = cs_30 ? vram16x16_1_io_portA_dout : _GEN_1028; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1033 = cs_30 | _GEN_1031; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1034 = ~cpu_io_as ? 1'h0 : _GEN_1033; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1035 = cs_31 ? lineRam_1_io_portA_dout : _GEN_1032; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1036 = cs_31 | _GEN_1034; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1037 = ~cpu_io_as ? 1'h0 : _GEN_1036; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_51; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1038 = readStrobe ? tmp_51 : _GEN_1034; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1040 = cs_24 ? _GEN_1038 : _GEN_1034; // @[MemMap.scala 164:16]
-  wire  _GEN_1042 = cs_24 | _GEN_1036; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_1043 = ~cpu_io_as ? 1'h0 : _GEN_1042; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1044 = cs_25 ? vram8x8_1_io_portA_dout : _GEN_1040; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1045 = cs_25 | _GEN_1043; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1046 = ~cpu_io_as ? 1'h0 : _GEN_1045; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1039 = readStrobe ? tmp_51 : _GEN_1035; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1041 = cs_32 ? _GEN_1039 : _GEN_1035; // @[MemMap.scala 164:16]
+  wire  _GEN_1043 = cs_32 | _GEN_1037; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1044 = ~cpu_io_as ? 1'h0 : _GEN_1043; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1045 = cs_33 ? vram8x8_1_io_portA_dout : _GEN_1041; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1046 = cs_33 | _GEN_1044; // @[MemMap.scala 108:16 110:18]
+  wire  _GEN_1047 = ~cpu_io_as ? 1'h0 : _GEN_1046; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_52; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1048 = readStrobe ? tmp_52 : _GEN_1044; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1050 = cs_26 ? _GEN_1048 : _GEN_1044; // @[MemMap.scala 164:16]
-  wire  _GEN_1052 = cs_26 | _GEN_1046; // @[MemMap.scala 164:16 170:18]
-  wire  cs_244 = addr_40 >= 24'h980000 & addr_40 <= 24'h980fff; // @[Util.scala 64:67]
-  wire  _GEN_1053 = ~cpu_io_as ? 1'h0 : _GEN_1052; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1054 = cs_244 ? vram16x16_2_io_portA_dout : _GEN_1050; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1055 = cs_244 | _GEN_1053; // @[MemMap.scala 108:16 110:18]
-  wire  cs_245 = addr_40 >= 24'h981000 & addr_40 <= 24'h9817ff; // @[Util.scala 64:67]
-  wire  _GEN_1056 = ~cpu_io_as ? 1'h0 : _GEN_1055; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1057 = cs_245 ? lineRam_2_io_portA_dout : _GEN_1054; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1058 = cs_245 | _GEN_1056; // @[MemMap.scala 108:16 110:18]
-  wire  cs_246 = addr_40 >= 24'h981800 & addr_40 <= 24'h983fff; // @[Util.scala 64:67]
-  wire  _GEN_1059 = ~cpu_io_as ? 1'h0 : _GEN_1058; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1049 = readStrobe ? tmp_52 : _GEN_1045; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1051 = cs_34 ? _GEN_1049 : _GEN_1045; // @[MemMap.scala 164:16]
+  wire  _GEN_1053 = cs_34 | _GEN_1047; // @[MemMap.scala 164:16 170:18]
+  wire  cs_231 = addr_48 >= 24'h980000 & addr_48 <= 24'h980fff; // @[Util.scala 64:67]
+  wire  _GEN_1054 = ~cpu_io_as ? 1'h0 : _GEN_1053; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1055 = cs_231 ? vram16x16_2_io_portA_dout : _GEN_1051; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1056 = cs_231 | _GEN_1054; // @[MemMap.scala 108:16 110:18]
+  wire  cs_232 = addr_48 >= 24'h981000 & addr_48 <= 24'h9817ff; // @[Util.scala 64:67]
+  wire  _GEN_1057 = ~cpu_io_as ? 1'h0 : _GEN_1056; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1058 = cs_232 ? lineRam_2_io_portA_dout : _GEN_1055; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1059 = cs_232 | _GEN_1057; // @[MemMap.scala 108:16 110:18]
+  wire  cs_233 = addr_48 >= 24'h981800 & addr_48 <= 24'h983fff; // @[Util.scala 64:67]
+  wire  _GEN_1060 = ~cpu_io_as ? 1'h0 : _GEN_1059; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_53; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1061 = readStrobe ? tmp_53 : _GEN_1057; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1063 = cs_246 ? _GEN_1061 : _GEN_1057; // @[MemMap.scala 164:16]
-  wire  _GEN_1065 = cs_246 | _GEN_1059; // @[MemMap.scala 164:16 170:18]
-  wire  cs_247 = addr_40 >= 24'h984000 & addr_40 <= 24'h987fff; // @[Util.scala 64:67]
-  wire  _GEN_1066 = ~cpu_io_as ? 1'h0 : _GEN_1065; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1067 = cs_247 ? vram8x8_2_io_portA_dout : _GEN_1063; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1068 = cs_247 | _GEN_1066; // @[MemMap.scala 108:16 110:18]
-  wire  cs_248 = addr_40 >= 24'h988000 & addr_40 <= 24'h98ffff; // @[Util.scala 64:67]
-  wire  _GEN_1069 = ~cpu_io_as ? 1'h0 : _GEN_1068; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1062 = readStrobe ? tmp_53 : _GEN_1058; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1064 = cs_233 ? _GEN_1062 : _GEN_1058; // @[MemMap.scala 164:16]
+  wire  _GEN_1066 = cs_233 | _GEN_1060; // @[MemMap.scala 164:16 170:18]
+  wire  cs_234 = addr_48 >= 24'h984000 & addr_48 <= 24'h987fff; // @[Util.scala 64:67]
+  wire  _GEN_1067 = ~cpu_io_as ? 1'h0 : _GEN_1066; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1068 = cs_234 ? vram8x8_2_io_portA_dout : _GEN_1064; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1069 = cs_234 | _GEN_1067; // @[MemMap.scala 108:16 110:18]
+  wire  cs_235 = addr_48 >= 24'h988000 & addr_48 <= 24'h98ffff; // @[Util.scala 64:67]
+  wire  _GEN_1070 = ~cpu_io_as ? 1'h0 : _GEN_1069; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_54; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1071 = readStrobe ? tmp_54 : _GEN_1067; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1073 = cs_248 ? _GEN_1071 : _GEN_1067; // @[MemMap.scala 164:16]
-  wire  _GEN_1075 = cs_248 | _GEN_1069; // @[MemMap.scala 164:16 170:18]
-  wire  cs_249 = addr_40 >= 24'ha80000 & addr_40 <= 24'ha80007; // @[Util.scala 64:67]
-  wire  _GEN_1076 = ~cpu_io_as ? 1'h0 : _GEN_1075; // @[MemMap.scala 226:{19,30}]
-  wire  dinReg_a_7 = offset_36 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _GEN_1077 = offset_36 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 257:{26,37}]
-  wire  _dinReg_T_46 = ~dinReg_a_7; // @[Main.scala 259:9]
+  wire [15:0] _GEN_1072 = readStrobe ? tmp_54 : _GEN_1068; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1074 = cs_235 ? _GEN_1072 : _GEN_1068; // @[MemMap.scala 164:16]
+  wire  _GEN_1076 = cs_235 | _GEN_1070; // @[MemMap.scala 164:16 170:18]
+  wire  cs_236 = addr_48 >= 24'ha80000 & addr_48 <= 24'ha80007; // @[Util.scala 64:67]
+  wire  _GEN_1077 = ~cpu_io_as ? 1'h0 : _GEN_1076; // @[MemMap.scala 226:{19,30}]
+  wire  dinReg_a_7 = offset_44 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _GEN_1078 = offset_44 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 258:{26,37}]
+  wire  _dinReg_T_46 = ~dinReg_a_7; // @[Main.scala 260:9]
   wire [2:0] _dinReg_T_49 = {_dinReg_T_46,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire  _GEN_1079 = cs_249 & readStrobe ? _GEN_1077 : _GEN_62; // @[MemMap.scala 180:30]
-  wire [15:0] _GEN_1081 = cs_249 & readStrobe ? {{13'd0}, _dinReg_T_49} : _GEN_1073; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1082 = cs_249 & readStrobe | _GEN_1076; // @[MemMap.scala 180:30 182:18]
-  wire  cs_250 = addr_40 >= 24'ha80000 & addr_40 <= 24'ha8000f; // @[Util.scala 64:67]
-  wire  _GEN_1083 = ~cpu_io_as ? 1'h0 : _GEN_1082; // @[MemMap.scala 226:{19,30}]
-  wire  mem_7_wr = cs_250 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_1084 = cs_250 & _upperWriteStrobe_T_3 | _GEN_1083; // @[MemMap.scala 154:{27,38}]
-  wire  cs_251 = addr_40 >= 24'ha80008 & addr_40 <= 24'ha80008; // @[Util.scala 64:67]
-  wire  _GEN_1085 = ~cpu_io_as ? 1'h0 : _GEN_1084; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_1086 = cs_251 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_1087 = cs_251 & writeStrobe | _GEN_1085; // @[MemMap.scala 192:31 194:18]
-  wire  cs_252 = addr_40 >= 24'ha80010 & addr_40 <= 24'ha8007f; // @[Util.scala 64:67]
-  wire  _GEN_1088 = ~cpu_io_as ? 1'h0 : _GEN_1087; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1080 = cs_236 & readStrobe ? _GEN_1078 : _GEN_62; // @[MemMap.scala 180:30]
+  wire [15:0] _GEN_1082 = cs_236 & readStrobe ? {{13'd0}, _dinReg_T_49} : _GEN_1074; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1083 = cs_236 & readStrobe | _GEN_1077; // @[MemMap.scala 180:30 182:18]
+  wire  cs_237 = addr_48 >= 24'ha80000 & addr_48 <= 24'ha8000f; // @[Util.scala 64:67]
+  wire  _GEN_1084 = ~cpu_io_as ? 1'h0 : _GEN_1083; // @[MemMap.scala 226:{19,30}]
+  wire  mem_7_wr = cs_237 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_1085 = cs_237 & _upperWriteStrobe_T_3 | _GEN_1084; // @[MemMap.scala 154:{27,38}]
+  wire  cs_238 = addr_48 >= 24'ha80008 & addr_48 <= 24'ha80008; // @[Util.scala 64:67]
+  wire  _GEN_1086 = ~cpu_io_as ? 1'h0 : _GEN_1085; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1087 = cs_238 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_1088 = cs_238 & writeStrobe | _GEN_1086; // @[MemMap.scala 192:31 194:18]
+  wire  cs_239 = addr_48 >= 24'ha80010 & addr_48 <= 24'ha8007f; // @[Util.scala 64:67]
+  wire  _GEN_1089 = ~cpu_io_as ? 1'h0 : _GEN_1088; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_55; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1090 = readStrobe ? tmp_55 : _GEN_1081; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1092 = cs_252 ? _GEN_1090 : _GEN_1081; // @[MemMap.scala 164:16]
-  wire  _GEN_1094 = cs_252 | _GEN_1088; // @[MemMap.scala 164:16 170:18]
-  wire  cs_253 = addr_40 >= 24'ha8006e & addr_40 <= 24'ha8006f; // @[Util.scala 64:67]
-  wire  _GEN_1095 = ~cpu_io_as ? 1'h0 : _GEN_1094; // @[MemMap.scala 226:{19,30}]
-  wire  _T_357 = cs_253 & writeStrobe; // @[MemMap.scala 192:15]
-  wire  _GEN_1097 = cs_253 & writeStrobe | _GEN_1095; // @[MemMap.scala 192:31 194:18]
-  wire  _GEN_1098 = ~cpu_io_as ? 1'h0 : _GEN_1097; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1099 = cs_38 ? layerRegs_0_io_mem_dout : _GEN_1092; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1100 = cs_38 | _GEN_1098; // @[MemMap.scala 108:16 110:18]
-  wire  cs_255 = addr_40 >= 24'hb80000 & addr_40 <= 24'hb80005; // @[Util.scala 64:67]
-  wire  _GEN_1101 = ~cpu_io_as ? 1'h0 : _GEN_1100; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1102 = cs_255 ? layerRegs_1_io_mem_dout : _GEN_1099; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1103 = cs_255 | _GEN_1101; // @[MemMap.scala 108:16 110:18]
-  wire  cs_256 = addr_40 >= 24'hc00000 & addr_40 <= 24'hc00005; // @[Util.scala 64:67]
-  wire  _GEN_1104 = ~cpu_io_as ? 1'h0 : _GEN_1103; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1105 = cs_256 ? layerRegs_2_io_mem_dout : _GEN_1102; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1106 = cs_256 | _GEN_1104; // @[MemMap.scala 108:16 110:18]
-  wire  cs_257 = addr_40 >= 24'hc80000 & addr_40 <= 24'hc80000; // @[Util.scala 64:67]
-  wire  _GEN_1107 = ~cpu_io_as ? 1'h0 : _GEN_1106; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1108 = cs_257 & readStrobe ? input0 : _GEN_1105; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1109 = cs_257 & readStrobe | _GEN_1107; // @[MemMap.scala 180:30 182:18]
-  wire  cs_258 = addr_40 >= 24'hc80002 & addr_40 <= 24'hc80002; // @[Util.scala 64:67]
-  wire  _GEN_1110 = ~cpu_io_as ? 1'h0 : _GEN_1109; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1111 = cs_258 & readStrobe ? input1 : _GEN_1108; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1112 = cs_258 & readStrobe | _GEN_1110; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_1113 = ~cpu_io_as ? 1'h0 : _GEN_1112; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_1114 = cs_97 & _upperWriteStrobe_T_3 | _GEN_1113; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_1115 = ~cpu_io_as ? 1'h0 : _GEN_1114; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1116 = readStrobe ? 16'h0 : _GEN_1111; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1117 = cs_124 ? _GEN_1116 : _GEN_1111; // @[MemMap.scala 164:16]
-  wire  _GEN_1118 = cs_124 | _GEN_1115; // @[MemMap.scala 164:16 170:18]
-  wire  cs_261 = addr_40 >= 24'hf00000 & addr_40 <= 24'hf0ffff; // @[Util.scala 64:67]
-  wire  _GEN_1119 = ~cpu_io_as ? 1'h0 : _GEN_1118; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1120 = cs_261 ? spriteRam_io_portA_dout : _GEN_1117; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1121 = cs_261 | _GEN_1119; // @[MemMap.scala 108:16 110:18]
-  wire  _GEN_1122 = ~cpu_io_as ? 1'h0 : _GEN_1121; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1123 = readStrobe ? 16'h0 : _GEN_1120; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1124 = cs_69 ? _GEN_1123 : _GEN_1120; // @[MemMap.scala 164:16]
-  wire  _GEN_1125 = cs_69 | _GEN_1122; // @[MemMap.scala 164:16 170:18]
+  wire [15:0] _GEN_1091 = readStrobe ? tmp_55 : _GEN_1082; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1093 = cs_239 ? _GEN_1091 : _GEN_1082; // @[MemMap.scala 164:16]
+  wire  _GEN_1095 = cs_239 | _GEN_1089; // @[MemMap.scala 164:16 170:18]
+  wire  cs_240 = addr_48 >= 24'ha8006e & addr_48 <= 24'ha8006f; // @[Util.scala 64:67]
+  wire  _GEN_1096 = ~cpu_io_as ? 1'h0 : _GEN_1095; // @[MemMap.scala 226:{19,30}]
+  wire  _T_347 = cs_240 & writeStrobe; // @[MemMap.scala 192:15]
+  wire  _GEN_1098 = cs_240 & writeStrobe | _GEN_1096; // @[MemMap.scala 192:31 194:18]
+  wire  _GEN_1099 = ~cpu_io_as ? 1'h0 : _GEN_1098; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1100 = cs_46 ? layerRegs_0_io_mem_dout : _GEN_1093; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1101 = cs_46 | _GEN_1099; // @[MemMap.scala 108:16 110:18]
+  wire  cs_242 = addr_48 >= 24'hb80000 & addr_48 <= 24'hb80005; // @[Util.scala 64:67]
+  wire  _GEN_1102 = ~cpu_io_as ? 1'h0 : _GEN_1101; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1103 = cs_242 ? layerRegs_1_io_mem_dout : _GEN_1100; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1104 = cs_242 | _GEN_1102; // @[MemMap.scala 108:16 110:18]
+  wire  cs_243 = addr_48 >= 24'hc00000 & addr_48 <= 24'hc00005; // @[Util.scala 64:67]
+  wire  _GEN_1105 = ~cpu_io_as ? 1'h0 : _GEN_1104; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1106 = cs_243 ? layerRegs_2_io_mem_dout : _GEN_1103; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1107 = cs_243 | _GEN_1105; // @[MemMap.scala 108:16 110:18]
+  wire  cs_244 = addr_48 >= 24'hc80000 & addr_48 <= 24'hc80000; // @[Util.scala 64:67]
+  wire  _GEN_1108 = ~cpu_io_as ? 1'h0 : _GEN_1107; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1109 = cs_244 & readStrobe ? input0 : _GEN_1106; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1110 = cs_244 & readStrobe | _GEN_1108; // @[MemMap.scala 180:30 182:18]
+  wire  cs_245 = addr_48 >= 24'hc80002 & addr_48 <= 24'hc80002; // @[Util.scala 64:67]
+  wire  _GEN_1111 = ~cpu_io_as ? 1'h0 : _GEN_1110; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1112 = cs_245 & readStrobe ? input1 : _GEN_1109; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1113 = cs_245 & readStrobe | _GEN_1111; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_1114 = ~cpu_io_as ? 1'h0 : _GEN_1113; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1115 = cs_98 & _upperWriteStrobe_T_3 | _GEN_1114; // @[MemMap.scala 154:{27,38}]
+  wire  _GEN_1116 = ~cpu_io_as ? 1'h0 : _GEN_1115; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1117 = readStrobe ? 16'h0 : _GEN_1112; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1118 = cs_122 ? _GEN_1117 : _GEN_1112; // @[MemMap.scala 164:16]
+  wire  _GEN_1119 = cs_122 | _GEN_1116; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1120 = ~cpu_io_as ? 1'h0 : _GEN_1119; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1121 = readStrobe ? 16'h0 : _GEN_1118; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1122 = cs_73 ? _GEN_1121 : _GEN_1118; // @[MemMap.scala 164:16]
+  wire  _GEN_1123 = cs_73 | _GEN_1120; // @[MemMap.scala 164:16 170:18]
   reg [15:0] tmp_56; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1146 = readStrobe ? tmp_56 : _GEN_293; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1148 = cs_50 ? _GEN_1146 : _GEN_293; // @[MemMap.scala 164:16]
-  wire [15:0] _GEN_1152 = cs_51 ? vram8x8_0_io_portA_dout : _GEN_1148; // @[MemMap.scala 108:16 109:16]
+  wire [15:0] _GEN_1135 = readStrobe ? tmp_56 : _GEN_345; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1137 = cs_54 ? _GEN_1135 : _GEN_345; // @[MemMap.scala 164:16]
+  wire [15:0] _GEN_1141 = cs_55 ? vram8x8_0_io_portA_dout : _GEN_1137; // @[MemMap.scala 108:16 109:16]
   reg [15:0] tmp_57; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1156 = readStrobe ? tmp_57 : _GEN_1152; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1158 = cs_52 ? _GEN_1156 : _GEN_1152; // @[MemMap.scala 164:16]
-  wire  cs_272 = addr_40 >= 24'h600000 & addr_40 <= 24'h600007; // @[Util.scala 64:67]
-  wire  dinReg_a_8 = offset_38 == 24'h0 & agalletIrq; // @[Main.scala 254:28]
-  wire  _GEN_1162 = offset_38 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 257:{26,37}]
-  wire  _dinReg_T_52 = ~dinReg_a_8; // @[Main.scala 259:9]
+  wire [15:0] _GEN_1145 = readStrobe ? tmp_57 : _GEN_1141; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1147 = cs_56 ? _GEN_1145 : _GEN_1141; // @[MemMap.scala 164:16]
+  wire  cs_255 = addr_48 >= 24'h600000 & addr_48 <= 24'h600007; // @[Util.scala 64:67]
+  wire  dinReg_a_8 = offset_46 == 24'h0 & agalletIrq; // @[Main.scala 255:28]
+  wire  _GEN_1151 = offset_46 == 24'h4 ? 1'h0 : _GEN_62; // @[Main.scala 258:{26,37}]
+  wire  _dinReg_T_52 = ~dinReg_a_8; // @[Main.scala 260:9]
   wire [2:0] _dinReg_T_55 = {_dinReg_T_52,1'h1,_dinReg_T_4}; // @[Cat.scala 33:92]
-  wire  _GEN_1164 = cs_272 & readStrobe ? _GEN_1162 : _GEN_62; // @[MemMap.scala 180:30]
-  wire [15:0] _GEN_1166 = cs_272 & readStrobe ? {{13'd0}, _dinReg_T_55} : _GEN_1158; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1167 = cs_272 & readStrobe | _GEN_312; // @[MemMap.scala 180:30 182:18]
-  wire  cs_273 = addr_40 >= 24'h600000 & addr_40 <= 24'h60000f; // @[Util.scala 64:67]
-  wire  _GEN_1168 = ~cpu_io_as ? 1'h0 : _GEN_1167; // @[MemMap.scala 226:{19,30}]
-  wire  mem_8_wr = cs_273 & writeStrobe; // @[MemMap.scala 150:20]
-  wire  _GEN_1169 = cs_273 & _upperWriteStrobe_T_3 | _GEN_1168; // @[MemMap.scala 154:{27,38}]
-  wire  cs_274 = addr_40 >= 24'h600008 & addr_40 <= 24'h600008; // @[Util.scala 64:67]
-  wire  _GEN_1170 = ~cpu_io_as ? 1'h0 : _GEN_1169; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_1171 = cs_274 & writeStrobe | vBlankRising & (_T_325 | pauseReg); // @[MemMap.scala 192:31 Main.scala 267:28 293:68]
-  wire  _GEN_1172 = cs_274 & writeStrobe | _GEN_1170; // @[MemMap.scala 192:31 194:18]
-  wire  cs_275 = addr_40 >= 24'h600010 & addr_40 <= 24'h60007f; // @[Util.scala 64:67]
-  wire  _GEN_1173 = ~cpu_io_as ? 1'h0 : _GEN_1172; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1153 = cs_255 & readStrobe ? _GEN_1151 : _GEN_62; // @[MemMap.scala 180:30]
+  wire [15:0] _GEN_1155 = cs_255 & readStrobe ? {{13'd0}, _dinReg_T_55} : _GEN_1147; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1156 = cs_255 & readStrobe | _GEN_364; // @[MemMap.scala 180:30 182:18]
+  wire  cs_256 = addr_48 >= 24'h600000 & addr_48 <= 24'h60000f; // @[Util.scala 64:67]
+  wire  _GEN_1157 = ~cpu_io_as ? 1'h0 : _GEN_1156; // @[MemMap.scala 226:{19,30}]
+  wire  mem_8_wr = cs_256 & writeStrobe; // @[MemMap.scala 150:20]
+  wire  _GEN_1158 = cs_256 & _upperWriteStrobe_T_3 | _GEN_1157; // @[MemMap.scala 154:{27,38}]
+  wire  cs_257 = addr_48 >= 24'h600008 & addr_48 <= 24'h600008; // @[Util.scala 64:67]
+  wire  _GEN_1159 = ~cpu_io_as ? 1'h0 : _GEN_1158; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1160 = cs_257 & writeStrobe | vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[MemMap.scala 192:31 Main.scala 268:28 294:68]
+  wire  _GEN_1161 = cs_257 & writeStrobe | _GEN_1159; // @[MemMap.scala 192:31 194:18]
+  wire  cs_258 = addr_48 >= 24'h600010 & addr_48 <= 24'h60007f; // @[Util.scala 64:67]
+  wire  _GEN_1162 = ~cpu_io_as ? 1'h0 : _GEN_1161; // @[MemMap.scala 226:{19,30}]
   reg [15:0] tmp_58; // @[MemMap.scala 206:20]
-  wire [15:0] _GEN_1175 = readStrobe ? tmp_58 : _GEN_1166; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1177 = cs_275 ? _GEN_1175 : _GEN_1166; // @[MemMap.scala 164:16]
-  wire  _GEN_1179 = cs_275 | _GEN_1173; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_1180 = ~cpu_io_as ? 1'h0 : _GEN_1179; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1181 = cs_85 ? layerRegs_0_io_mem_dout : _GEN_1177; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1182 = cs_85 | _GEN_1180; // @[MemMap.scala 108:16 110:18]
-  wire  cs_277 = addr_40 >= 24'h800000 & addr_40 <= 24'h80ffff; // @[Util.scala 64:67]
+  wire [15:0] _GEN_1164 = readStrobe ? tmp_58 : _GEN_1155; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1166 = cs_258 ? _GEN_1164 : _GEN_1155; // @[MemMap.scala 164:16]
+  wire  _GEN_1168 = cs_258 | _GEN_1162; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1169 = ~cpu_io_as ? 1'h0 : _GEN_1168; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1170 = cs_86 ? layerRegs_0_io_mem_dout : _GEN_1166; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1171 = cs_86 | _GEN_1169; // @[MemMap.scala 108:16 110:18]
+  wire  cs_260 = addr_48 >= 24'h800000 & addr_48 <= 24'h80ffff; // @[Util.scala 64:67]
+  wire  _GEN_1172 = ~cpu_io_as ? 1'h0 : _GEN_1171; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1173 = cs_260 ? paletteRam_io_portA_dout : _GEN_1170; // @[MemMap.scala 108:16 109:16]
+  wire  _GEN_1174 = cs_260 | _GEN_1172; // @[MemMap.scala 108:16 110:18]
+  wire  cs_261 = addr_48 >= 24'h900000 & addr_48 <= 24'h900000; // @[Util.scala 64:67]
+  wire  _GEN_1175 = ~cpu_io_as ? 1'h0 : _GEN_1174; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1176 = cs_261 & readStrobe ? input0 : _GEN_1173; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1177 = cs_261 & readStrobe | _GEN_1175; // @[MemMap.scala 180:30 182:18]
+  wire  cs_262 = addr_48 >= 24'h900002 & addr_48 <= 24'h900002; // @[Util.scala 64:67]
+  wire  _GEN_1178 = ~cpu_io_as ? 1'h0 : _GEN_1177; // @[MemMap.scala 226:{19,30}]
+  wire [15:0] _GEN_1179 = cs_262 & readStrobe ? input1 : _GEN_1176; // @[MemMap.scala 180:30 181:16]
+  wire  _GEN_1180 = cs_262 & readStrobe | _GEN_1178; // @[MemMap.scala 180:30 182:18]
+  wire  _GEN_1181 = ~cpu_io_as ? 1'h0 : _GEN_1180; // @[MemMap.scala 226:{19,30}]
+  wire  _GEN_1182 = cs_263 & _upperWriteStrobe_T_3 | _GEN_1181; // @[MemMap.scala 154:{27,38}]
   wire  _GEN_1183 = ~cpu_io_as ? 1'h0 : _GEN_1182; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1184 = cs_277 ? paletteRam_io_portA_dout : _GEN_1181; // @[MemMap.scala 108:16 109:16]
-  wire  _GEN_1185 = cs_277 | _GEN_1183; // @[MemMap.scala 108:16 110:18]
-  wire  cs_278 = addr_40 >= 24'h900000 & addr_40 <= 24'h900000; // @[Util.scala 64:67]
-  wire  _GEN_1186 = ~cpu_io_as ? 1'h0 : _GEN_1185; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1187 = cs_278 & readStrobe ? input0 : _GEN_1184; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1188 = cs_278 & readStrobe | _GEN_1186; // @[MemMap.scala 180:30 182:18]
-  wire  cs_279 = addr_40 >= 24'h900002 & addr_40 <= 24'h900002; // @[Util.scala 64:67]
-  wire  _GEN_1189 = ~cpu_io_as ? 1'h0 : _GEN_1188; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1190 = cs_279 & readStrobe ? input1 : _GEN_1187; // @[MemMap.scala 180:30 181:16]
-  wire  _GEN_1191 = cs_279 & readStrobe | _GEN_1189; // @[MemMap.scala 180:30 182:18]
-  wire  _GEN_1192 = ~cpu_io_as ? 1'h0 : _GEN_1191; // @[MemMap.scala 226:{19,30}]
-  wire  _GEN_1193 = cs_280 & _upperWriteStrobe_T_3 | _GEN_1192; // @[MemMap.scala 154:{27,38}]
-  wire  _GEN_1194 = ~cpu_io_as ? 1'h0 : _GEN_1193; // @[MemMap.scala 226:{19,30}]
-  wire [15:0] _GEN_1195 = readStrobe ? 16'h0 : _GEN_1190; // @[MemMap.scala 165:26 166:18]
-  wire [15:0] _GEN_1196 = cs_69 ? _GEN_1195 : _GEN_1190; // @[MemMap.scala 164:16]
-  wire  _GEN_1197 = cs_69 | _GEN_1194; // @[MemMap.scala 164:16 170:18]
-  wire  _GEN_1198 = io_gameIndex == 4'h4 ? _GEN_1197 : dtackReg; // @[Main.scala 511:46 MemMap.scala 49:25]
-  wire [15:0] _GEN_1199 = io_gameIndex == 4'h4 ? dinReg : 16'h0; // @[Main.scala 511:46 MemMap.scala 229:13 Main.scala 102:14]
-  wire  _GEN_1200 = io_gameIndex == 4'h4 & dtackReg; // @[Main.scala 511:46 MemMap.scala 230:15 Main.scala 99:16]
-  wire  _GEN_1201 = io_gameIndex == 4'h4 & (cs_44 & readStrobe); // @[Main.scala 511:46 MemMap.scala 128:14 MemIO.scala 83:8]
-  wire [15:0] _GEN_1203 = io_gameIndex == 4'h4 ? _GEN_1196 : dinReg; // @[Main.scala 511:46 MemMap.scala 48:23]
-  wire  _GEN_1204 = io_gameIndex == 4'h4 & (cs_3 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1205 = io_gameIndex == 4'h4 & (cs_3 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire [22:0] _GEN_1206 = cpu_io_addr; // @[Main.scala 511:46 MemMap.scala 105:16]
-  wire  _GEN_1209 = io_gameIndex == 4'h4 & (cs_46 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1210 = io_gameIndex == 4'h4 & (cs_46 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1212 = io_gameIndex == 4'h4 & (cs_47 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1213 = io_gameIndex == 4'h4 & (cs_47 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1215 = io_gameIndex == 4'h4 & (cs_48 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1216 = io_gameIndex == 4'h4 & (cs_48 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1218 = io_gameIndex == 4'h4 & (cs_49 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1219 = io_gameIndex == 4'h4 & (cs_49 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1221 = io_gameIndex == 4'h4 & (cs_51 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1222 = io_gameIndex == 4'h4 & (cs_51 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1224 = io_gameIndex == 4'h4 ? _GEN_1164 : _GEN_62; // @[Main.scala 511:46]
-  wire  _GEN_1227 = io_gameIndex == 4'h4 & mem_8_wr; // @[Main.scala 511:46 MemIO.scala 305:8 318:8]
+  wire [15:0] _GEN_1184 = readStrobe ? 16'h0 : _GEN_1179; // @[MemMap.scala 165:26 166:18]
+  wire [15:0] _GEN_1185 = cs_73 ? _GEN_1184 : _GEN_1179; // @[MemMap.scala 164:16]
+  wire  _GEN_1186 = cs_73 | _GEN_1183; // @[MemMap.scala 164:16 170:18]
+  wire  _GEN_1187 = 4'h4 == io_gameIndex ? _GEN_1186 : _GEN_148; // @[Main.scala 342:24]
+  wire  _GEN_1190 = 4'h4 == io_gameIndex & (cs_51 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1191 = 4'h4 == io_gameIndex & (cs_51 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire [15:0] _GEN_1195 = 4'h4 == io_gameIndex ? _GEN_1185 : _GEN_156; // @[Main.scala 342:24]
+  wire  _GEN_1196 = 4'h4 == io_gameIndex & (cs_52 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1197 = 4'h4 == io_gameIndex & (cs_52 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1199 = 4'h4 == io_gameIndex & (cs_53 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1200 = 4'h4 == io_gameIndex & (cs_53 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1202 = 4'h4 == io_gameIndex & (cs_55 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1203 = 4'h4 == io_gameIndex & (cs_55 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1205 = 4'h4 == io_gameIndex ? _GEN_1153 : _GEN_62; // @[Main.scala 342:24]
+  wire  _GEN_1208 = 4'h4 == io_gameIndex & mem_8_wr; // @[Main.scala 342:24 MemIO.scala 305:8 318:8]
   wire [2:0] mem_8_addr = cpu_io_addr[2:0]; // @[MemIO.scala 303:19 MemMap.scala 151:16]
-  wire  _GEN_1231 = io_gameIndex == 4'h4 ? _GEN_1171 : vBlankRising & (_T_325 | pauseReg); // @[Main.scala 267:28 511:46]
-  wire  _GEN_1233 = io_gameIndex == 4'h4 & (cs_85 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1235 = io_gameIndex == 4'h4 & (cs_277 & readStrobe); // @[Main.scala 511:46 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1236 = io_gameIndex == 4'h4 & (cs_277 & writeStrobe); // @[Main.scala 511:46 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1240 = io_gameIndex == 4'h7 ? _GEN_1125 : _GEN_1198; // @[Main.scala 492:48]
-  wire [15:0] _GEN_1241 = io_gameIndex == 4'h7 ? dinReg : _GEN_1199; // @[Main.scala 492:48 MemMap.scala 229:13]
-  wire  _GEN_1242 = io_gameIndex == 4'h7 ? dtackReg : _GEN_1200; // @[Main.scala 492:48 MemMap.scala 230:15]
-  wire  _GEN_1243 = io_gameIndex == 4'h7 ? cs_44 & readStrobe : _GEN_1201; // @[Main.scala 492:48 MemMap.scala 128:14]
-  wire [23:0] _GEN_1244 = io_gameIndex == 4'h7 ? addr_40 : addr_40; // @[Main.scala 492:48 MemMap.scala 129:16]
-  wire [15:0] _GEN_1245 = io_gameIndex == 4'h7 ? _GEN_1124 : _GEN_1203; // @[Main.scala 492:48]
-  wire  _GEN_1246 = io_gameIndex == 4'h7 ? cs_231 & readStrobe : _GEN_1204; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1247 = io_gameIndex == 4'h7 ? cs_231 & writeStrobe : _GEN_1205; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1248 = io_gameIndex == 4'h7 ? cpu_io_addr : _GEN_1206; // @[Main.scala 492:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1249 = io_gameIndex == 4'h7 ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 492:48 MemMap.scala 106:16]
-  wire  _GEN_1251 = io_gameIndex == 4'h7 ? cs_232 & readStrobe : _GEN_1235; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1252 = io_gameIndex == 4'h7 ? cs_232 & writeStrobe : _GEN_1236; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1253 = io_gameIndex == 4'h7 ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_1206; // @[Main.scala 492:48 MemMap.scala 105:16]
-  wire  _GEN_1255 = io_gameIndex == 4'h7 ? cs_17 & readStrobe : _GEN_1215; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1256 = io_gameIndex == 4'h7 ? cs_17 & writeStrobe : _GEN_1216; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire  _GEN_1258 = io_gameIndex == 4'h7 ? cs_18 & readStrobe : _GEN_1218; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1259 = io_gameIndex == 4'h7 ? cs_18 & writeStrobe : _GEN_1219; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire  _GEN_1261 = io_gameIndex == 4'h7 ? cs_20 & readStrobe : _GEN_1221; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1262 = io_gameIndex == 4'h7 ? cs_20 & writeStrobe : _GEN_1222; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire  _GEN_1264 = io_gameIndex == 4'h7 & (cs_22 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1265 = io_gameIndex == 4'h7 & (cs_22 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1269 = io_gameIndex == 4'h7 & (cs_23 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1270 = io_gameIndex == 4'h7 & (cs_23 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1272 = io_gameIndex == 4'h7 & (cs_25 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1273 = io_gameIndex == 4'h7 & (cs_25 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1275 = io_gameIndex == 4'h7 & (cs_244 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1276 = io_gameIndex == 4'h7 & (cs_244 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1278 = io_gameIndex == 4'h7 & (cs_245 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1279 = io_gameIndex == 4'h7 & (cs_245 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1281 = io_gameIndex == 4'h7 & (cs_247 & readStrobe); // @[Main.scala 492:48 MemMap.scala 103:14 MemIO.scala 317:8]
-  wire  _GEN_1282 = io_gameIndex == 4'h7 & (cs_247 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1284 = io_gameIndex == 4'h7 ? _GEN_1079 : _GEN_1224; // @[Main.scala 492:48]
-  wire  _GEN_1287 = io_gameIndex == 4'h7 ? mem_7_wr : _GEN_1227; // @[Main.scala 492:48 MemIO.scala 305:8]
-  wire [2:0] _GEN_1288 = io_gameIndex == 4'h7 ? mem_8_addr : mem_8_addr; // @[Main.scala 492:48 MemIO.scala 306:10]
-  wire [15:0] _GEN_1290 = io_gameIndex == 4'h7 ? _GEN_1208 : _GEN_1208; // @[Main.scala 492:48 MemIO.scala 308:9]
-  wire  _GEN_1291 = io_gameIndex == 4'h7 ? _GEN_1086 : _GEN_1231; // @[Main.scala 492:48]
-  wire  _GEN_1292 = io_gameIndex == 4'h7 & _T_357; // @[Main.scala 109:20 492:48]
-  wire  _GEN_1294 = io_gameIndex == 4'h7 ? cs_38 & writeStrobe : _GEN_1233; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire  _GEN_1297 = io_gameIndex == 4'h7 & (cs_255 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1300 = io_gameIndex == 4'h7 & (cs_256 & writeStrobe); // @[Main.scala 492:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1304 = io_gameIndex == 4'h7 ? cs_261 & readStrobe : _GEN_1212; // @[Main.scala 492:48 MemMap.scala 103:14]
-  wire  _GEN_1305 = io_gameIndex == 4'h7 ? cs_261 & writeStrobe : _GEN_1213; // @[Main.scala 492:48 MemMap.scala 104:14]
-  wire  _GEN_1307 = io_gameIndex == 4'h7 ? 1'h0 : _GEN_1209; // @[Main.scala 492:48 MemIO.scala 317:8]
-  wire  _GEN_1308 = io_gameIndex == 4'h7 ? 1'h0 : _GEN_1210; // @[Main.scala 492:48 MemIO.scala 318:8]
-  wire  _GEN_1312 = io_gameIndex == 4'h5 ? _GEN_994 : _GEN_1240; // @[Main.scala 469:47]
-  wire [15:0] _GEN_1313 = io_gameIndex == 4'h5 ? dinReg : _GEN_1241; // @[Main.scala 469:47 MemMap.scala 229:13]
-  wire  _GEN_1314 = io_gameIndex == 4'h5 ? dtackReg : _GEN_1242; // @[Main.scala 469:47 MemMap.scala 230:15]
-  wire  _GEN_1315 = io_gameIndex == 4'h5 ? cs_44 & readStrobe : _GEN_1243; // @[Main.scala 469:47 MemMap.scala 128:14]
-  wire [23:0] _GEN_1316 = io_gameIndex == 4'h5 ? addr_40 : _GEN_1244; // @[Main.scala 469:47 MemMap.scala 129:16]
-  wire [15:0] _GEN_1317 = io_gameIndex == 4'h5 ? _GEN_993 : _GEN_1245; // @[Main.scala 469:47]
-  wire  _GEN_1318 = io_gameIndex == 4'h5 ? cs_194 & readStrobe : _GEN_1246; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1319 = io_gameIndex == 4'h5 ? cs_194 & writeStrobe : _GEN_1247; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1320 = io_gameIndex == 4'h5 ? cpu_io_addr : _GEN_1248; // @[Main.scala 469:47 MemMap.scala 105:16]
-  wire [1:0] _GEN_1321 = io_gameIndex == 4'h5 ? _mainRam_io_mask_T : _GEN_1249; // @[Main.scala 469:47 MemMap.scala 106:16]
-  wire  _GEN_1323 = io_gameIndex == 4'h5 ? _GEN_864 : _GEN_1284; // @[Main.scala 469:47]
-  wire  _GEN_1326 = io_gameIndex == 4'h5 ? mem_6_wr : _GEN_1287; // @[Main.scala 469:47 MemIO.scala 305:8]
-  wire [2:0] _GEN_1327 = io_gameIndex == 4'h5 ? mem_8_addr : _GEN_1288; // @[Main.scala 469:47 MemIO.scala 306:10]
-  wire [15:0] _GEN_1329 = io_gameIndex == 4'h5 ? _GEN_1208 : _GEN_1290; // @[Main.scala 469:47 MemIO.scala 308:9]
-  wire  _GEN_1330 = io_gameIndex == 4'h5 ? _GEN_871 : _GEN_1291; // @[Main.scala 469:47]
-  wire  _GEN_1331 = io_gameIndex == 4'h5 ? cs_47 & readStrobe : _GEN_1304; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1332 = io_gameIndex == 4'h5 ? cs_47 & writeStrobe : _GEN_1305; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1334 = io_gameIndex == 4'h5 ? cs_48 & readStrobe : _GEN_1255; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1335 = io_gameIndex == 4'h5 ? cs_48 & writeStrobe : _GEN_1256; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1337 = io_gameIndex == 4'h5 ? cs_49 & readStrobe : _GEN_1258; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1338 = io_gameIndex == 4'h5 ? cs_49 & writeStrobe : _GEN_1259; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1340 = io_gameIndex == 4'h5 ? cs_51 & readStrobe : _GEN_1261; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1341 = io_gameIndex == 4'h5 ? cs_51 & writeStrobe : _GEN_1262; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1343 = io_gameIndex == 4'h5 ? cs_53 & readStrobe : _GEN_1264; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1344 = io_gameIndex == 4'h5 ? cs_53 & writeStrobe : _GEN_1265; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1345 = io_gameIndex == 4'h5 ? cpu_io_addr : _GEN_1206; // @[Main.scala 469:47 MemMap.scala 105:16]
-  wire [1:0] _GEN_1346 = io_gameIndex == 4'h5 ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 469:47 MemMap.scala 106:16]
-  wire [15:0] _GEN_1347 = io_gameIndex == 4'h5 ? cpu_io_dout : _GEN_1208; // @[Main.scala 469:47 MemMap.scala 107:15]
-  wire  _GEN_1348 = io_gameIndex == 4'h5 ? cs_54 & readStrobe : _GEN_1269; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1349 = io_gameIndex == 4'h5 ? cs_54 & writeStrobe : _GEN_1270; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1351 = io_gameIndex == 4'h5 ? cs_56 & readStrobe : _GEN_1272; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1352 = io_gameIndex == 4'h5 ? cs_56 & writeStrobe : _GEN_1273; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1354 = io_gameIndex == 4'h5 ? cs_141 & readStrobe : _GEN_1275; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1355 = io_gameIndex == 4'h5 ? cs_141 & writeStrobe : _GEN_1276; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1357 = io_gameIndex == 4'h5 ? cs_142 & readStrobe : _GEN_1278; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1358 = io_gameIndex == 4'h5 ? cs_142 & writeStrobe : _GEN_1279; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1360 = io_gameIndex == 4'h5 ? cs_144 & readStrobe : _GEN_1281; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1361 = io_gameIndex == 4'h5 ? cs_144 & writeStrobe : _GEN_1282; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1363 = io_gameIndex == 4'h5 ? cs_220 & readStrobe : _GEN_1307; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1364 = io_gameIndex == 4'h5 ? cs_220 & writeStrobe : _GEN_1308; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1369 = io_gameIndex == 4'h5 ? cs_64 & writeStrobe : _GEN_1294; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1372 = io_gameIndex == 4'h5 ? cs_36 & writeStrobe : _GEN_1297; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1375 = io_gameIndex == 4'h5 ? cs_38 & writeStrobe : _GEN_1300; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire  _GEN_1377 = io_gameIndex == 4'h5 ? cs_122 & readStrobe : _GEN_1251; // @[Main.scala 469:47 MemMap.scala 103:14]
-  wire  _GEN_1378 = io_gameIndex == 4'h5 ? cs_122 & writeStrobe : _GEN_1252; // @[Main.scala 469:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1379 = io_gameIndex == 4'h5 ? cpu_io_addr : _GEN_1253; // @[Main.scala 469:47 MemMap.scala 105:16]
-  wire  _GEN_1383 = io_gameIndex == 4'h5 ? 1'h0 : _GEN_1292; // @[Main.scala 109:20 469:47]
-  wire  _GEN_1384 = io_gameIndex == 4'h6 ? _GEN_851 : _GEN_1312; // @[Main.scala 449:44]
-  wire [15:0] _GEN_1385 = io_gameIndex == 4'h6 ? dinReg : _GEN_1313; // @[Main.scala 449:44 MemMap.scala 229:13]
-  wire  _GEN_1386 = io_gameIndex == 4'h6 ? dtackReg : _GEN_1314; // @[Main.scala 449:44 MemMap.scala 230:15]
-  wire  _GEN_1387 = io_gameIndex == 4'h6 ? cs_44 & readStrobe : _GEN_1315; // @[Main.scala 449:44 MemMap.scala 128:14]
-  wire [23:0] _GEN_1388 = io_gameIndex == 4'h6 ? addr_40 : _GEN_1316; // @[Main.scala 449:44 MemMap.scala 129:16]
-  wire [15:0] _GEN_1389 = io_gameIndex == 4'h6 ? _GEN_850 : _GEN_1317; // @[Main.scala 449:44]
-  wire  _GEN_1390 = io_gameIndex == 4'h6 ? cs_3 & readStrobe : _GEN_1318; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1391 = io_gameIndex == 4'h6 ? cs_3 & writeStrobe : _GEN_1319; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire [22:0] _GEN_1392 = io_gameIndex == 4'h6 ? cpu_io_addr : _GEN_1320; // @[Main.scala 449:44 MemMap.scala 105:16]
-  wire [1:0] _GEN_1393 = io_gameIndex == 4'h6 ? _mainRam_io_mask_T : _GEN_1321; // @[Main.scala 449:44 MemMap.scala 106:16]
-  wire [15:0] _GEN_1394 = io_gameIndex == 4'h6 ? cpu_io_dout : _GEN_1322; // @[Main.scala 449:44 MemMap.scala 107:15]
-  wire  _GEN_1395 = io_gameIndex == 4'h6 ? cs_46 & readStrobe : _GEN_1363; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1396 = io_gameIndex == 4'h6 ? cs_46 & writeStrobe : _GEN_1364; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire [22:0] _GEN_1397 = io_gameIndex == 4'h6 ? cpu_io_addr : _GEN_1345; // @[Main.scala 449:44 MemMap.scala 105:16]
-  wire [1:0] _GEN_1398 = io_gameIndex == 4'h6 ? _mainRam_io_mask_T : _GEN_1346; // @[Main.scala 449:44 MemMap.scala 106:16]
-  wire [15:0] _GEN_1399 = io_gameIndex == 4'h6 ? cpu_io_dout : _GEN_1347; // @[Main.scala 449:44 MemMap.scala 107:15]
-  wire  _GEN_1400 = io_gameIndex == 4'h6 ? cs_47 & readStrobe : _GEN_1331; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1401 = io_gameIndex == 4'h6 ? cs_47 & writeStrobe : _GEN_1332; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1403 = io_gameIndex == 4'h6 ? cs_48 & readStrobe : _GEN_1334; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1404 = io_gameIndex == 4'h6 ? cs_48 & writeStrobe : _GEN_1335; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1406 = io_gameIndex == 4'h6 ? cs_49 & readStrobe : _GEN_1337; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1407 = io_gameIndex == 4'h6 ? cs_49 & writeStrobe : _GEN_1338; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1409 = io_gameIndex == 4'h6 ? cs_51 & readStrobe : _GEN_1340; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1410 = io_gameIndex == 4'h6 ? cs_51 & writeStrobe : _GEN_1341; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1412 = io_gameIndex == 4'h6 ? cs_53 & readStrobe : _GEN_1343; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1413 = io_gameIndex == 4'h6 ? cs_53 & writeStrobe : _GEN_1344; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1417 = io_gameIndex == 4'h6 ? cs_54 & readStrobe : _GEN_1348; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1418 = io_gameIndex == 4'h6 ? cs_54 & writeStrobe : _GEN_1349; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1420 = io_gameIndex == 4'h6 ? cs_56 & readStrobe : _GEN_1351; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1421 = io_gameIndex == 4'h6 ? cs_56 & writeStrobe : _GEN_1352; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1423 = io_gameIndex == 4'h6 ? cs_141 & readStrobe : _GEN_1354; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1424 = io_gameIndex == 4'h6 ? cs_141 & writeStrobe : _GEN_1355; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1426 = io_gameIndex == 4'h6 ? cs_142 & readStrobe : _GEN_1357; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1427 = io_gameIndex == 4'h6 ? cs_142 & writeStrobe : _GEN_1358; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1429 = io_gameIndex == 4'h6 ? cs_144 & readStrobe : _GEN_1360; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1430 = io_gameIndex == 4'h6 ? cs_144 & writeStrobe : _GEN_1361; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1432 = io_gameIndex == 4'h6 ? _GEN_345 : _GEN_1323; // @[Main.scala 449:44]
-  wire  _GEN_1435 = io_gameIndex == 4'h6 ? mem_1_wr : _GEN_1326; // @[Main.scala 449:44 MemIO.scala 305:8]
-  wire [2:0] _GEN_1436 = io_gameIndex == 4'h6 ? mem_8_addr : _GEN_1327; // @[Main.scala 449:44 MemIO.scala 306:10]
-  wire [15:0] _GEN_1438 = io_gameIndex == 4'h6 ? _GEN_1208 : _GEN_1329; // @[Main.scala 449:44 MemIO.scala 308:9]
-  wire  _GEN_1439 = io_gameIndex == 4'h6 ? _GEN_352 : _GEN_1330; // @[Main.scala 449:44]
-  wire  _GEN_1441 = io_gameIndex == 4'h6 ? cs_64 & writeStrobe : _GEN_1369; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1444 = io_gameIndex == 4'h6 ? cs_36 & writeStrobe : _GEN_1372; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1447 = io_gameIndex == 4'h6 ? cs_38 & writeStrobe : _GEN_1375; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire  _GEN_1449 = io_gameIndex == 4'h6 ? cs_122 & readStrobe : _GEN_1377; // @[Main.scala 449:44 MemMap.scala 103:14]
-  wire  _GEN_1450 = io_gameIndex == 4'h6 ? cs_122 & writeStrobe : _GEN_1378; // @[Main.scala 449:44 MemMap.scala 104:14]
-  wire [22:0] _GEN_1451 = io_gameIndex == 4'h6 ? cpu_io_addr : _GEN_1379; // @[Main.scala 449:44 MemMap.scala 105:16]
-  wire  _GEN_1457 = io_gameIndex == 4'h6 ? 1'h0 : _GEN_1383; // @[Main.scala 109:20 449:44]
-  wire  _GEN_1458 = io_gameIndex == 4'h3 ? _GEN_720 : _GEN_1384; // @[Main.scala 431:47]
-  wire [15:0] _GEN_1459 = io_gameIndex == 4'h3 ? dinReg : _GEN_1385; // @[Main.scala 431:47 MemMap.scala 229:13]
-  wire  _GEN_1460 = io_gameIndex == 4'h3 ? dtackReg : _GEN_1386; // @[Main.scala 431:47 MemMap.scala 230:15]
-  wire  _GEN_1461 = io_gameIndex == 4'h3 ? cs_44 & readStrobe : _GEN_1387; // @[Main.scala 431:47 MemMap.scala 128:14]
-  wire [23:0] _GEN_1462 = io_gameIndex == 4'h3 ? addr_40 : _GEN_1388; // @[Main.scala 431:47 MemMap.scala 129:16]
-  wire [15:0] _GEN_1463 = io_gameIndex == 4'h3 ? _GEN_719 : _GEN_1389; // @[Main.scala 431:47]
-  wire  _GEN_1464 = io_gameIndex == 4'h3 ? cs_3 & readStrobe : _GEN_1390; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1465 = io_gameIndex == 4'h3 ? cs_3 & writeStrobe : _GEN_1391; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1466 = io_gameIndex == 4'h3 ? cpu_io_addr : _GEN_1392; // @[Main.scala 431:47 MemMap.scala 105:16]
-  wire [1:0] _GEN_1467 = io_gameIndex == 4'h3 ? _mainRam_io_mask_T : _GEN_1393; // @[Main.scala 431:47 MemMap.scala 106:16]
-  wire [15:0] _GEN_1468 = io_gameIndex == 4'h3 ? cpu_io_dout : _GEN_1394; // @[Main.scala 431:47 MemMap.scala 107:15]
-  wire  _GEN_1469 = io_gameIndex == 4'h3 ? cs_46 & readStrobe : _GEN_1395; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1470 = io_gameIndex == 4'h3 ? cs_46 & writeStrobe : _GEN_1396; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1471 = io_gameIndex == 4'h3 ? cpu_io_addr : _GEN_1397; // @[Main.scala 431:47 MemMap.scala 105:16]
-  wire [1:0] _GEN_1472 = io_gameIndex == 4'h3 ? _mainRam_io_mask_T : _GEN_1398; // @[Main.scala 431:47 MemMap.scala 106:16]
-  wire [15:0] _GEN_1473 = io_gameIndex == 4'h3 ? cpu_io_dout : _GEN_1399; // @[Main.scala 431:47 MemMap.scala 107:15]
-  wire  _GEN_1474 = io_gameIndex == 4'h3 ? cs_47 & readStrobe : _GEN_1400; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1475 = io_gameIndex == 4'h3 ? cs_47 & writeStrobe : _GEN_1401; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1477 = io_gameIndex == 4'h3 ? cs_48 & readStrobe : _GEN_1403; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1478 = io_gameIndex == 4'h3 ? cs_48 & writeStrobe : _GEN_1404; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1480 = io_gameIndex == 4'h3 ? cs_49 & readStrobe : _GEN_1406; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1481 = io_gameIndex == 4'h3 ? cs_49 & writeStrobe : _GEN_1407; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1483 = io_gameIndex == 4'h3 ? cs_51 & readStrobe : _GEN_1409; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1484 = io_gameIndex == 4'h3 ? cs_51 & writeStrobe : _GEN_1410; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1486 = io_gameIndex == 4'h3 ? cs_53 & readStrobe : _GEN_1412; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1487 = io_gameIndex == 4'h3 ? cs_53 & writeStrobe : _GEN_1413; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1491 = io_gameIndex == 4'h3 ? cs_54 & readStrobe : _GEN_1417; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1492 = io_gameIndex == 4'h3 ? cs_54 & writeStrobe : _GEN_1418; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1494 = io_gameIndex == 4'h3 ? cs_56 & readStrobe : _GEN_1420; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1495 = io_gameIndex == 4'h3 ? cs_56 & writeStrobe : _GEN_1421; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1497 = io_gameIndex == 4'h3 ? cs_141 & readStrobe : _GEN_1423; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1498 = io_gameIndex == 4'h3 ? cs_141 & writeStrobe : _GEN_1424; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1500 = io_gameIndex == 4'h3 ? cs_142 & readStrobe : _GEN_1426; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1501 = io_gameIndex == 4'h3 ? cs_142 & writeStrobe : _GEN_1427; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1503 = io_gameIndex == 4'h3 ? cs_144 & readStrobe : _GEN_1429; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1504 = io_gameIndex == 4'h3 ? cs_144 & writeStrobe : _GEN_1430; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1506 = io_gameIndex == 4'h3 ? _GEN_345 : _GEN_1432; // @[Main.scala 431:47]
-  wire  _GEN_1509 = io_gameIndex == 4'h3 ? mem_1_wr : _GEN_1435; // @[Main.scala 431:47 MemIO.scala 305:8]
-  wire [2:0] _GEN_1510 = io_gameIndex == 4'h3 ? mem_8_addr : _GEN_1436; // @[Main.scala 431:47 MemIO.scala 306:10]
-  wire [15:0] _GEN_1512 = io_gameIndex == 4'h3 ? _GEN_1208 : _GEN_1438; // @[Main.scala 431:47 MemIO.scala 308:9]
-  wire  _GEN_1513 = io_gameIndex == 4'h3 ? _GEN_352 : _GEN_1439; // @[Main.scala 431:47]
-  wire  _GEN_1515 = io_gameIndex == 4'h3 ? cs_64 & writeStrobe : _GEN_1441; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1518 = io_gameIndex == 4'h3 ? cs_36 & writeStrobe : _GEN_1444; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1521 = io_gameIndex == 4'h3 ? cs_38 & writeStrobe : _GEN_1447; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire  _GEN_1523 = io_gameIndex == 4'h3 ? cs_122 & readStrobe : _GEN_1449; // @[Main.scala 431:47 MemMap.scala 103:14]
-  wire  _GEN_1524 = io_gameIndex == 4'h3 ? cs_122 & writeStrobe : _GEN_1450; // @[Main.scala 431:47 MemMap.scala 104:14]
-  wire [22:0] _GEN_1525 = io_gameIndex == 4'h3 ? cpu_io_addr : _GEN_1451; // @[Main.scala 431:47 MemMap.scala 105:16]
-  wire  _GEN_1531 = io_gameIndex == 4'h3 ? 1'h0 : _GEN_1457; // @[Main.scala 109:20 431:47]
-  wire  _GEN_1532 = io_gameIndex == 4'h1 ? _GEN_593 : _GEN_1458; // @[Main.scala 413:48]
-  wire [15:0] _GEN_1533 = io_gameIndex == 4'h1 ? dinReg : _GEN_1459; // @[Main.scala 413:48 MemMap.scala 229:13]
-  wire  _GEN_1534 = io_gameIndex == 4'h1 ? dtackReg : _GEN_1460; // @[Main.scala 413:48 MemMap.scala 230:15]
-  wire  _GEN_1535 = io_gameIndex == 4'h1 ? cs_44 & readStrobe : _GEN_1461; // @[Main.scala 413:48 MemMap.scala 128:14]
-  wire [23:0] _GEN_1536 = io_gameIndex == 4'h1 ? addr_40 : _GEN_1462; // @[Main.scala 413:48 MemMap.scala 129:16]
-  wire [15:0] _GEN_1537 = io_gameIndex == 4'h1 ? _GEN_592 : _GEN_1463; // @[Main.scala 413:48]
-  wire  _GEN_1538 = io_gameIndex == 4'h1 ? cs_3 & readStrobe : _GEN_1464; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1539 = io_gameIndex == 4'h1 ? cs_3 & writeStrobe : _GEN_1465; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1540 = io_gameIndex == 4'h1 ? cpu_io_addr : _GEN_1466; // @[Main.scala 413:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1541 = io_gameIndex == 4'h1 ? _mainRam_io_mask_T : _GEN_1467; // @[Main.scala 413:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1542 = io_gameIndex == 4'h1 ? cpu_io_dout : _GEN_1468; // @[Main.scala 413:48 MemMap.scala 107:15]
-  wire  _GEN_1543 = io_gameIndex == 4'h1 ? cs_46 & readStrobe : _GEN_1469; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1544 = io_gameIndex == 4'h1 ? cs_46 & writeStrobe : _GEN_1470; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1545 = io_gameIndex == 4'h1 ? cpu_io_addr : _GEN_1471; // @[Main.scala 413:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1546 = io_gameIndex == 4'h1 ? _mainRam_io_mask_T : _GEN_1472; // @[Main.scala 413:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1547 = io_gameIndex == 4'h1 ? cpu_io_dout : _GEN_1473; // @[Main.scala 413:48 MemMap.scala 107:15]
-  wire  _GEN_1548 = io_gameIndex == 4'h1 ? cs_47 & readStrobe : _GEN_1474; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1549 = io_gameIndex == 4'h1 ? cs_47 & writeStrobe : _GEN_1475; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1551 = io_gameIndex == 4'h1 ? cs_48 & readStrobe : _GEN_1477; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1552 = io_gameIndex == 4'h1 ? cs_48 & writeStrobe : _GEN_1478; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1554 = io_gameIndex == 4'h1 ? cs_49 & readStrobe : _GEN_1480; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1555 = io_gameIndex == 4'h1 ? cs_49 & writeStrobe : _GEN_1481; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1557 = io_gameIndex == 4'h1 ? cs_51 & readStrobe : _GEN_1483; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1558 = io_gameIndex == 4'h1 ? cs_51 & writeStrobe : _GEN_1484; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1560 = io_gameIndex == 4'h1 ? cs_53 & readStrobe : _GEN_1486; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1561 = io_gameIndex == 4'h1 ? cs_53 & writeStrobe : _GEN_1487; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1565 = io_gameIndex == 4'h1 ? cs_54 & readStrobe : _GEN_1491; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1566 = io_gameIndex == 4'h1 ? cs_54 & writeStrobe : _GEN_1492; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1568 = io_gameIndex == 4'h1 ? cs_56 & readStrobe : _GEN_1494; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1569 = io_gameIndex == 4'h1 ? cs_56 & writeStrobe : _GEN_1495; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1571 = io_gameIndex == 4'h1 ? cs_114 & readStrobe : _GEN_1503; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1572 = io_gameIndex == 4'h1 ? cs_114 & writeStrobe : _GEN_1504; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1573 = io_gameIndex == 4'h1 ? {{10'd0}, cpu_io_addr[12:0]} : _GEN_1471; // @[Main.scala 413:48 MemMap.scala 105:16]
-  wire  _GEN_1575 = io_gameIndex == 4'h1 ? _GEN_345 : _GEN_1506; // @[Main.scala 413:48]
-  wire  _GEN_1578 = io_gameIndex == 4'h1 ? mem_1_wr : _GEN_1509; // @[Main.scala 413:48 MemIO.scala 305:8]
-  wire [2:0] _GEN_1579 = io_gameIndex == 4'h1 ? mem_8_addr : _GEN_1510; // @[Main.scala 413:48 MemIO.scala 306:10]
-  wire [15:0] _GEN_1581 = io_gameIndex == 4'h1 ? _GEN_1208 : _GEN_1512; // @[Main.scala 413:48 MemIO.scala 308:9]
-  wire  _GEN_1582 = io_gameIndex == 4'h1 ? _GEN_352 : _GEN_1513; // @[Main.scala 413:48]
-  wire  _GEN_1584 = io_gameIndex == 4'h1 ? cs_64 & writeStrobe : _GEN_1515; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1587 = io_gameIndex == 4'h1 ? cs_36 & writeStrobe : _GEN_1518; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1590 = io_gameIndex == 4'h1 ? cs_38 & writeStrobe : _GEN_1521; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire  _GEN_1592 = io_gameIndex == 4'h1 ? cs_122 & readStrobe : _GEN_1523; // @[Main.scala 413:48 MemMap.scala 103:14]
-  wire  _GEN_1593 = io_gameIndex == 4'h1 ? cs_122 & writeStrobe : _GEN_1524; // @[Main.scala 413:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1594 = io_gameIndex == 4'h1 ? cpu_io_addr : _GEN_1525; // @[Main.scala 413:48 MemMap.scala 105:16]
-  wire  _GEN_1600 = io_gameIndex == 4'h1 ? 1'h0 : _GEN_1497; // @[Main.scala 413:48 MemIO.scala 317:8]
-  wire  _GEN_1601 = io_gameIndex == 4'h1 ? 1'h0 : _GEN_1498; // @[Main.scala 413:48 MemIO.scala 318:8]
-  wire  _GEN_1605 = io_gameIndex == 4'h1 ? 1'h0 : _GEN_1500; // @[Main.scala 413:48 MemIO.scala 317:8]
-  wire  _GEN_1606 = io_gameIndex == 4'h1 ? 1'h0 : _GEN_1501; // @[Main.scala 413:48 MemIO.scala 318:8]
-  wire  _GEN_1608 = io_gameIndex == 4'h1 ? 1'h0 : _GEN_1531; // @[Main.scala 109:20 413:48]
-  wire [15:0] _GEN_1610 = io_gameIndex == 4'h2 ? dinReg : _GEN_1533; // @[Main.scala 394:48 MemMap.scala 229:13]
-  wire  _GEN_1611 = io_gameIndex == 4'h2 ? dtackReg : _GEN_1534; // @[Main.scala 394:48 MemMap.scala 230:15]
-  wire  _GEN_1612 = io_gameIndex == 4'h2 ? cs_1 & readStrobe : _GEN_1535; // @[Main.scala 394:48 MemMap.scala 128:14]
-  wire [23:0] _GEN_1613 = io_gameIndex == 4'h2 ? addr_40 : _GEN_1536; // @[Main.scala 394:48 MemMap.scala 129:16]
-  wire  _GEN_1615 = io_gameIndex == 4'h2 ? cs_3 & readStrobe : _GEN_1538; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1616 = io_gameIndex == 4'h2 ? cs_3 & writeStrobe : _GEN_1539; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1617 = io_gameIndex == 4'h2 ? cpu_io_addr : _GEN_1540; // @[Main.scala 394:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1618 = io_gameIndex == 4'h2 ? _mainRam_io_mask_T : _GEN_1541; // @[Main.scala 394:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1619 = io_gameIndex == 4'h2 ? cpu_io_dout : _GEN_1542; // @[Main.scala 394:48 MemMap.scala 107:15]
-  wire  _GEN_1620 = io_gameIndex == 4'h2 ? cs_72 & readStrobe : _GEN_1560; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1621 = io_gameIndex == 4'h2 ? cs_72 & writeStrobe : _GEN_1561; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1622 = io_gameIndex == 4'h2 ? cpu_io_addr : _GEN_1545; // @[Main.scala 394:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1623 = io_gameIndex == 4'h2 ? _mainRam_io_mask_T : _GEN_1546; // @[Main.scala 394:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1624 = io_gameIndex == 4'h2 ? cpu_io_dout : _GEN_1547; // @[Main.scala 394:48 MemMap.scala 107:15]
-  wire  _GEN_1625 = io_gameIndex == 4'h2 ? cs_73 & readStrobe : _GEN_1565; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1626 = io_gameIndex == 4'h2 ? cs_73 & writeStrobe : _GEN_1566; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1628 = io_gameIndex == 4'h2 ? cs_75 & readStrobe : _GEN_1568; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1629 = io_gameIndex == 4'h2 ? cs_75 & writeStrobe : _GEN_1569; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1631 = io_gameIndex == 4'h2 ? cs_77 & readStrobe : _GEN_1551; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1632 = io_gameIndex == 4'h2 ? cs_77 & writeStrobe : _GEN_1552; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1634 = io_gameIndex == 4'h2 ? cs_78 & readStrobe : _GEN_1554; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1635 = io_gameIndex == 4'h2 ? cs_78 & writeStrobe : _GEN_1555; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1637 = io_gameIndex == 4'h2 ? cs_80 & readStrobe : _GEN_1557; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1638 = io_gameIndex == 4'h2 ? cs_80 & writeStrobe : _GEN_1558; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1640 = io_gameIndex == 4'h2 ? cs_47 & readStrobe : _GEN_1571; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1641 = io_gameIndex == 4'h2 ? cs_47 & writeStrobe : _GEN_1572; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1642 = io_gameIndex == 4'h2 ? {{10'd0}, cpu_io_addr[12:0]} : _GEN_1573; // @[Main.scala 394:48 MemMap.scala 105:16]
-  wire  _GEN_1644 = io_gameIndex == 4'h2 ? cs_42 & readStrobe : _GEN_1548; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1645 = io_gameIndex == 4'h2 ? cs_42 & writeStrobe : _GEN_1549; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1648 = io_gameIndex == 4'h2 ? cs_84 & writeStrobe : _GEN_1587; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1651 = io_gameIndex == 4'h2 ? cs_85 & writeStrobe : _GEN_1584; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1654 = io_gameIndex == 4'h2 ? cs_86 & writeStrobe : _GEN_1590; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire  _GEN_1659 = io_gameIndex == 4'h2 ? mem_2_wr : _GEN_1578; // @[Main.scala 394:48 MemIO.scala 305:8]
-  wire [2:0] _GEN_1660 = io_gameIndex == 4'h2 ? mem_8_addr : _GEN_1579; // @[Main.scala 394:48 MemIO.scala 306:10]
-  wire [15:0] _GEN_1662 = io_gameIndex == 4'h2 ? _GEN_1208 : _GEN_1581; // @[Main.scala 394:48 MemIO.scala 308:9]
-  wire  _GEN_1663 = io_gameIndex == 4'h2 ? _GEN_456 : _GEN_1582; // @[Main.scala 394:48]
-  wire  _GEN_1664 = io_gameIndex == 4'h2 ? cs_91 & readStrobe : _GEN_1592; // @[Main.scala 394:48 MemMap.scala 103:14]
-  wire  _GEN_1665 = io_gameIndex == 4'h2 ? cs_91 & writeStrobe : _GEN_1593; // @[Main.scala 394:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1666 = io_gameIndex == 4'h2 ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_1594; // @[Main.scala 394:48 MemMap.scala 105:16]
-  wire  _GEN_1669 = io_gameIndex == 4'h2 & (cs_92 & writeStrobe); // @[Main.scala 394:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1674 = io_gameIndex == 4'h2 & (cs_93 & writeStrobe); // @[Main.scala 394:48 MemMap.scala 104:14 MemIO.scala 318:8]
-  wire  _GEN_1676 = io_gameIndex == 4'h2 & (cs_94 & writeStrobe); // @[Main.scala 394:48 MemMap.scala 150:14 MemIO.scala 207:8]
-  wire  _GEN_1682 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1543; // @[Main.scala 394:48 MemIO.scala 317:8]
-  wire  _GEN_1683 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1544; // @[Main.scala 394:48 MemIO.scala 318:8]
-  wire  _GEN_1687 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1600; // @[Main.scala 394:48 MemIO.scala 317:8]
-  wire  _GEN_1688 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1601; // @[Main.scala 394:48 MemIO.scala 318:8]
-  wire  _GEN_1692 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1605; // @[Main.scala 394:48 MemIO.scala 317:8]
-  wire  _GEN_1693 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1606; // @[Main.scala 394:48 MemIO.scala 318:8]
-  wire  _GEN_1695 = io_gameIndex == 4'h2 ? 1'h0 : _GEN_1608; // @[Main.scala 109:20 394:48]
-  wire [15:0] _GEN_1697 = io_gameIndex == 4'h0 ? dinReg : _GEN_1610; // @[Main.scala 378:48 MemMap.scala 229:13]
-  wire  _GEN_1698 = io_gameIndex == 4'h0 ? dtackReg : _GEN_1611; // @[Main.scala 378:48 MemMap.scala 230:15]
-  wire  _GEN_1699 = io_gameIndex == 4'h0 ? cs_44 & readStrobe : _GEN_1612; // @[Main.scala 378:48 MemMap.scala 128:14]
-  wire [23:0] _GEN_1700 = io_gameIndex == 4'h0 ? addr_40 : _GEN_1613; // @[Main.scala 378:48 MemMap.scala 129:16]
-  wire  _GEN_1702 = io_gameIndex == 4'h0 ? cs_3 & readStrobe : _GEN_1615; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1703 = io_gameIndex == 4'h0 ? cs_3 & writeStrobe : _GEN_1616; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1704 = io_gameIndex == 4'h0 ? cpu_io_addr : _GEN_1617; // @[Main.scala 378:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1705 = io_gameIndex == 4'h0 ? _mainRam_io_mask_T : _GEN_1618; // @[Main.scala 378:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1706 = io_gameIndex == 4'h0 ? cpu_io_dout : _GEN_1619; // @[Main.scala 378:48 MemMap.scala 107:15]
-  wire  _GEN_1707 = io_gameIndex == 4'h0 ? cs_46 & readStrobe : _GEN_1682; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1708 = io_gameIndex == 4'h0 ? cs_46 & writeStrobe : _GEN_1683; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1712 = io_gameIndex == 4'h0 ? cs_47 & readStrobe : _GEN_1644; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1713 = io_gameIndex == 4'h0 ? cs_47 & writeStrobe : _GEN_1645; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1715 = io_gameIndex == 4'h0 ? cs_48 & readStrobe : _GEN_1631; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1716 = io_gameIndex == 4'h0 ? cs_48 & writeStrobe : _GEN_1632; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1718 = io_gameIndex == 4'h0 ? cs_49 & readStrobe : _GEN_1634; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1719 = io_gameIndex == 4'h0 ? cs_49 & writeStrobe : _GEN_1635; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1721 = io_gameIndex == 4'h0 ? cs_51 & readStrobe : _GEN_1637; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1722 = io_gameIndex == 4'h0 ? cs_51 & writeStrobe : _GEN_1638; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1724 = io_gameIndex == 4'h0 ? cs_53 & readStrobe : _GEN_1620; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1725 = io_gameIndex == 4'h0 ? cs_53 & writeStrobe : _GEN_1621; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1726 = io_gameIndex == 4'h0 ? cpu_io_addr : _GEN_1622; // @[Main.scala 378:48 MemMap.scala 105:16]
-  wire [1:0] _GEN_1727 = io_gameIndex == 4'h0 ? _mainRam_io_mask_T : _GEN_1623; // @[Main.scala 378:48 MemMap.scala 106:16]
-  wire [15:0] _GEN_1728 = io_gameIndex == 4'h0 ? cpu_io_dout : _GEN_1624; // @[Main.scala 378:48 MemMap.scala 107:15]
-  wire  _GEN_1729 = io_gameIndex == 4'h0 ? cs_54 & readStrobe : _GEN_1625; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1730 = io_gameIndex == 4'h0 ? cs_54 & writeStrobe : _GEN_1626; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1732 = io_gameIndex == 4'h0 ? cs_56 & readStrobe : _GEN_1628; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1733 = io_gameIndex == 4'h0 ? cs_56 & writeStrobe : _GEN_1629; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1735 = io_gameIndex == 4'h0 ? cs_58 & readStrobe : _GEN_1664; // @[Main.scala 378:48 MemMap.scala 103:14]
-  wire  _GEN_1736 = io_gameIndex == 4'h0 ? cs_58 & writeStrobe : _GEN_1665; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire [22:0] _GEN_1737 = io_gameIndex == 4'h0 ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_1666; // @[Main.scala 378:48 MemMap.scala 105:16]
-  wire  _GEN_1742 = io_gameIndex == 4'h0 ? mem_1_wr : _GEN_1659; // @[Main.scala 378:48 MemIO.scala 305:8]
-  wire [2:0] _GEN_1743 = io_gameIndex == 4'h0 ? mem_8_addr : _GEN_1660; // @[Main.scala 378:48 MemIO.scala 306:10]
-  wire [15:0] _GEN_1745 = io_gameIndex == 4'h0 ? _GEN_1208 : _GEN_1662; // @[Main.scala 378:48 MemIO.scala 308:9]
-  wire  _GEN_1746 = io_gameIndex == 4'h0 ? _GEN_352 : _GEN_1663; // @[Main.scala 378:48]
-  wire  _GEN_1748 = io_gameIndex == 4'h0 ? cs_64 & writeStrobe : _GEN_1651; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1751 = io_gameIndex == 4'h0 ? cs_36 & writeStrobe : _GEN_1648; // @[Main.scala 378:48 MemMap.scala 104:14]
-  wire  _GEN_1757 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1640; // @[Main.scala 378:48 MemIO.scala 317:8]
-  wire  _GEN_1758 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1641; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1763 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1654; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1767 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1669; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1772 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1674; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1774 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1676; // @[Main.scala 378:48 MemIO.scala 207:8]
-  wire  _GEN_1776 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1687; // @[Main.scala 378:48 MemIO.scala 317:8]
-  wire  _GEN_1777 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1688; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1781 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1692; // @[Main.scala 378:48 MemIO.scala 317:8]
-  wire  _GEN_1782 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1693; // @[Main.scala 378:48 MemIO.scala 318:8]
-  wire  _GEN_1784 = io_gameIndex == 4'h0 ? 1'h0 : _GEN_1695; // @[Main.scala 109:20 378:48]
-  wire [23:0] _GEN_1789 = io_gameIndex == 4'h8 | _smnLayerBank_T ? addr_40 : _GEN_1700; // @[Main.scala 342:81 MemMap.scala 129:16]
-  wire [22:0] _GEN_1793 = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_addr : _GEN_1704; // @[Main.scala 342:81 MemMap.scala 105:16]
-  wire [22:0] _GEN_1800 = io_gameIndex == 4'h8 | _smnLayerBank_T ? {{9'd0}, cpu_io_addr[13:0]} : _GEN_1737; // @[Main.scala 342:81 MemMap.scala 105:16]
-  wire [22:0] _GEN_1813 = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_addr : _GEN_1726; // @[Main.scala 342:81 MemMap.scala 105:16]
-  wire [22:0] _GEN_1824 = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_addr : _GEN_1471; // @[Main.scala 342:81 MemMap.scala 105:16]
-  wire [22:0] _GEN_1832 = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_addr : _GEN_1642; // @[Main.scala 342:81 MemMap.scala 105:16]
-  wire [22:0] _GEN_1864 = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_addr : _GEN_1622; // @[Main.scala 342:81 MemMap.scala 105:16]
-  CPU cpu ( // @[Main.scala 96:19]
+  wire  _GEN_1212 = 4'h4 == io_gameIndex ? _GEN_1160 : vBlankRising & (io_gameIndex == 4'h7 | pauseReg); // @[Main.scala 342:24 268:28]
+  wire  _GEN_1214 = 4'h4 == io_gameIndex & (cs_86 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1216 = 4'h4 == io_gameIndex & (cs_260 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1217 = 4'h4 == io_gameIndex & (cs_260 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1221 = 4'h7 == io_gameIndex ? _GEN_1123 : _GEN_1187; // @[Main.scala 342:24]
+  wire  _GEN_1224 = 4'h7 == io_gameIndex ? cs_219 & readStrobe : _GEN_1216; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1225 = 4'h7 == io_gameIndex ? cs_219 & writeStrobe : _GEN_1217; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1226 = 4'h7 == io_gameIndex ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_117; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1227 = 4'h7 == io_gameIndex ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1229 = 4'h7 == io_gameIndex ? _GEN_1122 : _GEN_1195; // @[Main.scala 342:24]
+  wire  _GEN_1230 = 4'h7 == io_gameIndex ? cs_25 & readStrobe : _GEN_1196; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1231 = 4'h7 == io_gameIndex ? cs_25 & writeStrobe : _GEN_1197; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1232 = 4'h7 == io_gameIndex ? cpu_io_addr : _GEN_117; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1234 = 4'h7 == io_gameIndex ? cs_26 & readStrobe : _GEN_1199; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1235 = 4'h7 == io_gameIndex ? cs_26 & writeStrobe : _GEN_1200; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1237 = 4'h7 == io_gameIndex ? cs_28 & readStrobe : _GEN_1202; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1238 = 4'h7 == io_gameIndex ? cs_28 & writeStrobe : _GEN_1203; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1240 = 4'h7 == io_gameIndex & (cs_30 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1241 = 4'h7 == io_gameIndex & (cs_30 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1245 = 4'h7 == io_gameIndex & (cs_31 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1246 = 4'h7 == io_gameIndex & (cs_31 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1248 = 4'h7 == io_gameIndex & (cs_33 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1249 = 4'h7 == io_gameIndex & (cs_33 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1251 = 4'h7 == io_gameIndex & (cs_231 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1252 = 4'h7 == io_gameIndex & (cs_231 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1254 = 4'h7 == io_gameIndex & (cs_232 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1255 = 4'h7 == io_gameIndex & (cs_232 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1257 = 4'h7 == io_gameIndex & (cs_234 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  wire  _GEN_1258 = 4'h7 == io_gameIndex & (cs_234 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1260 = 4'h7 == io_gameIndex ? _GEN_1080 : _GEN_1205; // @[Main.scala 342:24]
+  wire  _GEN_1263 = 4'h7 == io_gameIndex ? mem_7_wr : _GEN_1208; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1264 = 4'h7 == io_gameIndex ? mem_8_addr : mem_8_addr; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1266 = 4'h7 == io_gameIndex ? _GEN_1194 : _GEN_1194; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1267 = 4'h7 == io_gameIndex ? _GEN_1087 : _GEN_1212; // @[Main.scala 342:24]
+  wire  _GEN_1270 = 4'h7 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1214; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1273 = 4'h7 == io_gameIndex & (cs_242 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1276 = 4'h7 == io_gameIndex & (cs_243 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1280 = 4'h7 == io_gameIndex ? 1'h0 : _GEN_1190; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1281 = 4'h7 == io_gameIndex ? 1'h0 : _GEN_1191; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1285 = 4'h5 == io_gameIndex ? _GEN_1001 : _GEN_1221; // @[Main.scala 342:24]
+  wire [15:0] _GEN_1288 = 4'h5 == io_gameIndex ? _GEN_1000 : _GEN_1229; // @[Main.scala 342:24]
+  wire  _GEN_1289 = 4'h5 == io_gameIndex ? _GEN_874 : _GEN_1260; // @[Main.scala 342:24]
+  wire  _GEN_1292 = 4'h5 == io_gameIndex ? mem_6_wr : _GEN_1263; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1293 = 4'h5 == io_gameIndex ? mem_8_addr : _GEN_1264; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [1:0] _GEN_1294 = 4'h5 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1227; // @[Main.scala 342:24 MemIO.scala 307:10]
+  wire [15:0] _GEN_1295 = 4'h5 == io_gameIndex ? _GEN_1194 : _GEN_1266; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1296 = 4'h5 == io_gameIndex ? _GEN_881 : _GEN_1267; // @[Main.scala 342:24]
+  wire  _GEN_1297 = 4'h5 == io_gameIndex ? cs_52 & readStrobe : _GEN_1230; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1298 = 4'h5 == io_gameIndex ? cs_52 & writeStrobe : _GEN_1231; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1299 = 4'h5 == io_gameIndex ? cpu_io_addr : _GEN_1232; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1302 = 4'h5 == io_gameIndex ? cs_53 & readStrobe : _GEN_1234; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1303 = 4'h5 == io_gameIndex ? cs_53 & writeStrobe : _GEN_1235; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1305 = 4'h5 == io_gameIndex ? cs_55 & readStrobe : _GEN_1237; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1306 = 4'h5 == io_gameIndex ? cs_55 & writeStrobe : _GEN_1238; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1308 = 4'h5 == io_gameIndex ? cs_57 & readStrobe : _GEN_1240; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1309 = 4'h5 == io_gameIndex ? cs_57 & writeStrobe : _GEN_1241; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1310 = 4'h5 == io_gameIndex ? cpu_io_addr : _GEN_117; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1311 = 4'h5 == io_gameIndex ? _mainRam_io_mask_T : _mainRam_io_mask_T; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1312 = 4'h5 == io_gameIndex ? cpu_io_dout : _GEN_1194; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1313 = 4'h5 == io_gameIndex ? cs_58 & readStrobe : _GEN_1245; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1314 = 4'h5 == io_gameIndex ? cs_58 & writeStrobe : _GEN_1246; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1316 = 4'h5 == io_gameIndex ? cs_60 & readStrobe : _GEN_1248; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1317 = 4'h5 == io_gameIndex ? cs_60 & writeStrobe : _GEN_1249; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1319 = 4'h5 == io_gameIndex ? cs_136 & readStrobe : _GEN_1251; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1320 = 4'h5 == io_gameIndex ? cs_136 & writeStrobe : _GEN_1252; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1322 = 4'h5 == io_gameIndex ? cs_137 & readStrobe : _GEN_1254; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1323 = 4'h5 == io_gameIndex ? cs_137 & writeStrobe : _GEN_1255; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1325 = 4'h5 == io_gameIndex ? cs_139 & readStrobe : _GEN_1257; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1326 = 4'h5 == io_gameIndex ? cs_139 & writeStrobe : _GEN_1258; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1328 = 4'h5 == io_gameIndex ? cs_209 & readStrobe : _GEN_1280; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1329 = 4'h5 == io_gameIndex ? cs_209 & writeStrobe : _GEN_1281; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1334 = 4'h5 == io_gameIndex ? cs_68 & writeStrobe : _GEN_1270; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1337 = 4'h5 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1273; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1340 = 4'h5 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1276; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1342 = 4'h5 == io_gameIndex ? cs_120 & readStrobe : _GEN_1224; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1343 = 4'h5 == io_gameIndex ? cs_120 & writeStrobe : _GEN_1225; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1344 = 4'h5 == io_gameIndex ? cpu_io_addr : _GEN_1226; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1348 = 4'h5 == io_gameIndex ? 1'h0 : 4'h7 == io_gameIndex & _T_347; // @[Main.scala 110:20 342:24]
+  wire  _GEN_1349 = 4'h6 == io_gameIndex ? _GEN_867 : _GEN_1285; // @[Main.scala 342:24]
+  wire  _GEN_1352 = 4'h6 == io_gameIndex ? cs_51 & readStrobe : _GEN_1328; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1353 = 4'h6 == io_gameIndex ? cs_51 & writeStrobe : _GEN_1329; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1354 = 4'h6 == io_gameIndex ? cpu_io_addr : _GEN_1310; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1355 = 4'h6 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1311; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1356 = 4'h6 == io_gameIndex ? cpu_io_dout : _GEN_1312; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1357 = 4'h6 == io_gameIndex ? _GEN_866 : _GEN_1288; // @[Main.scala 342:24]
+  wire  _GEN_1358 = 4'h6 == io_gameIndex ? cs_52 & readStrobe : _GEN_1297; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1359 = 4'h6 == io_gameIndex ? cs_52 & writeStrobe : _GEN_1298; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1360 = 4'h6 == io_gameIndex ? cpu_io_addr : _GEN_1299; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1361 = 4'h6 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1294; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1362 = 4'h6 == io_gameIndex ? cpu_io_dout : _GEN_1301; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1363 = 4'h6 == io_gameIndex ? cs_53 & readStrobe : _GEN_1302; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1364 = 4'h6 == io_gameIndex ? cs_53 & writeStrobe : _GEN_1303; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1366 = 4'h6 == io_gameIndex ? cs_55 & readStrobe : _GEN_1305; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1367 = 4'h6 == io_gameIndex ? cs_55 & writeStrobe : _GEN_1306; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1369 = 4'h6 == io_gameIndex ? cs_57 & readStrobe : _GEN_1308; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1370 = 4'h6 == io_gameIndex ? cs_57 & writeStrobe : _GEN_1309; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1374 = 4'h6 == io_gameIndex ? cs_58 & readStrobe : _GEN_1313; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1375 = 4'h6 == io_gameIndex ? cs_58 & writeStrobe : _GEN_1314; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1377 = 4'h6 == io_gameIndex ? cs_60 & readStrobe : _GEN_1316; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1378 = 4'h6 == io_gameIndex ? cs_60 & writeStrobe : _GEN_1317; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1380 = 4'h6 == io_gameIndex ? cs_136 & readStrobe : _GEN_1319; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1381 = 4'h6 == io_gameIndex ? cs_136 & writeStrobe : _GEN_1320; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1383 = 4'h6 == io_gameIndex ? cs_137 & readStrobe : _GEN_1322; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1384 = 4'h6 == io_gameIndex ? cs_137 & writeStrobe : _GEN_1323; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1386 = 4'h6 == io_gameIndex ? cs_139 & readStrobe : _GEN_1325; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1387 = 4'h6 == io_gameIndex ? cs_139 & writeStrobe : _GEN_1326; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1389 = 4'h6 == io_gameIndex ? _GEN_397 : _GEN_1289; // @[Main.scala 342:24]
+  wire  _GEN_1392 = 4'h6 == io_gameIndex ? mem_1_wr : _GEN_1292; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1393 = 4'h6 == io_gameIndex ? mem_8_addr : _GEN_1293; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1395 = 4'h6 == io_gameIndex ? _GEN_1194 : _GEN_1295; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1396 = 4'h6 == io_gameIndex ? _GEN_404 : _GEN_1296; // @[Main.scala 342:24]
+  wire  _GEN_1398 = 4'h6 == io_gameIndex ? cs_68 & writeStrobe : _GEN_1334; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1401 = 4'h6 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1337; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1404 = 4'h6 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1340; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1406 = 4'h6 == io_gameIndex ? cs_120 & readStrobe : _GEN_1342; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1407 = 4'h6 == io_gameIndex ? cs_120 & writeStrobe : _GEN_1343; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1408 = 4'h6 == io_gameIndex ? cpu_io_addr : _GEN_1344; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1414 = 4'h6 == io_gameIndex ? 1'h0 : _GEN_1348; // @[Main.scala 110:20 342:24]
+  wire  _GEN_1415 = 4'h3 == io_gameIndex ? _GEN_745 : _GEN_1349; // @[Main.scala 342:24]
+  wire  _GEN_1418 = 4'h3 == io_gameIndex ? cs_51 & readStrobe : _GEN_1352; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1419 = 4'h3 == io_gameIndex ? cs_51 & writeStrobe : _GEN_1353; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1420 = 4'h3 == io_gameIndex ? cpu_io_addr : _GEN_1354; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1421 = 4'h3 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1355; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1422 = 4'h3 == io_gameIndex ? cpu_io_dout : _GEN_1356; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1423 = 4'h3 == io_gameIndex ? _GEN_744 : _GEN_1357; // @[Main.scala 342:24]
+  wire  _GEN_1424 = 4'h3 == io_gameIndex ? cs_52 & readStrobe : _GEN_1358; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1425 = 4'h3 == io_gameIndex ? cs_52 & writeStrobe : _GEN_1359; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1426 = 4'h3 == io_gameIndex ? cpu_io_addr : _GEN_1360; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1427 = 4'h3 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1361; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1428 = 4'h3 == io_gameIndex ? cpu_io_dout : _GEN_1362; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1429 = 4'h3 == io_gameIndex ? cs_53 & readStrobe : _GEN_1363; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1430 = 4'h3 == io_gameIndex ? cs_53 & writeStrobe : _GEN_1364; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1432 = 4'h3 == io_gameIndex ? cs_55 & readStrobe : _GEN_1366; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1433 = 4'h3 == io_gameIndex ? cs_55 & writeStrobe : _GEN_1367; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1435 = 4'h3 == io_gameIndex ? cs_57 & readStrobe : _GEN_1369; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1436 = 4'h3 == io_gameIndex ? cs_57 & writeStrobe : _GEN_1370; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1440 = 4'h3 == io_gameIndex ? cs_58 & readStrobe : _GEN_1374; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1441 = 4'h3 == io_gameIndex ? cs_58 & writeStrobe : _GEN_1375; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1443 = 4'h3 == io_gameIndex ? cs_60 & readStrobe : _GEN_1377; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1444 = 4'h3 == io_gameIndex ? cs_60 & writeStrobe : _GEN_1378; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1446 = 4'h3 == io_gameIndex ? cs_136 & readStrobe : _GEN_1380; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1447 = 4'h3 == io_gameIndex ? cs_136 & writeStrobe : _GEN_1381; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1449 = 4'h3 == io_gameIndex ? cs_137 & readStrobe : _GEN_1383; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1450 = 4'h3 == io_gameIndex ? cs_137 & writeStrobe : _GEN_1384; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1452 = 4'h3 == io_gameIndex ? cs_139 & readStrobe : _GEN_1386; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1453 = 4'h3 == io_gameIndex ? cs_139 & writeStrobe : _GEN_1387; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1455 = 4'h3 == io_gameIndex ? _GEN_397 : _GEN_1389; // @[Main.scala 342:24]
+  wire  _GEN_1458 = 4'h3 == io_gameIndex ? mem_1_wr : _GEN_1392; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1459 = 4'h3 == io_gameIndex ? mem_8_addr : _GEN_1393; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1461 = 4'h3 == io_gameIndex ? _GEN_1194 : _GEN_1395; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1462 = 4'h3 == io_gameIndex ? _GEN_404 : _GEN_1396; // @[Main.scala 342:24]
+  wire  _GEN_1464 = 4'h3 == io_gameIndex ? cs_68 & writeStrobe : _GEN_1398; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1467 = 4'h3 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1401; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1470 = 4'h3 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1404; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1472 = 4'h3 == io_gameIndex ? cs_120 & readStrobe : _GEN_1406; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1473 = 4'h3 == io_gameIndex ? cs_120 & writeStrobe : _GEN_1407; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1474 = 4'h3 == io_gameIndex ? cpu_io_addr : _GEN_1408; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1480 = 4'h3 == io_gameIndex ? 1'h0 : _GEN_1414; // @[Main.scala 110:20 342:24]
+  wire  _GEN_1481 = 4'h1 == io_gameIndex ? _GEN_627 : _GEN_1415; // @[Main.scala 342:24]
+  wire  _GEN_1484 = 4'h1 == io_gameIndex ? cs_51 & readStrobe : _GEN_1418; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1485 = 4'h1 == io_gameIndex ? cs_51 & writeStrobe : _GEN_1419; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1486 = 4'h1 == io_gameIndex ? cpu_io_addr : _GEN_1420; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1487 = 4'h1 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1421; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1488 = 4'h1 == io_gameIndex ? cpu_io_dout : _GEN_1422; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire [15:0] _GEN_1489 = 4'h1 == io_gameIndex ? _GEN_626 : _GEN_1423; // @[Main.scala 342:24]
+  wire  _GEN_1490 = 4'h1 == io_gameIndex ? cs_52 & readStrobe : _GEN_1424; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1491 = 4'h1 == io_gameIndex ? cs_52 & writeStrobe : _GEN_1425; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1492 = 4'h1 == io_gameIndex ? cpu_io_addr : _GEN_1426; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1493 = 4'h1 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1427; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1494 = 4'h1 == io_gameIndex ? cpu_io_dout : _GEN_1428; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1495 = 4'h1 == io_gameIndex ? cs_53 & readStrobe : _GEN_1429; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1496 = 4'h1 == io_gameIndex ? cs_53 & writeStrobe : _GEN_1430; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1498 = 4'h1 == io_gameIndex ? cs_55 & readStrobe : _GEN_1432; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1499 = 4'h1 == io_gameIndex ? cs_55 & writeStrobe : _GEN_1433; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1501 = 4'h1 == io_gameIndex ? cs_57 & readStrobe : _GEN_1435; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1502 = 4'h1 == io_gameIndex ? cs_57 & writeStrobe : _GEN_1436; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1506 = 4'h1 == io_gameIndex ? cs_58 & readStrobe : _GEN_1440; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1507 = 4'h1 == io_gameIndex ? cs_58 & writeStrobe : _GEN_1441; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1509 = 4'h1 == io_gameIndex ? cs_60 & readStrobe : _GEN_1443; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1510 = 4'h1 == io_gameIndex ? cs_60 & writeStrobe : _GEN_1444; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1512 = 4'h1 == io_gameIndex ? cs_112 & readStrobe : _GEN_1452; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1513 = 4'h1 == io_gameIndex ? cs_112 & writeStrobe : _GEN_1453; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1514 = 4'h1 == io_gameIndex ? {{10'd0}, cpu_io_addr[12:0]} : _GEN_1420; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1516 = 4'h1 == io_gameIndex ? _GEN_397 : _GEN_1455; // @[Main.scala 342:24]
+  wire  _GEN_1519 = 4'h1 == io_gameIndex ? mem_1_wr : _GEN_1458; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1520 = 4'h1 == io_gameIndex ? mem_8_addr : _GEN_1459; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1522 = 4'h1 == io_gameIndex ? _GEN_1194 : _GEN_1461; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1523 = 4'h1 == io_gameIndex ? _GEN_404 : _GEN_1462; // @[Main.scala 342:24]
+  wire  _GEN_1525 = 4'h1 == io_gameIndex ? cs_68 & writeStrobe : _GEN_1464; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1528 = 4'h1 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1467; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1531 = 4'h1 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1470; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1533 = 4'h1 == io_gameIndex ? cs_120 & readStrobe : _GEN_1472; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1534 = 4'h1 == io_gameIndex ? cs_120 & writeStrobe : _GEN_1473; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1535 = 4'h1 == io_gameIndex ? cpu_io_addr : _GEN_1474; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1541 = 4'h1 == io_gameIndex ? 1'h0 : _GEN_1446; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1542 = 4'h1 == io_gameIndex ? 1'h0 : _GEN_1447; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1546 = 4'h1 == io_gameIndex ? 1'h0 : _GEN_1449; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1547 = 4'h1 == io_gameIndex ? 1'h0 : _GEN_1450; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1549 = 4'h1 == io_gameIndex ? 1'h0 : _GEN_1480; // @[Main.scala 110:20 342:24]
+  wire  _GEN_1553 = 4'h2 == io_gameIndex ? cs_74 & readStrobe : _GEN_1501; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1554 = 4'h2 == io_gameIndex ? cs_74 & writeStrobe : _GEN_1502; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1555 = 4'h2 == io_gameIndex ? cpu_io_addr : _GEN_1486; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1556 = 4'h2 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1487; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1557 = 4'h2 == io_gameIndex ? cpu_io_dout : _GEN_1488; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1559 = 4'h2 == io_gameIndex ? cs_75 & readStrobe : _GEN_1506; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1560 = 4'h2 == io_gameIndex ? cs_75 & writeStrobe : _GEN_1507; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1562 = 4'h2 == io_gameIndex ? cs_77 & readStrobe : _GEN_1509; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1563 = 4'h2 == io_gameIndex ? cs_77 & writeStrobe : _GEN_1510; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1565 = 4'h2 == io_gameIndex ? cs_79 & readStrobe : _GEN_1490; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1566 = 4'h2 == io_gameIndex ? cs_79 & writeStrobe : _GEN_1491; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1567 = 4'h2 == io_gameIndex ? cpu_io_addr : _GEN_1492; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1568 = 4'h2 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1493; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1569 = 4'h2 == io_gameIndex ? cpu_io_dout : _GEN_1494; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1570 = 4'h2 == io_gameIndex ? cs_80 & readStrobe : _GEN_1495; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1571 = 4'h2 == io_gameIndex ? cs_80 & writeStrobe : _GEN_1496; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1573 = 4'h2 == io_gameIndex ? cs_82 & readStrobe : _GEN_1498; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1574 = 4'h2 == io_gameIndex ? cs_82 & writeStrobe : _GEN_1499; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1576 = 4'h2 == io_gameIndex ? cs_10 & readStrobe : _GEN_1512; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1577 = 4'h2 == io_gameIndex ? cs_10 & writeStrobe : _GEN_1513; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1578 = 4'h2 == io_gameIndex ? {{10'd0}, cpu_io_addr[12:0]} : _GEN_1514; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1581 = 4'h2 == io_gameIndex ? cs_85 & writeStrobe : _GEN_1528; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1584 = 4'h2 == io_gameIndex ? cs_86 & writeStrobe : _GEN_1525; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1587 = 4'h2 == io_gameIndex ? cs_87 & writeStrobe : _GEN_1531; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1592 = 4'h2 == io_gameIndex ? mem_2_wr : _GEN_1519; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1593 = 4'h2 == io_gameIndex ? mem_8_addr : _GEN_1520; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1595 = 4'h2 == io_gameIndex ? _GEN_1194 : _GEN_1522; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1596 = 4'h2 == io_gameIndex ? _GEN_499 : _GEN_1523; // @[Main.scala 342:24]
+  wire  _GEN_1597 = 4'h2 == io_gameIndex ? cs_92 & readStrobe : _GEN_1533; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1598 = 4'h2 == io_gameIndex ? cs_92 & writeStrobe : _GEN_1534; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1599 = 4'h2 == io_gameIndex ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_1535; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1602 = 4'h2 == io_gameIndex & (cs_93 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1607 = 4'h2 == io_gameIndex & (cs_94 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  wire  _GEN_1609 = 4'h2 == io_gameIndex & (cs_95 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 150:14 MemIO.scala 207:8]
+  wire  _GEN_1615 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1484; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1616 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1485; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1620 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1541; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1621 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1542; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1625 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1546; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1626 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1547; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1628 = 4'h2 == io_gameIndex ? 1'h0 : _GEN_1549; // @[Main.scala 110:20 342:24]
+  wire  _GEN_1632 = 4'h0 == io_gameIndex ? cs_51 & readStrobe : _GEN_1615; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1633 = 4'h0 == io_gameIndex ? cs_51 & writeStrobe : _GEN_1616; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1638 = 4'h0 == io_gameIndex ? cs_52 & readStrobe : _GEN_1565; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1639 = 4'h0 == io_gameIndex ? cs_52 & writeStrobe : _GEN_1566; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1640 = 4'h0 == io_gameIndex ? cpu_io_addr : _GEN_1567; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1641 = 4'h0 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1568; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1642 = 4'h0 == io_gameIndex ? cpu_io_dout : _GEN_1569; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1643 = 4'h0 == io_gameIndex ? cs_53 & readStrobe : _GEN_1570; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1644 = 4'h0 == io_gameIndex ? cs_53 & writeStrobe : _GEN_1571; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1646 = 4'h0 == io_gameIndex ? cs_55 & readStrobe : _GEN_1573; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1647 = 4'h0 == io_gameIndex ? cs_55 & writeStrobe : _GEN_1574; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1649 = 4'h0 == io_gameIndex ? cs_57 & readStrobe : _GEN_1553; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1650 = 4'h0 == io_gameIndex ? cs_57 & writeStrobe : _GEN_1554; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1651 = 4'h0 == io_gameIndex ? cpu_io_addr : _GEN_1555; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [1:0] _GEN_1652 = 4'h0 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1556; // @[Main.scala 342:24 MemMap.scala 106:16]
+  wire [15:0] _GEN_1653 = 4'h0 == io_gameIndex ? cpu_io_dout : _GEN_1557; // @[Main.scala 342:24 MemMap.scala 107:15]
+  wire  _GEN_1654 = 4'h0 == io_gameIndex ? cs_58 & readStrobe : _GEN_1559; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1655 = 4'h0 == io_gameIndex ? cs_58 & writeStrobe : _GEN_1560; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1657 = 4'h0 == io_gameIndex ? cs_60 & readStrobe : _GEN_1562; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1658 = 4'h0 == io_gameIndex ? cs_60 & writeStrobe : _GEN_1563; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1660 = 4'h0 == io_gameIndex ? cs_62 & readStrobe : _GEN_1597; // @[Main.scala 342:24 MemMap.scala 103:14]
+  wire  _GEN_1661 = 4'h0 == io_gameIndex ? cs_62 & writeStrobe : _GEN_1598; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire [22:0] _GEN_1662 = 4'h0 == io_gameIndex ? {{12'd0}, cpu_io_addr[10:0]} : _GEN_1599; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire  _GEN_1667 = 4'h0 == io_gameIndex ? mem_1_wr : _GEN_1592; // @[Main.scala 342:24 MemIO.scala 305:8]
+  wire [2:0] _GEN_1668 = 4'h0 == io_gameIndex ? mem_8_addr : _GEN_1593; // @[Main.scala 342:24 MemIO.scala 306:10]
+  wire [15:0] _GEN_1670 = 4'h0 == io_gameIndex ? _GEN_1194 : _GEN_1595; // @[Main.scala 342:24 MemIO.scala 308:9]
+  wire  _GEN_1671 = 4'h0 == io_gameIndex ? _GEN_404 : _GEN_1596; // @[Main.scala 342:24]
+  wire  _GEN_1673 = 4'h0 == io_gameIndex ? cs_68 & writeStrobe : _GEN_1584; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1676 = 4'h0 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1581; // @[Main.scala 342:24 MemMap.scala 104:14]
+  wire  _GEN_1682 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1576; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1683 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1577; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1688 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1587; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1692 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1602; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1697 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1607; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1699 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1609; // @[Main.scala 342:24 MemIO.scala 207:8]
+  wire  _GEN_1701 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1620; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1702 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1621; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1706 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1625; // @[Main.scala 342:24 MemIO.scala 317:8]
+  wire  _GEN_1707 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1626; // @[Main.scala 342:24 MemIO.scala 318:8]
+  wire  _GEN_1709 = 4'h0 == io_gameIndex ? 1'h0 : _GEN_1628; // @[Main.scala 110:20 342:24]
+  wire [22:0] _GEN_1718 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? {{9'd0}, cpu_io_addr[13:0]} : _GEN_1662; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [22:0] _GEN_1723 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_addr : _GEN_1640; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [22:0] _GEN_1733 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_addr : _GEN_1651; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [22:0] _GEN_1744 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_addr : _GEN_1420; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [22:0] _GEN_1752 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_addr : _GEN_1578; // @[Main.scala 342:24 MemMap.scala 105:16]
+  wire [22:0] _GEN_1784 = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_addr : _GEN_1555; // @[Main.scala 342:24 MemMap.scala 105:16]
+  CPU cpu ( // @[Main.scala 97:19]
     .clock(cpu_clock),
     .reset(cpu_reset),
     .io_halt(cpu_io_halt),
@@ -10106,7 +10510,7 @@ module Main(
     .io_din(cpu_io_din),
     .io_dout(cpu_io_dout)
   );
-  EEPROM eeprom ( // @[Main.scala 115:22]
+  EEPROM eeprom ( // @[Main.scala 116:22]
     .clock(eeprom_clock),
     .reset(eeprom_reset),
     .io_mem_rd(eeprom_io_mem_rd),
@@ -10121,7 +10525,7 @@ module Main(
     .io_serial_sdi(eeprom_io_serial_sdi),
     .io_serial_sdo(eeprom_io_serial_sdo)
   );
-  SinglePortRam mainRam ( // @[Main.scala 129:23]
+  SinglePortRam mainRam ( // @[Main.scala 130:23]
     .clock(mainRam_clock),
     .io_rd(mainRam_io_rd),
     .io_wr(mainRam_io_wr),
@@ -10130,7 +10534,7 @@ module Main(
     .io_din(mainRam_io_din),
     .io_dout(mainRam_io_dout)
   );
-  TrueDualPortRam spriteRam ( // @[Main.scala 153:25]
+  TrueDualPortRam spriteRam ( // @[Main.scala 154:25]
     .clock(spriteRam_clock),
     .io_clockB(spriteRam_io_clockB),
     .io_portA_rd(spriteRam_io_portA_rd),
@@ -10143,7 +10547,7 @@ module Main(
     .io_portB_addr(spriteRam_io_portB_addr),
     .io_portB_dout(spriteRam_io_portB_dout)
   );
-  TrueDualPortRam_1 vram8x8_0 ( // @[Main.scala 166:21]
+  TrueDualPortRam_1 vram8x8_0 ( // @[Main.scala 167:21]
     .clock(vram8x8_0_clock),
     .io_clockB(vram8x8_0_io_clockB),
     .io_portA_rd(vram8x8_0_io_portA_rd),
@@ -10155,7 +10559,7 @@ module Main(
     .io_portB_addr(vram8x8_0_io_portB_addr),
     .io_portB_dout(vram8x8_0_io_portB_dout)
   );
-  TrueDualPortRam_1 vram8x8_1 ( // @[Main.scala 166:21]
+  TrueDualPortRam_1 vram8x8_1 ( // @[Main.scala 167:21]
     .clock(vram8x8_1_clock),
     .io_clockB(vram8x8_1_io_clockB),
     .io_portA_rd(vram8x8_1_io_portA_rd),
@@ -10167,7 +10571,7 @@ module Main(
     .io_portB_addr(vram8x8_1_io_portB_addr),
     .io_portB_dout(vram8x8_1_io_portB_dout)
   );
-  TrueDualPortRam_1 vram8x8_2 ( // @[Main.scala 166:21]
+  TrueDualPortRam_1 vram8x8_2 ( // @[Main.scala 167:21]
     .clock(vram8x8_2_clock),
     .io_clockB(vram8x8_2_io_clockB),
     .io_portA_rd(vram8x8_2_io_portA_rd),
@@ -10179,7 +10583,7 @@ module Main(
     .io_portB_addr(vram8x8_2_io_portB_addr),
     .io_portB_dout(vram8x8_2_io_portB_dout)
   );
-  TrueDualPortRam_4 vram16x16_0 ( // @[Main.scala 181:21]
+  TrueDualPortRam_4 vram16x16_0 ( // @[Main.scala 182:21]
     .clock(vram16x16_0_clock),
     .io_clockB(vram16x16_0_io_clockB),
     .io_portA_rd(vram16x16_0_io_portA_rd),
@@ -10191,7 +10595,7 @@ module Main(
     .io_portB_addr(vram16x16_0_io_portB_addr),
     .io_portB_dout(vram16x16_0_io_portB_dout)
   );
-  TrueDualPortRam_4 vram16x16_1 ( // @[Main.scala 181:21]
+  TrueDualPortRam_4 vram16x16_1 ( // @[Main.scala 182:21]
     .clock(vram16x16_1_clock),
     .io_clockB(vram16x16_1_io_clockB),
     .io_portA_rd(vram16x16_1_io_portA_rd),
@@ -10203,7 +10607,7 @@ module Main(
     .io_portB_addr(vram16x16_1_io_portB_addr),
     .io_portB_dout(vram16x16_1_io_portB_dout)
   );
-  TrueDualPortRam_4 vram16x16_2 ( // @[Main.scala 181:21]
+  TrueDualPortRam_4 vram16x16_2 ( // @[Main.scala 182:21]
     .clock(vram16x16_2_clock),
     .io_clockB(vram16x16_2_io_clockB),
     .io_portA_rd(vram16x16_2_io_portA_rd),
@@ -10215,7 +10619,7 @@ module Main(
     .io_portB_addr(vram16x16_2_io_portB_addr),
     .io_portB_dout(vram16x16_2_io_portB_dout)
   );
-  TrueDualPortRam_7 lineRam_0 ( // @[Main.scala 196:21]
+  TrueDualPortRam_7 lineRam_0 ( // @[Main.scala 197:21]
     .clock(lineRam_0_clock),
     .io_clockB(lineRam_0_io_clockB),
     .io_portA_rd(lineRam_0_io_portA_rd),
@@ -10227,7 +10631,7 @@ module Main(
     .io_portB_addr(lineRam_0_io_portB_addr),
     .io_portB_dout(lineRam_0_io_portB_dout)
   );
-  TrueDualPortRam_7 lineRam_1 ( // @[Main.scala 196:21]
+  TrueDualPortRam_7 lineRam_1 ( // @[Main.scala 197:21]
     .clock(lineRam_1_clock),
     .io_clockB(lineRam_1_io_clockB),
     .io_portA_rd(lineRam_1_io_portA_rd),
@@ -10239,7 +10643,7 @@ module Main(
     .io_portB_addr(lineRam_1_io_portB_addr),
     .io_portB_dout(lineRam_1_io_portB_dout)
   );
-  TrueDualPortRam_7 lineRam_2 ( // @[Main.scala 196:21]
+  TrueDualPortRam_7 lineRam_2 ( // @[Main.scala 197:21]
     .clock(lineRam_2_clock),
     .io_clockB(lineRam_2_io_clockB),
     .io_portA_rd(lineRam_2_io_portA_rd),
@@ -10251,7 +10655,7 @@ module Main(
     .io_portB_addr(lineRam_2_io_portB_addr),
     .io_portB_dout(lineRam_2_io_portB_dout)
   );
-  SinglePortRam_1 scratchRam_0 ( // @[Main.scala 210:20]
+  SinglePortRam_1 scratchRam_0 ( // @[Main.scala 211:20]
     .clock(scratchRam_0_clock),
     .io_rd(scratchRam_0_io_rd),
     .io_wr(scratchRam_0_io_wr),
@@ -10260,7 +10664,7 @@ module Main(
     .io_din(scratchRam_0_io_din),
     .io_dout(scratchRam_0_io_dout)
   );
-  SinglePortRam_1 scratchRam_1 ( // @[Main.scala 210:20]
+  SinglePortRam_1 scratchRam_1 ( // @[Main.scala 211:20]
     .clock(scratchRam_1_clock),
     .io_rd(scratchRam_1_io_rd),
     .io_wr(scratchRam_1_io_wr),
@@ -10269,7 +10673,7 @@ module Main(
     .io_din(scratchRam_1_io_din),
     .io_dout(scratchRam_1_io_dout)
   );
-  SinglePortRam_1 scratchRam_2 ( // @[Main.scala 210:20]
+  SinglePortRam_1 scratchRam_2 ( // @[Main.scala 211:20]
     .clock(scratchRam_2_clock),
     .io_rd(scratchRam_2_io_rd),
     .io_wr(scratchRam_2_io_wr),
@@ -10278,7 +10682,7 @@ module Main(
     .io_din(scratchRam_2_io_din),
     .io_dout(scratchRam_2_io_dout)
   );
-  TrueDualPortRam_10 paletteRam ( // @[Main.scala 220:26]
+  TrueDualPortRam_10 paletteRam ( // @[Main.scala 221:26]
     .clock(paletteRam_clock),
     .io_clockB(paletteRam_io_clockB),
     .io_portA_rd(paletteRam_io_portA_rd),
@@ -10290,7 +10694,7 @@ module Main(
     .io_portB_addr(paletteRam_io_portB_addr),
     .io_portB_dout(paletteRam_io_portB_dout)
   );
-  RegisterFile_2 layerRegs_0 ( // @[Main.scala 233:22]
+  RegisterFile_2 layerRegs_0 ( // @[Main.scala 234:22]
     .clock(layerRegs_0_clock),
     .io_mem_wr(layerRegs_0_io_mem_wr),
     .io_mem_addr(layerRegs_0_io_mem_addr),
@@ -10301,7 +10705,7 @@ module Main(
     .io_regs_1(layerRegs_0_io_regs_1),
     .io_regs_2(layerRegs_0_io_regs_2)
   );
-  RegisterFile_2 layerRegs_1 ( // @[Main.scala 233:22]
+  RegisterFile_2 layerRegs_1 ( // @[Main.scala 234:22]
     .clock(layerRegs_1_clock),
     .io_mem_wr(layerRegs_1_io_mem_wr),
     .io_mem_addr(layerRegs_1_io_mem_addr),
@@ -10312,7 +10716,7 @@ module Main(
     .io_regs_1(layerRegs_1_io_regs_1),
     .io_regs_2(layerRegs_1_io_regs_2)
   );
-  RegisterFile_2 layerRegs_2 ( // @[Main.scala 233:22]
+  RegisterFile_2 layerRegs_2 ( // @[Main.scala 234:22]
     .clock(layerRegs_2_clock),
     .io_mem_wr(layerRegs_2_io_mem_wr),
     .io_mem_addr(layerRegs_2_io_mem_addr),
@@ -10323,7 +10727,7 @@ module Main(
     .io_regs_1(layerRegs_2_io_regs_1),
     .io_regs_2(layerRegs_2_io_regs_2)
   );
-  RegisterFile_5 spriteRegs ( // @[Main.scala 240:26]
+  RegisterFile_5 spriteRegs ( // @[Main.scala 241:26]
     .clock(spriteRegs_clock),
     .io_mem_wr(spriteRegs_io_mem_wr),
     .io_mem_addr(spriteRegs_io_mem_addr),
@@ -10334,288 +10738,289 @@ module Main(
     .io_regs_4(spriteRegs_io_regs_4),
     .io_regs_5(spriteRegs_io_regs_5)
   );
-  assign io_gpuMem_layer_0_regs_tileSize = io_gpuMem_layer_0_regs_r_1_tileSize; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_enable = io_gpuMem_layer_0_regs_r_1_enable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_flipX = io_gpuMem_layer_0_regs_r_1_flipX; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_flipY = io_gpuMem_layer_0_regs_r_1_flipY; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_rowScrollEnable = io_gpuMem_layer_0_regs_r_1_rowScrollEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_rowSelectEnable = io_gpuMem_layer_0_regs_r_1_rowSelectEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_scroll_x = io_gpuMem_layer_0_regs_r_1_scroll_x; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_regs_scroll_y = io_gpuMem_layer_0_regs_r_1_scroll_y; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_0_vram8x8_dout = vram8x8_0_io_portB_dout; // @[Main.scala 175:18]
-  assign io_gpuMem_layer_0_vram16x16_dout = vram16x16_0_io_portB_dout; // @[Main.scala 190:18]
-  assign io_gpuMem_layer_0_lineRam_dout = lineRam_0_io_portB_dout; // @[Main.scala 205:18]
-  assign io_gpuMem_layer_1_regs_tileSize = io_gpuMem_layer_1_regs_r_1_tileSize; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_enable = io_gpuMem_layer_1_regs_r_1_enable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_flipX = io_gpuMem_layer_1_regs_r_1_flipX; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_flipY = io_gpuMem_layer_1_regs_r_1_flipY; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_rowScrollEnable = io_gpuMem_layer_1_regs_r_1_rowScrollEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_rowSelectEnable = io_gpuMem_layer_1_regs_r_1_rowSelectEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_scroll_x = io_gpuMem_layer_1_regs_r_1_scroll_x; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_regs_scroll_y = io_gpuMem_layer_1_regs_r_1_scroll_y; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_1_vram8x8_dout = vram8x8_1_io_portB_dout; // @[Main.scala 175:18]
-  assign io_gpuMem_layer_1_vram16x16_dout = vram16x16_1_io_portB_dout; // @[Main.scala 190:18]
-  assign io_gpuMem_layer_1_lineRam_dout = lineRam_1_io_portB_dout; // @[Main.scala 205:18]
-  assign io_gpuMem_layer_2_regs_tileSize = io_gpuMem_layer_2_regs_r_1_tileSize; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_enable = io_gpuMem_layer_2_regs_r_1_enable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_flipX = io_gpuMem_layer_2_regs_r_1_flipX; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_flipY = io_gpuMem_layer_2_regs_r_1_flipY; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_rowScrollEnable = io_gpuMem_layer_2_regs_r_1_rowScrollEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_rowSelectEnable = io_gpuMem_layer_2_regs_r_1_rowSelectEnable; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_scroll_x = io_gpuMem_layer_2_regs_r_1_scroll_x; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_regs_scroll_y = io_gpuMem_layer_2_regs_r_1_scroll_y; // @[Main.scala 235:29]
-  assign io_gpuMem_layer_2_vram8x8_dout = vram8x8_2_io_portB_dout; // @[Main.scala 175:18]
-  assign io_gpuMem_layer_2_vram16x16_dout = vram16x16_2_io_portB_dout; // @[Main.scala 190:18]
-  assign io_gpuMem_layer_2_lineRam_dout = lineRam_2_io_portB_dout; // @[Main.scala 205:18]
+  assign io_gpuMem_layer_0_regs_tileSize = io_gpuMem_layer_0_regs_r_1_tileSize; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_enable = io_gpuMem_layer_0_regs_r_1_enable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_flipX = io_gpuMem_layer_0_regs_r_1_flipX; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_flipY = io_gpuMem_layer_0_regs_r_1_flipY; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_rowScrollEnable = io_gpuMem_layer_0_regs_r_1_rowScrollEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_rowSelectEnable = io_gpuMem_layer_0_regs_r_1_rowSelectEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_scroll_x = io_gpuMem_layer_0_regs_r_1_scroll_x; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_regs_scroll_y = io_gpuMem_layer_0_regs_r_1_scroll_y; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_0_vram8x8_dout = vram8x8_0_io_portB_dout; // @[Main.scala 176:18]
+  assign io_gpuMem_layer_0_vram16x16_dout = vram16x16_0_io_portB_dout; // @[Main.scala 191:18]
+  assign io_gpuMem_layer_0_lineRam_dout = lineRam_0_io_portB_dout; // @[Main.scala 206:18]
+  assign io_gpuMem_layer_1_regs_tileSize = io_gpuMem_layer_1_regs_r_1_tileSize; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_enable = io_gpuMem_layer_1_regs_r_1_enable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_flipX = io_gpuMem_layer_1_regs_r_1_flipX; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_flipY = io_gpuMem_layer_1_regs_r_1_flipY; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_rowScrollEnable = io_gpuMem_layer_1_regs_r_1_rowScrollEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_rowSelectEnable = io_gpuMem_layer_1_regs_r_1_rowSelectEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_scroll_x = io_gpuMem_layer_1_regs_r_1_scroll_x; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_regs_scroll_y = io_gpuMem_layer_1_regs_r_1_scroll_y; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_1_vram8x8_dout = vram8x8_1_io_portB_dout; // @[Main.scala 176:18]
+  assign io_gpuMem_layer_1_vram16x16_dout = vram16x16_1_io_portB_dout; // @[Main.scala 191:18]
+  assign io_gpuMem_layer_1_lineRam_dout = lineRam_1_io_portB_dout; // @[Main.scala 206:18]
+  assign io_gpuMem_layer_2_regs_tileSize = io_gpuMem_layer_2_regs_r_1_tileSize; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_enable = io_gpuMem_layer_2_regs_r_1_enable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_flipX = io_gpuMem_layer_2_regs_r_1_flipX; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_flipY = io_gpuMem_layer_2_regs_r_1_flipY; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_rowScrollEnable = io_gpuMem_layer_2_regs_r_1_rowScrollEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_rowSelectEnable = io_gpuMem_layer_2_regs_r_1_rowSelectEnable; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_scroll_x = io_gpuMem_layer_2_regs_r_1_scroll_x; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_regs_scroll_y = io_gpuMem_layer_2_regs_r_1_scroll_y; // @[Main.scala 236:29]
+  assign io_gpuMem_layer_2_vram8x8_dout = vram8x8_2_io_portB_dout; // @[Main.scala 176:18]
+  assign io_gpuMem_layer_2_vram16x16_dout = vram16x16_2_io_portB_dout; // @[Main.scala 191:18]
+  assign io_gpuMem_layer_2_lineRam_dout = lineRam_2_io_portB_dout; // @[Main.scala 206:18]
   assign io_gpuMem_sprite_regs_offset_x = spriteRegs_io_regs_0[8:0]; // @[SpriteRegs.scala 78:33]
   assign io_gpuMem_sprite_regs_offset_y = spriteRegs_io_regs_1[8:0]; // @[SpriteRegs.scala 78:48]
   assign io_gpuMem_sprite_regs_bank = spriteRegs_io_regs_4[1:0]; // @[SpriteRegs.scala 79:25]
   assign io_gpuMem_sprite_regs_fixed = |spriteRegs_io_regs_5[13:12]; // @[SpriteRegs.scala 80:35]
   assign io_gpuMem_sprite_regs_hFlip = spriteRegs_io_regs_0[15]; // @[SpriteRegs.scala 76:26]
-  assign io_gpuMem_sprite_vram_dout = spriteRam_io_portB_dout; // @[Main.scala 162:22]
-  assign io_gpuMem_paletteRam_dout = paletteRam_io_portB_dout; // @[Main.scala 229:23]
-  assign io_soundCtrl_oki_0_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? 1'h0 : _GEN_1767; // @[Main.scala 342:81 MemIO.scala 318:8]
-  assign io_soundCtrl_oki_0_din = cpu_io_dout; // @[Main.scala 394:48 MemMap.scala 107:15]
-  assign io_soundCtrl_oki_1_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? 1'h0 : _GEN_1772; // @[Main.scala 342:81 MemIO.scala 318:8]
-  assign io_soundCtrl_oki_1_din = cpu_io_dout; // @[Main.scala 394:48 MemMap.scala 107:15]
-  assign io_soundCtrl_nmk_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? 1'h0 : _GEN_1774; // @[Main.scala 342:81 MemIO.scala 207:8]
-  assign io_soundCtrl_nmk_addr = cpu_io_addr; // @[Main.scala 394:48 MemMap.scala 105:16]
-  assign io_soundCtrl_nmk_din = cpu_io_dout; // @[Main.scala 394:48 MemMap.scala 107:15]
-  assign io_soundCtrl_ymz_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? 1'h0 : _GEN_1707; // @[Main.scala 342:81 MemIO.scala 317:8]
-  assign io_soundCtrl_ymz_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? 1'h0 : _GEN_1708; // @[Main.scala 342:81 MemIO.scala 318:8]
-  assign io_soundCtrl_ymz_addr = io_gameIndex == 4'h0 ? cpu_io_addr : _GEN_1545; // @[Main.scala 378:48 MemMap.scala 105:16]
-  assign io_soundCtrl_ymz_din = io_gameIndex == 4'h0 ? cpu_io_dout : _GEN_1547; // @[Main.scala 378:48 MemMap.scala 107:15]
-  assign io_soundCtrl_req = io_gameIndex == 4'h8 | _smnLayerBank_T ? _GEN_242 : _GEN_1784; // @[Main.scala 342:81]
-  assign io_soundCtrl_data = cpu_io_dout; // @[Main.scala 110:21]
-  assign io_progRom_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_1 & readStrobe : _GEN_1699; // @[Main.scala 342:81 MemMap.scala 128:14]
-  assign io_progRom_addr = _GEN_1789[21:0];
-  assign io_highProgRom_rd = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_4 & readStrobe); // @[Main.scala 342:81 MemMap.scala 128:14 MemIO.scala 83:8]
-  assign io_highProgRom_addr = addr_40[21:0];
-  assign io_eeprom_rd = eeprom_io_mem_rd; // @[Main.scala 116:17]
-  assign io_eeprom_wr = eeprom_io_mem_wr; // @[Main.scala 116:17]
-  assign io_eeprom_addr = eeprom_io_mem_addr; // @[Main.scala 116:17]
-  assign io_eeprom_din = eeprom_io_mem_din; // @[Main.scala 116:17]
-  assign io_spriteFrameBufferSwap = io_gameIndex == 4'h8 | _smnLayerBank_T ? _GEN_217 : _GEN_1746; // @[Main.scala 342:81]
-  assign io_tileBank = io_tileBank_r; // @[Main.scala 122:15]
+  assign io_gpuMem_sprite_vram_dout = spriteRam_io_portB_dout; // @[Main.scala 163:22]
+  assign io_gpuMem_paletteRam_dout = paletteRam_io_portB_dout; // @[Main.scala 230:23]
+  assign io_soundCtrl_oki_0_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? 1'h0 : _GEN_1692; // @[Main.scala 342:24 MemIO.scala 318:8]
+  assign io_soundCtrl_oki_0_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign io_soundCtrl_oki_1_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? 1'h0 : _GEN_1697; // @[Main.scala 342:24 MemIO.scala 318:8]
+  assign io_soundCtrl_oki_1_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign io_soundCtrl_nmk_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? 1'h0 : _GEN_1699; // @[Main.scala 342:24 MemIO.scala 207:8]
+  assign io_soundCtrl_nmk_addr = cpu_io_addr; // @[Main.scala 342:24 MemMap.scala 105:16]
+  assign io_soundCtrl_nmk_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign io_soundCtrl_ymz_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? 1'h0 : _GEN_1632; // @[Main.scala 342:24 MemIO.scala 317:8]
+  assign io_soundCtrl_ymz_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? 1'h0 : _GEN_1633; // @[Main.scala 342:24 MemIO.scala 318:8]
+  assign io_soundCtrl_ymz_addr = 4'h0 == io_gameIndex ? cpu_io_addr : _GEN_1486; // @[Main.scala 342:24 MemMap.scala 105:16]
+  assign io_soundCtrl_ymz_din = 4'h0 == io_gameIndex ? cpu_io_dout : _GEN_1488; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign io_soundCtrl_req = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _GEN_306 : _GEN_1709; // @[Main.scala 342:24]
+  assign io_soundCtrl_data = cpu_io_dout; // @[Main.scala 111:21]
+  assign io_progRom_rd = io_gameIndex == 4'h8 | _smnLayerBank_T | io_gameIndex == 4'h2 ? cs_1 & readStrobe : cs_3 &
+    readStrobe; // @[Main.scala 315:114 MemMap.scala 128:{14,14}]
+  assign io_progRom_addr = _GEN_101[21:0];
+  assign io_highProgRom_rd = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_12 & readStrobe); // @[Main.scala 342:24 MemMap.scala 128:14 MemIO.scala 83:8]
+  assign io_highProgRom_addr = addr_48[21:0];
+  assign io_eeprom_rd = eeprom_io_mem_rd; // @[Main.scala 117:17]
+  assign io_eeprom_wr = eeprom_io_mem_wr; // @[Main.scala 117:17]
+  assign io_eeprom_addr = eeprom_io_mem_addr; // @[Main.scala 117:17]
+  assign io_eeprom_din = eeprom_io_mem_din; // @[Main.scala 117:17]
+  assign io_spriteFrameBufferSwap = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _GEN_281 : _GEN_1671; // @[Main.scala 342:24]
+  assign io_tileBank = io_tileBank_r; // @[Main.scala 123:15]
   assign cpu_clock = clock;
   assign cpu_reset = reset;
-  assign cpu_io_halt = pauseReg; // @[Main.scala 98:15]
-  assign cpu_io_dtack = io_gameIndex == 4'h8 | _smnLayerBank_T ? dtackReg : _GEN_1698; // @[Main.scala 342:81 MemMap.scala 230:15]
-  assign cpu_io_vpa = cpu_io_as & cpu_io_fc == 3'h7; // @[Main.scala 100:27]
-  assign cpu_io_ipl = {{2'd0}, _cpu_io_ipl_T}; // @[Main.scala 101:14]
-  assign cpu_io_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? dinReg : _GEN_1697; // @[Main.scala 342:81 MemMap.scala 229:13]
+  assign cpu_io_halt = pauseReg; // @[Main.scala 99:15]
+  assign cpu_io_dtack = dtackReg; // @[Main.scala 342:24 MemMap.scala 230:15]
+  assign cpu_io_vpa = cpu_io_as & cpu_io_fc == 3'h7; // @[Main.scala 101:27]
+  assign cpu_io_ipl = {{2'd0}, _cpu_io_ipl_T}; // @[Main.scala 102:14]
+  assign cpu_io_din = dinReg; // @[Main.scala 342:24 MemMap.scala 229:13]
   assign eeprom_clock = clock;
   assign eeprom_reset = reset;
-  assign eeprom_io_mem_dout = io_eeprom_dout; // @[Main.scala 116:17]
-  assign eeprom_io_mem_wait_n = io_eeprom_wait_n; // @[Main.scala 116:17]
-  assign eeprom_io_mem_valid = io_eeprom_valid; // @[Main.scala 116:17]
-  assign eeprom_io_serial_cs = eeprom_io_serial_cs_r; // @[Main.scala 123:23]
-  assign eeprom_io_serial_sck = eeprom_io_serial_sck_r; // @[Main.scala 124:24]
-  assign eeprom_io_serial_sdi = eeprom_io_serial_sdi_r; // @[Main.scala 125:24]
+  assign eeprom_io_mem_dout = io_eeprom_dout; // @[Main.scala 117:17]
+  assign eeprom_io_mem_wait_n = io_eeprom_wait_n; // @[Main.scala 117:17]
+  assign eeprom_io_mem_valid = io_eeprom_valid; // @[Main.scala 117:17]
+  assign eeprom_io_serial_cs = eeprom_io_serial_cs_r; // @[Main.scala 124:23]
+  assign eeprom_io_serial_sck = eeprom_io_serial_sck_r; // @[Main.scala 125:24]
+  assign eeprom_io_serial_sdi = eeprom_io_serial_sdi_r; // @[Main.scala 126:24]
   assign mainRam_clock = clock;
-  assign mainRam_io_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_3 & readStrobe : _GEN_1702; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign mainRam_io_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_3 & writeStrobe : _GEN_1703; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign mainRam_io_addr = _GEN_1793[15:0];
-  assign mainRam_io_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign mainRam_io_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign mainRam_io_rd = _cs_T ? cs_5 & readStrobe : _GEN_115; // @[Main.scala 325:41 MemMap.scala 103:14]
+  assign mainRam_io_wr = _cs_T ? cs_5 & writeStrobe : _GEN_116; // @[Main.scala 325:41 MemMap.scala 104:14]
+  assign mainRam_io_addr = _GEN_126[15:0];
+  assign mainRam_io_mask = _cs_T ? _mainRam_io_mask_T : _GEN_118; // @[Main.scala 325:41 MemMap.scala 106:16]
+  assign mainRam_io_din = _cs_T ? cpu_io_dout : _GEN_1194; // @[Main.scala 325:41 MemMap.scala 107:15]
   assign spriteRam_clock = clock;
-  assign spriteRam_io_clockB = io_spriteClock; // @[Main.scala 160:23]
-  assign spriteRam_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_42 & readStrobe : _GEN_1712; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign spriteRam_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_42 & writeStrobe : _GEN_1713; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign spriteRam_io_portA_addr = _GEN_1793[14:0];
-  assign spriteRam_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign spriteRam_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign spriteRam_io_portB_rd = io_gpuMem_sprite_vram_rd; // @[Main.scala 162:22]
-  assign spriteRam_io_portB_addr = io_gpuMem_sprite_vram_addr; // @[Main.scala 162:22]
+  assign spriteRam_io_clockB = io_spriteClock; // @[Main.scala 161:23]
+  assign spriteRam_io_portA_rd = _io_spriteFrameBufferSwap_T ? cs_8 & readStrobe : _GEN_142; // @[Main.scala 334:42 MemMap.scala 103:14]
+  assign spriteRam_io_portA_wr = _io_spriteFrameBufferSwap_T ? cs_8 & writeStrobe : _GEN_143; // @[Main.scala 334:42 MemMap.scala 104:14]
+  assign spriteRam_io_portA_addr = _GEN_153[14:0];
+  assign spriteRam_io_portA_mask = _io_spriteFrameBufferSwap_T ? _mainRam_io_mask_T : _GEN_145; // @[Main.scala 334:42 MemMap.scala 106:16]
+  assign spriteRam_io_portA_din = _io_spriteFrameBufferSwap_T ? cpu_io_dout : _GEN_1194; // @[Main.scala 334:42 MemMap.scala 107:15]
+  assign spriteRam_io_portB_rd = io_gpuMem_sprite_vram_rd; // @[Main.scala 163:22]
+  assign spriteRam_io_portB_addr = io_gpuMem_sprite_vram_addr; // @[Main.scala 163:22]
   assign vram8x8_0_clock = clock;
-  assign vram8x8_0_io_clockB = io_videoClock; // @[Main.scala 173:19]
-  assign vram8x8_0_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_15 & readStrobe : _GEN_1721; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram8x8_0_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_15 & writeStrobe : _GEN_1722; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram8x8_0_io_portA_addr = _GEN_1793[12:0];
-  assign vram8x8_0_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram8x8_0_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram8x8_0_io_portB_addr = io_gpuMem_layer_0_vram8x8_addr; // @[Main.scala 175:18]
+  assign vram8x8_0_io_clockB = io_videoClock; // @[Main.scala 174:19]
+  assign vram8x8_0_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_23 & readStrobe : _GEN_1646; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram8x8_0_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_23 & writeStrobe : _GEN_1647; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram8x8_0_io_portA_addr = _GEN_1723[12:0];
+  assign vram8x8_0_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram8x8_0_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1642; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram8x8_0_io_portB_addr = io_gpuMem_layer_0_vram8x8_addr; // @[Main.scala 176:18]
   assign vram8x8_1_clock = clock;
-  assign vram8x8_1_io_clockB = io_videoClock; // @[Main.scala 173:19]
-  assign vram8x8_1_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_20 & readStrobe : _GEN_1732; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram8x8_1_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_20 & writeStrobe : _GEN_1733; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram8x8_1_io_portA_addr = _GEN_1813[12:0];
-  assign vram8x8_1_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1727; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram8x8_1_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1728; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram8x8_1_io_portB_addr = io_gpuMem_layer_1_vram8x8_addr; // @[Main.scala 175:18]
+  assign vram8x8_1_io_clockB = io_videoClock; // @[Main.scala 174:19]
+  assign vram8x8_1_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_28 & readStrobe : _GEN_1657; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram8x8_1_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_28 & writeStrobe : _GEN_1658; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram8x8_1_io_portA_addr = _GEN_1733[12:0];
+  assign vram8x8_1_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1652; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram8x8_1_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1653; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram8x8_1_io_portB_addr = io_gpuMem_layer_1_vram8x8_addr; // @[Main.scala 176:18]
   assign vram8x8_2_clock = clock;
-  assign vram8x8_2_io_clockB = io_videoClock; // @[Main.scala 173:19]
-  assign vram8x8_2_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_25 & readStrobe : _GEN_1757; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram8x8_2_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_25 & writeStrobe : _GEN_1758; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram8x8_2_io_portA_addr = _GEN_1832[12:0];
-  assign vram8x8_2_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1623; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram8x8_2_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1624; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram8x8_2_io_portB_addr = io_gpuMem_layer_2_vram8x8_addr; // @[Main.scala 175:18]
+  assign vram8x8_2_io_clockB = io_videoClock; // @[Main.scala 174:19]
+  assign vram8x8_2_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_33 & readStrobe : _GEN_1682; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram8x8_2_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_33 & writeStrobe : _GEN_1683; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram8x8_2_io_portA_addr = _GEN_1752[12:0];
+  assign vram8x8_2_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1556; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram8x8_2_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1557; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram8x8_2_io_portB_addr = io_gpuMem_layer_2_vram8x8_addr; // @[Main.scala 176:18]
   assign vram16x16_0_clock = clock;
-  assign vram16x16_0_io_clockB = io_videoClock; // @[Main.scala 188:19]
-  assign vram16x16_0_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_12 & readStrobe : _GEN_1715; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram16x16_0_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_12 & writeStrobe : _GEN_1716; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram16x16_0_io_portA_addr = _GEN_1793[10:0];
-  assign vram16x16_0_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram16x16_0_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram16x16_0_io_portB_addr = io_gpuMem_layer_0_vram16x16_addr; // @[Main.scala 190:18]
+  assign vram16x16_0_io_clockB = io_videoClock; // @[Main.scala 189:19]
+  assign vram16x16_0_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_20 & readStrobe : _GEN_1638; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram16x16_0_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_20 & writeStrobe : _GEN_1639; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram16x16_0_io_portA_addr = _GEN_1723[10:0];
+  assign vram16x16_0_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram16x16_0_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1642; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram16x16_0_io_portB_addr = io_gpuMem_layer_0_vram16x16_addr; // @[Main.scala 191:18]
   assign vram16x16_1_clock = clock;
-  assign vram16x16_1_io_clockB = io_videoClock; // @[Main.scala 188:19]
-  assign vram16x16_1_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_17 & readStrobe : _GEN_1724; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram16x16_1_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_17 & writeStrobe : _GEN_1725; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram16x16_1_io_portA_addr = _GEN_1813[10:0];
-  assign vram16x16_1_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1727; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram16x16_1_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1728; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram16x16_1_io_portB_addr = io_gpuMem_layer_1_vram16x16_addr; // @[Main.scala 190:18]
+  assign vram16x16_1_io_clockB = io_videoClock; // @[Main.scala 189:19]
+  assign vram16x16_1_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_25 & readStrobe : _GEN_1649; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram16x16_1_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_25 & writeStrobe : _GEN_1650; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram16x16_1_io_portA_addr = _GEN_1733[10:0];
+  assign vram16x16_1_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1652; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram16x16_1_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1653; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram16x16_1_io_portB_addr = io_gpuMem_layer_1_vram16x16_addr; // @[Main.scala 191:18]
   assign vram16x16_2_clock = clock;
-  assign vram16x16_2_io_clockB = io_videoClock; // @[Main.scala 188:19]
-  assign vram16x16_2_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_22 & readStrobe : _GEN_1776; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign vram16x16_2_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_22 & writeStrobe : _GEN_1777; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign vram16x16_2_io_portA_addr = _GEN_1824[10:0];
-  assign vram16x16_2_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1472; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign vram16x16_2_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1473; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign vram16x16_2_io_portB_addr = io_gpuMem_layer_2_vram16x16_addr; // @[Main.scala 190:18]
+  assign vram16x16_2_io_clockB = io_videoClock; // @[Main.scala 189:19]
+  assign vram16x16_2_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_30 & readStrobe : _GEN_1701; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign vram16x16_2_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_30 & writeStrobe : _GEN_1702; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign vram16x16_2_io_portA_addr = _GEN_1744[10:0];
+  assign vram16x16_2_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1421; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign vram16x16_2_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1422; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign vram16x16_2_io_portB_addr = io_gpuMem_layer_2_vram16x16_addr; // @[Main.scala 191:18]
   assign lineRam_0_clock = clock;
-  assign lineRam_0_io_clockB = io_videoClock; // @[Main.scala 203:19]
-  assign lineRam_0_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_13 & readStrobe : _GEN_1718; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign lineRam_0_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_13 & writeStrobe : _GEN_1719; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign lineRam_0_io_portA_addr = _GEN_1793[9:0];
-  assign lineRam_0_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign lineRam_0_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign lineRam_0_io_portB_addr = io_gpuMem_layer_0_lineRam_addr; // @[Main.scala 205:18]
+  assign lineRam_0_io_clockB = io_videoClock; // @[Main.scala 204:19]
+  assign lineRam_0_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_21 & readStrobe : _GEN_1643; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign lineRam_0_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_21 & writeStrobe : _GEN_1644; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign lineRam_0_io_portA_addr = _GEN_1723[9:0];
+  assign lineRam_0_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign lineRam_0_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1642; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign lineRam_0_io_portB_addr = io_gpuMem_layer_0_lineRam_addr; // @[Main.scala 206:18]
   assign lineRam_1_clock = clock;
-  assign lineRam_1_io_clockB = io_videoClock; // @[Main.scala 203:19]
-  assign lineRam_1_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_18 & readStrobe : _GEN_1729; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign lineRam_1_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_18 & writeStrobe : _GEN_1730; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign lineRam_1_io_portA_addr = _GEN_1813[9:0];
-  assign lineRam_1_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1727; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign lineRam_1_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1728; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign lineRam_1_io_portB_addr = io_gpuMem_layer_1_lineRam_addr; // @[Main.scala 205:18]
+  assign lineRam_1_io_clockB = io_videoClock; // @[Main.scala 204:19]
+  assign lineRam_1_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_26 & readStrobe : _GEN_1654; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign lineRam_1_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_26 & writeStrobe : _GEN_1655; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign lineRam_1_io_portA_addr = _GEN_1733[9:0];
+  assign lineRam_1_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1652; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign lineRam_1_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1653; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign lineRam_1_io_portB_addr = io_gpuMem_layer_1_lineRam_addr; // @[Main.scala 206:18]
   assign lineRam_2_clock = clock;
-  assign lineRam_2_io_clockB = io_videoClock; // @[Main.scala 203:19]
-  assign lineRam_2_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_23 & readStrobe : _GEN_1781; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign lineRam_2_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_23 & writeStrobe : _GEN_1782; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign lineRam_2_io_portA_addr = _GEN_1824[9:0];
-  assign lineRam_2_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1472; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign lineRam_2_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1473; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign lineRam_2_io_portB_addr = io_gpuMem_layer_2_lineRam_addr; // @[Main.scala 205:18]
+  assign lineRam_2_io_clockB = io_videoClock; // @[Main.scala 204:19]
+  assign lineRam_2_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_31 & readStrobe : _GEN_1706; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign lineRam_2_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_31 & writeStrobe : _GEN_1707; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign lineRam_2_io_portA_addr = _GEN_1744[9:0];
+  assign lineRam_2_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1421; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign lineRam_2_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1422; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign lineRam_2_io_portB_addr = io_gpuMem_layer_2_lineRam_addr; // @[Main.scala 206:18]
   assign scratchRam_0_clock = clock;
-  assign scratchRam_0_io_rd = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_14 & readStrobe); // @[Main.scala 342:81 MemMap.scala 103:14 MemIO.scala 317:8]
-  assign scratchRam_0_io_wr = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_14 & writeStrobe); // @[Main.scala 342:81 MemMap.scala 104:14 MemIO.scala 318:8]
-  assign scratchRam_0_io_addr = _GEN_1206[13:0];
+  assign scratchRam_0_io_rd = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_22 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  assign scratchRam_0_io_wr = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_22 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  assign scratchRam_0_io_addr = _GEN_117[13:0];
   assign scratchRam_0_io_mask = {cpu_io_uds,cpu_io_lds}; // @[MemMap.scala 106:27]
-  assign scratchRam_0_io_din = cpu_io_dout; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign scratchRam_0_io_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign scratchRam_1_clock = clock;
-  assign scratchRam_1_io_rd = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_19 & readStrobe); // @[Main.scala 342:81 MemMap.scala 103:14 MemIO.scala 317:8]
-  assign scratchRam_1_io_wr = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_19 & writeStrobe); // @[Main.scala 342:81 MemMap.scala 104:14 MemIO.scala 318:8]
-  assign scratchRam_1_io_addr = _GEN_1206[13:0];
+  assign scratchRam_1_io_rd = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_27 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  assign scratchRam_1_io_wr = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_27 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  assign scratchRam_1_io_addr = _GEN_117[13:0];
   assign scratchRam_1_io_mask = {cpu_io_uds,cpu_io_lds}; // @[MemMap.scala 106:27]
-  assign scratchRam_1_io_din = cpu_io_dout; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign scratchRam_1_io_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign scratchRam_2_clock = clock;
-  assign scratchRam_2_io_rd = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_24 & readStrobe); // @[Main.scala 342:81 MemMap.scala 103:14 MemIO.scala 317:8]
-  assign scratchRam_2_io_wr = (io_gameIndex == 4'h8 | _smnLayerBank_T) & (cs_24 & writeStrobe); // @[Main.scala 342:81 MemMap.scala 104:14 MemIO.scala 318:8]
-  assign scratchRam_2_io_addr = _GEN_1206[13:0];
+  assign scratchRam_2_io_rd = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_32 & readStrobe); // @[Main.scala 342:24 MemMap.scala 103:14 MemIO.scala 317:8]
+  assign scratchRam_2_io_wr = (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) & (cs_32 & writeStrobe); // @[Main.scala 342:24 MemMap.scala 104:14 MemIO.scala 318:8]
+  assign scratchRam_2_io_addr = _GEN_117[13:0];
   assign scratchRam_2_io_mask = {cpu_io_uds,cpu_io_lds}; // @[MemMap.scala 106:27]
-  assign scratchRam_2_io_din = cpu_io_dout; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign scratchRam_2_io_din = cpu_io_dout; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign paletteRam_clock = clock;
-  assign paletteRam_io_clockB = io_videoClock; // @[Main.scala 227:24]
-  assign paletteRam_io_portA_rd = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_6 & readStrobe : _GEN_1735; // @[Main.scala 342:81 MemMap.scala 103:14]
-  assign paletteRam_io_portA_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_6 & writeStrobe : _GEN_1736; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign paletteRam_io_portA_addr = _GEN_1800[14:0];
-  assign paletteRam_io_portA_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign paletteRam_io_portA_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
-  assign paletteRam_io_portB_addr = io_gpuMem_paletteRam_addr; // @[Main.scala 229:23]
+  assign paletteRam_io_clockB = io_videoClock; // @[Main.scala 228:24]
+  assign paletteRam_io_portA_rd = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_14 & readStrobe : _GEN_1660; // @[Main.scala 342:24 MemMap.scala 103:14]
+  assign paletteRam_io_portA_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_14 & writeStrobe : _GEN_1661; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign paletteRam_io_portA_addr = _GEN_1718[14:0];
+  assign paletteRam_io_portA_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign paletteRam_io_portA_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1642; // @[Main.scala 342:24 MemMap.scala 107:15]
+  assign paletteRam_io_portB_addr = io_gpuMem_paletteRam_addr; // @[Main.scala 230:23]
   assign layerRegs_0_clock = clock;
-  assign layerRegs_0_io_mem_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_36 & writeStrobe : _GEN_1748; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign layerRegs_0_io_mem_addr = _GEN_1793[1:0];
-  assign layerRegs_0_io_mem_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign layerRegs_0_io_mem_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1706; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign layerRegs_0_io_mem_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_44 & writeStrobe : _GEN_1673; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign layerRegs_0_io_mem_addr = _GEN_1723[1:0];
+  assign layerRegs_0_io_mem_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign layerRegs_0_io_mem_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1642; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign layerRegs_1_clock = clock;
-  assign layerRegs_1_io_mem_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_37 & writeStrobe : _GEN_1751; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign layerRegs_1_io_mem_addr = _GEN_1813[1:0];
-  assign layerRegs_1_io_mem_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1727; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign layerRegs_1_io_mem_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1728; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign layerRegs_1_io_mem_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_45 & writeStrobe : _GEN_1676; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign layerRegs_1_io_mem_addr = _GEN_1733[1:0];
+  assign layerRegs_1_io_mem_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1652; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign layerRegs_1_io_mem_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1653; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign layerRegs_2_clock = clock;
-  assign layerRegs_2_io_mem_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? cs_38 & writeStrobe : _GEN_1763; // @[Main.scala 342:81 MemMap.scala 104:14]
-  assign layerRegs_2_io_mem_addr = _GEN_1864[1:0];
-  assign layerRegs_2_io_mem_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1623; // @[Main.scala 342:81 MemMap.scala 106:16]
-  assign layerRegs_2_io_mem_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? cpu_io_dout : _GEN_1624; // @[Main.scala 342:81 MemMap.scala 107:15]
+  assign layerRegs_2_io_mem_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cs_46 & writeStrobe : _GEN_1688; // @[Main.scala 342:24 MemMap.scala 104:14]
+  assign layerRegs_2_io_mem_addr = _GEN_1784[1:0];
+  assign layerRegs_2_io_mem_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1556; // @[Main.scala 342:24 MemMap.scala 106:16]
+  assign layerRegs_2_io_mem_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? cpu_io_dout : _GEN_1557; // @[Main.scala 342:24 MemMap.scala 107:15]
   assign spriteRegs_clock = clock;
-  assign spriteRegs_io_mem_wr = io_gameIndex == 4'h8 | _smnLayerBank_T ? mem_wr : _GEN_1742; // @[Main.scala 342:81 MemIO.scala 305:8]
-  assign spriteRegs_io_mem_addr = io_gameIndex == 4'h8 | _smnLayerBank_T ? mem_8_addr : _GEN_1743; // @[Main.scala 342:81 MemIO.scala 306:10]
-  assign spriteRegs_io_mem_mask = io_gameIndex == 4'h8 | _smnLayerBank_T ? _mainRam_io_mask_T : _GEN_1705; // @[Main.scala 342:81 MemIO.scala 307:10]
-  assign spriteRegs_io_mem_din = io_gameIndex == 4'h8 | _smnLayerBank_T ? _GEN_1208 : _GEN_1745; // @[Main.scala 342:81 MemIO.scala 308:9]
+  assign spriteRegs_io_mem_wr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? mem_wr : _GEN_1667; // @[Main.scala 342:24 MemIO.scala 305:8]
+  assign spriteRegs_io_mem_addr = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? mem_8_addr : _GEN_1668; // @[Main.scala 342:24 MemIO.scala 306:10]
+  assign spriteRegs_io_mem_mask = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _mainRam_io_mask_T : _GEN_1641; // @[Main.scala 342:24 MemIO.scala 307:10]
+  assign spriteRegs_io_mem_din = 4'h8 == io_gameIndex | 4'h9 == io_gameIndex ? _GEN_1194 : _GEN_1670; // @[Main.scala 342:24 MemIO.scala 308:9]
   always @(posedge clock) begin
     vBlank_r <= io_video_vBlank; // @[Reg.scala 19:16 20:{18,22}]
     vBlank <= vBlank_r; // @[Reg.scala 19:16 20:{18,22}]
     vBlankRising_REG <= vBlank; // @[Util.scala 158:44]
-    pauseReg_REG <= io_player_0_pause | io_player_1_pause; // @[Main.scala 87:61]
+    pauseReg_REG <= io_player_0_pause | io_player_1_pause; // @[Main.scala 88:61]
     if (reset) begin // @[Util.scala 242:26]
       pauseReg <= 1'h0; // @[Util.scala 242:26]
     end else if (_pauseReg_T_2) begin // @[Util.scala 243:18]
       pauseReg <= ~pauseReg; // @[Util.scala 243:28]
     end
-    if (reset) begin // @[Main.scala 90:25]
-      videoIrq <= 1'h0; // @[Main.scala 90:25]
-    end else if (io_gameIndex == 4'h8 | _smnLayerBank_T) begin // @[Main.scala 342:81]
-      if (cs_27 & readStrobe) begin // @[MemMap.scala 180:30]
-        if (offset_26 == 24'h4) begin // @[Main.scala 257:26]
-          videoIrq <= 1'h0; // @[Main.scala 257:37]
+    if (reset) begin // @[Main.scala 91:25]
+      videoIrq <= 1'h0; // @[Main.scala 91:25]
+    end else if (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) begin // @[Main.scala 342:24]
+      if (cs_35 & readStrobe) begin // @[MemMap.scala 180:30]
+        if (offset_34 == 24'h4) begin // @[Main.scala 258:26]
+          videoIrq <= 1'h0; // @[Main.scala 258:37]
         end else begin
           videoIrq <= _GEN_62;
         end
       end else begin
         videoIrq <= _GEN_62;
       end
-    end else if (io_gameIndex == 4'h0) begin // @[Main.scala 378:48]
-      if (cs_60 & readStrobe) begin // @[MemMap.scala 180:30]
-        videoIrq <= _GEN_343;
+    end else if (4'h0 == io_gameIndex) begin // @[Main.scala 342:24]
+      if (cs_64 & readStrobe) begin // @[MemMap.scala 180:30]
+        videoIrq <= _GEN_395;
       end else begin
         videoIrq <= _GEN_62;
       end
-    end else if (io_gameIndex == 4'h2) begin // @[Main.scala 394:48]
-      videoIrq <= _GEN_449;
+    end else if (4'h2 == io_gameIndex) begin // @[Main.scala 342:24]
+      videoIrq <= _GEN_492;
     end else begin
-      videoIrq <= _GEN_1575;
+      videoIrq <= _GEN_1516;
     end
-    if (reset) begin // @[Main.scala 91:27]
-      agalletIrq <= 1'h0; // @[Main.scala 91:27]
+    if (reset) begin // @[Main.scala 92:27]
+      agalletIrq <= 1'h0; // @[Main.scala 92:27]
     end else begin
       agalletIrq <= _GEN_63;
     end
     if (reset) begin // @[MemMap.scala 48:23]
       dinReg <= 16'h0; // @[MemMap.scala 48:23]
-    end else if (io_gameIndex == 4'h8 | _smnLayerBank_T) begin // @[Main.scala 342:81]
-      if (cs_43) begin // @[MemMap.scala 164:16]
+    end else if (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) begin // @[Main.scala 342:24]
+      if (cs_50) begin // @[MemMap.scala 164:16]
         if (readStrobe) begin // @[MemMap.scala 165:26]
           dinReg <= tmp_12; // @[MemMap.scala 166:18]
         end else begin
-          dinReg <= _GEN_268;
+          dinReg <= _GEN_327;
         end
       end else begin
-        dinReg <= _GEN_268;
+        dinReg <= _GEN_327;
       end
-    end else if (io_gameIndex == 4'h0) begin // @[Main.scala 378:48]
-      if (cs_69) begin // @[MemMap.scala 164:16]
-        dinReg <= _GEN_376;
+    end else if (4'h0 == io_gameIndex) begin // @[Main.scala 342:24]
+      if (cs_73) begin // @[MemMap.scala 164:16]
+        dinReg <= _GEN_428;
       end else begin
-        dinReg <= _GEN_371;
+        dinReg <= _GEN_423;
       end
-    end else if (io_gameIndex == 4'h2) begin // @[Main.scala 394:48]
-      dinReg <= _GEN_486;
+    end else if (4'h2 == io_gameIndex) begin // @[Main.scala 342:24]
+      dinReg <= _GEN_529;
     end else begin
-      dinReg <= _GEN_1537;
+      dinReg <= _GEN_1489;
     end
     if (reset) begin // @[MemMap.scala 49:25]
       dtackReg <= 1'h0; // @[MemMap.scala 49:25]
-    end else if (io_gameIndex == 4'h8 | _smnLayerBank_T) begin // @[Main.scala 342:81]
-      dtackReg <= _GEN_276;
-    end else if (io_gameIndex == 4'h0) begin // @[Main.scala 378:48]
-      dtackReg <= _GEN_378;
-    end else if (io_gameIndex == 4'h2) begin // @[Main.scala 394:48]
-      dtackReg <= _GEN_487;
+    end else if (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) begin // @[Main.scala 342:24]
+      dtackReg <= _GEN_337;
+    end else if (4'h0 == io_gameIndex) begin // @[Main.scala 342:24]
+      dtackReg <= _GEN_430;
+    end else if (4'h2 == io_gameIndex) begin // @[Main.scala 342:24]
+      dtackReg <= _GEN_530;
     end else begin
-      dtackReg <= _GEN_1532;
+      dtackReg <= _GEN_1481;
     end
     readStrobe_REG <= cpu_io_as; // @[Util.scala 158:44]
     upperWriteStrobe_REG <= cpu_io_uds; // @[Util.scala 158:44]
@@ -10628,7 +11033,7 @@ module Main(
     if (reset) begin // @[Reg.scala 35:20]
       eeprom_io_serial_cs_r <= 1'h0; // @[Reg.scala 35:20]
     end else if (eepromMem_wr) begin // @[Reg.scala 36:18]
-      if (_T_272) begin // @[Main.scala 119:15]
+      if (io_gameIndex == 4'h5) begin // @[Main.scala 120:15]
         eeprom_io_serial_cs_r <= eepromMem_din[5];
       end else begin
         eeprom_io_serial_cs_r <= eepromMem_din[9];
@@ -10637,7 +11042,7 @@ module Main(
     if (reset) begin // @[Reg.scala 35:20]
       eeprom_io_serial_sck_r <= 1'h0; // @[Reg.scala 35:20]
     end else if (eepromMem_wr) begin // @[Reg.scala 36:18]
-      if (_T_272) begin // @[Main.scala 120:16]
+      if (_cs_T) begin // @[Main.scala 121:16]
         eeprom_io_serial_sck_r <= eepromMem_din[6];
       end else begin
         eeprom_io_serial_sck_r <= eepromMem_din[10];
@@ -10646,7 +11051,7 @@ module Main(
     if (reset) begin // @[Reg.scala 35:20]
       eeprom_io_serial_sdi_r <= 1'h0; // @[Reg.scala 35:20]
     end else if (eepromMem_wr) begin // @[Reg.scala 36:18]
-      if (_T_272) begin // @[Main.scala 121:16]
+      if (_cs_T) begin // @[Main.scala 122:16]
         eeprom_io_serial_sdi_r <= eepromMem_din[7];
       end else begin
         eeprom_io_serial_sdi_r <= eepromMem_din[11];
@@ -10706,15 +11111,15 @@ module Main(
     service_s_REG <= io_options_service; // @[Util.scala 158:44]
     if (reset) begin // @[Reg.scala 35:20]
       ackLatchReg <= 1'h0; // @[Reg.scala 35:20]
-    end else if (io_gameIndex == 4'h8 | _smnLayerBank_T) begin // @[Main.scala 342:81]
-      if (cs_35) begin // @[MemMap.scala 164:16]
+    end else if (4'h8 == io_gameIndex | 4'h9 == io_gameIndex) begin // @[Main.scala 342:24]
+      if (cs_43) begin // @[MemMap.scala 164:16]
         if (readStrobe) begin // @[MemMap.scala 165:26]
-          ackLatchReg <= 1'h0; // @[Main.scala 303:17]
+          ackLatchReg <= 1'h0; // @[Main.scala 304:17]
         end else begin
-          ackLatchReg <= _GEN_240;
+          ackLatchReg <= _GEN_304;
         end
       end else begin
-        ackLatchReg <= _GEN_240;
+        ackLatchReg <= _GEN_304;
       end
     end else begin
       ackLatchReg <= _GEN_85;
@@ -10724,413 +11129,413 @@ module Main(
     end else if (io_soundCtrl_ack) begin // @[Reg.scala 36:18]
       ackDataReg <= io_soundCtrl_ackData; // @[Reg.scala 36:22]
     end
-    if (cs_7) begin // @[MemMap.scala 164:16]
+    if (cs_15) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_8) begin // @[MemMap.scala 164:16]
+    if (cs_16) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_1 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_9) begin // @[MemMap.scala 164:16]
+    if (cs_17) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_2 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_10) begin // @[MemMap.scala 164:16]
+    if (cs_18) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_3 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_11) begin // @[MemMap.scala 164:16]
+    if (cs_19) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_4 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_14) begin // @[MemMap.scala 164:16]
+    if (cs_22) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_5 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_16) begin // @[MemMap.scala 164:16]
+    if (cs_24) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_6 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_19) begin // @[MemMap.scala 164:16]
+    if (cs_27) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_7 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_21) begin // @[MemMap.scala 164:16]
+    if (cs_29) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_8 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_24) begin // @[MemMap.scala 164:16]
+    if (cs_32) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_9 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_26) begin // @[MemMap.scala 164:16]
+    if (cs_34) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_10 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_30) begin // @[MemMap.scala 164:16]
+    if (cs_38) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_11 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_43) begin // @[MemMap.scala 164:16]
+    if (cs_50) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_12 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_13 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_14 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_55) begin // @[MemMap.scala 164:16]
+    if (cs_59) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_15 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_57) begin // @[MemMap.scala 164:16]
+    if (cs_61) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_16 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_63) begin // @[MemMap.scala 164:16]
+    if (cs_67) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_17 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_74) begin // @[MemMap.scala 164:16]
+    if (cs_76) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_18 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_76) begin // @[MemMap.scala 164:16]
+    if (cs_78) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_19 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_79) begin // @[MemMap.scala 164:16]
+    if (cs_81) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_20 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_81) begin // @[MemMap.scala 164:16]
+    if (cs_83) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_21 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_90) begin // @[MemMap.scala 164:16]
+    if (cs_91) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_22 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_23 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_24 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_55) begin // @[MemMap.scala 164:16]
+    if (cs_59) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_25 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_57) begin // @[MemMap.scala 164:16]
+    if (cs_61) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_26 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_63) begin // @[MemMap.scala 164:16]
+    if (cs_67) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_27 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_28 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_29 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_55) begin // @[MemMap.scala 164:16]
+    if (cs_59) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_30 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_57) begin // @[MemMap.scala 164:16]
+    if (cs_61) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_31 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_143) begin // @[MemMap.scala 164:16]
+    if (cs_138) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_32 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_145) begin // @[MemMap.scala 164:16]
+    if (cs_140) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_33 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_63) begin // @[MemMap.scala 164:16]
+    if (cs_67) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_34 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_35 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_36 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_55) begin // @[MemMap.scala 164:16]
+    if (cs_59) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_37 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_57) begin // @[MemMap.scala 164:16]
+    if (cs_61) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_38 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_143) begin // @[MemMap.scala 164:16]
+    if (cs_138) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_39 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_145) begin // @[MemMap.scala 164:16]
+    if (cs_140) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_40 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_63) begin // @[MemMap.scala 164:16]
+    if (cs_67) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_41 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_199) begin // @[MemMap.scala 164:16]
+    if (cs_189) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_42 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_43 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_44 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_55) begin // @[MemMap.scala 164:16]
+    if (cs_59) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_45 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_57) begin // @[MemMap.scala 164:16]
+    if (cs_61) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_46 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_143) begin // @[MemMap.scala 164:16]
+    if (cs_138) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_47 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_145) begin // @[MemMap.scala 164:16]
+    if (cs_140) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_48 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_19) begin // @[MemMap.scala 164:16]
+    if (cs_27) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_49 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_21) begin // @[MemMap.scala 164:16]
+    if (cs_29) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_50 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_24) begin // @[MemMap.scala 164:16]
+    if (cs_32) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_51 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_26) begin // @[MemMap.scala 164:16]
+    if (cs_34) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_52 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_246) begin // @[MemMap.scala 164:16]
+    if (cs_233) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_53 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_248) begin // @[MemMap.scala 164:16]
+    if (cs_235) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_54 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_252) begin // @[MemMap.scala 164:16]
+    if (cs_239) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_55 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_50) begin // @[MemMap.scala 164:16]
+    if (cs_54) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_56 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_52) begin // @[MemMap.scala 164:16]
+    if (cs_56) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_57 <= cpu_io_dout; // @[MemMap.scala 207:45]
         end
       end
     end
-    if (cs_275) begin // @[MemMap.scala 164:16]
+    if (cs_258) begin // @[MemMap.scala 164:16]
       if (!(readStrobe)) begin // @[MemMap.scala 165:26]
         if (writeStrobe) begin // @[MemMap.scala 167:33]
           tmp_58 <= cpu_io_dout; // @[MemMap.scala 207:45]
@@ -20118,12 +20523,12 @@ module BurstReadDMA_1(
   reg  readEnableReg; // @[BurstReadDMA.scala 62:30]
   reg  writeEnableReg; // @[BurstReadDMA.scala 63:31]
   reg  readPendingReg; // @[BurstReadDMA.scala 64:31]
-  wire  fifoAlmostEmpty = fifo_io_count <= 6'h10; // @[BurstReadDMA.scala 70:39]
-  wire  busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 73:28]
-  wire  start = io_start & ~busy; // @[BurstReadDMA.scala 74:24]
-  wire  read = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 75:47]
-  wire  write = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 76:30]
-  wire  effectiveRead = read & io_in_wait_n; // @[BurstReadDMA.scala 77:28]
+  wire  fifoAlmostEmpty = fifo_io_count <= 6'h10; // @[BurstReadDMA.scala 71:39]
+  wire  busy = readEnableReg | writeEnableReg; // @[BurstReadDMA.scala 74:28]
+  wire  start = io_start & ~busy; // @[BurstReadDMA.scala 75:24]
+  wire  read = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 76:47]
+  wire  write = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 77:30]
+  wire  effectiveRead = read & io_in_wait_n; // @[BurstReadDMA.scala 78:28]
   reg [6:0] wordCounter; // @[Counter.scala 40:34]
   wire  wrap_wrap = wordCounter == 7'h7f; // @[Counter.scala 45:24]
   wire [6:0] _wrap_value_T_1 = wordCounter + 7'h1; // @[Counter.scala 46:22]
@@ -20132,13 +20537,13 @@ module BurstReadDMA_1(
   wire  wrap_wrap_1 = burstCounter == 3'h7; // @[Counter.scala 45:24]
   wire [2:0] _wrap_value_T_3 = burstCounter + 3'h1; // @[Counter.scala 46:22]
   wire  burstCounterWrap = io_in_burstDone & wrap_wrap_1; // @[Counter.scala 86:{48,55}]
-  wire [9:0] readAddr = {burstCounter, 7'h0}; // @[BurstReadDMA.scala 87:19]
-  wire [9:0] writeAddr = {wordCounter, 3'h0}; // @[BurstReadDMA.scala 93:18]
-  wire  _GEN_8 = burstCounterWrap ? 1'h0 : readEnableReg; // @[BurstReadDMA.scala 100:{70,86} 62:30]
-  wire  _GEN_9 = start | _GEN_8; // @[BurstReadDMA.scala 100:{15,31}]
-  wire  _GEN_10 = wordCounterWrap ? 1'h0 : writeEnableReg; // @[BurstReadDMA.scala 101:{70,87} 63:31]
-  wire  _GEN_11 = start | _GEN_10; // @[BurstReadDMA.scala 101:{15,32}]
-  wire  _GEN_12 = effectiveRead | readPendingReg; // @[BurstReadDMA.scala 106:29 107:20 64:31]
+  wire [9:0] readAddr = {burstCounter, 7'h0}; // @[BurstReadDMA.scala 88:19]
+  wire [9:0] writeAddr = {wordCounter, 3'h0}; // @[BurstReadDMA.scala 94:18]
+  wire  _GEN_8 = burstCounterWrap ? 1'h0 : readEnableReg; // @[BurstReadDMA.scala 101:{70,86} 62:30]
+  wire  _GEN_9 = start | _GEN_8; // @[BurstReadDMA.scala 101:{15,31}]
+  wire  _GEN_10 = wordCounterWrap ? 1'h0 : writeEnableReg; // @[BurstReadDMA.scala 102:{70,87} 63:31]
+  wire  _GEN_11 = start | _GEN_10; // @[BurstReadDMA.scala 102:{15,32}]
+  wire  _GEN_12 = effectiveRead | readPendingReg; // @[BurstReadDMA.scala 107:29 108:20 64:31]
   Queue fifo ( // @[BurstReadDMA.scala 69:20]
     .clock(fifo_clock),
     .reset(fifo_reset),
@@ -20151,17 +20556,17 @@ module BurstReadDMA_1(
     .io_count(fifo_io_count),
     .io_flush(fifo_io_flush)
   );
-  assign io_in_rd = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 75:47]
-  assign io_in_addr = {{22'd0}, readAddr}; // @[BurstReadDMA.scala 124:14]
-  assign io_out_wr = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 76:30]
-  assign io_out_addr = {{22'd0}, writeAddr}; // @[BurstReadDMA.scala 126:15]
-  assign io_out_din = fifo_io_deq_bits; // @[BurstReadDMA.scala 127:14]
+  assign io_in_rd = readEnableReg & ~readPendingReg & fifoAlmostEmpty; // @[BurstReadDMA.scala 76:47]
+  assign io_in_addr = {{22'd0}, readAddr}; // @[BurstReadDMA.scala 125:14]
+  assign io_out_wr = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 77:30]
+  assign io_out_addr = {{22'd0}, writeAddr}; // @[BurstReadDMA.scala 127:15]
+  assign io_out_din = fifo_io_deq_bits; // @[BurstReadDMA.scala 128:14]
   assign fifo_clock = clock;
   assign fifo_reset = reset;
-  assign fifo_io_enq_valid = io_in_valid & readPendingReg; // @[BurstReadDMA.scala 111:20]
-  assign fifo_io_enq_bits = io_in_dout; // @[BurstReadDMA.scala 111:39 Decoupled.scala 66:19]
-  assign fifo_io_deq_ready = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 76:30]
-  assign fifo_io_flush = io_start & ~busy; // @[BurstReadDMA.scala 74:24]
+  assign fifo_io_enq_valid = io_in_valid & readPendingReg; // @[BurstReadDMA.scala 112:20]
+  assign fifo_io_enq_bits = io_in_dout; // @[BurstReadDMA.scala 112:39 Decoupled.scala 66:19]
+  assign fifo_io_deq_ready = writeEnableReg & fifo_io_deq_valid; // @[BurstReadDMA.scala 77:30]
+  assign fifo_io_flush = io_start & ~busy; // @[BurstReadDMA.scala 75:24]
   always @(posedge clock) begin
     if (reset) begin // @[BurstReadDMA.scala 62:30]
       readEnableReg <= 1'h0; // @[BurstReadDMA.scala 62:30]
@@ -20175,8 +20580,8 @@ module BurstReadDMA_1(
     end
     if (reset) begin // @[BurstReadDMA.scala 64:31]
       readPendingReg <= 1'h0; // @[BurstReadDMA.scala 64:31]
-    end else if (io_in_burstDone) begin // @[BurstReadDMA.scala 104:25]
-      readPendingReg <= 1'h0; // @[BurstReadDMA.scala 105:20]
+    end else if (io_in_burstDone) begin // @[BurstReadDMA.scala 105:25]
+      readPendingReg <= 1'h0; // @[BurstReadDMA.scala 106:20]
     end else begin
       readPendingReg <= _GEN_12;
     end
@@ -20711,7 +21116,7 @@ module BurstMemArbiter_2(
   wire [2:0] chosen = busyReg ? indexReg : index; // @[BurstMemArbiter.scala 80:19]
   wire  effectiveRequest = ~busyReg & (io_out_rd | io_out_wr) & io_out_wait_n; // @[BurstMemArbiter.scala 83:63]
   wire  _GEN_0 = effectiveRequest | busyReg; // @[BurstMemArbiter.scala 88:32 89:13 73:24]
-  wire  io_out_anySelected = chosen[0] | chosen[1] | chosen[2]; // @[BurstMemIO.scala 316:45]
+  wire  io_out_anySelected = chosen[0] | chosen[1] | chosen[2]; // @[BurstMemIO.scala 338:45]
   wire [7:0] _io_out_mem_burstLength_T = chosen[0] ? 8'h10 : 8'h0; // @[Mux.scala 27:73]
   wire [7:0] _io_out_mem_burstLength_T_1 = chosen[1] ? 8'h40 : 8'h0; // @[Mux.scala 27:73]
   wire [7:0] _io_out_mem_burstLength_T_2 = chosen[2] ? 8'h1 : 8'h0; // @[Mux.scala 27:73]
@@ -20724,13 +21129,13 @@ module BurstMemArbiter_2(
   wire [7:0] _io_out_mem_mask_T_2 = chosen[2] ? io_in_2_mask : 8'h0; // @[Mux.scala 27:73]
   wire [63:0] _io_out_mem_din_T_1 = chosen[1] ? io_in_1_din : 64'h0; // @[Mux.scala 27:73]
   wire [63:0] _io_out_mem_din_T_2 = chosen[2] ? io_in_2_din : 64'h0; // @[Mux.scala 27:73]
-  assign io_in_0_dout = io_out_dout; // @[BurstMemIO.scala 317:19 BurstMemArbiter.scala 96:10]
-  assign io_in_0_wait_n = (~io_out_anySelected | chosen[0]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_0_valid = chosen[0] & io_out_valid; // @[BurstMemIO.scala 326:30]
-  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
-  assign io_in_1_burstDone = chosen[1] & io_out_burstDone; // @[BurstMemIO.scala 327:34]
-  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 325:49]
+  assign io_in_0_dout = io_out_dout; // @[BurstMemIO.scala 339:19 BurstMemArbiter.scala 96:10]
+  assign io_in_0_wait_n = (~io_out_anySelected | chosen[0]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_0_valid = chosen[0] & io_out_valid; // @[BurstMemIO.scala 352:30]
+  assign io_in_0_burstDone = chosen[0] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_1_wait_n = (~io_out_anySelected | chosen[1]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
+  assign io_in_1_burstDone = chosen[1] & io_out_burstDone; // @[BurstMemIO.scala 353:34]
+  assign io_in_2_wait_n = (~io_out_anySelected | chosen[2]) & io_out_wait_n; // @[BurstMemIO.scala 351:49]
   assign io_out_rd = chosen[0] & io_in_0_rd; // @[Mux.scala 27:73]
   assign io_out_wr = chosen[1] & io_in_1_wr | chosen[2] & io_in_2_wr; // @[Mux.scala 27:73]
   assign io_out_addr = _io_out_mem_addr_T_3 | _io_out_mem_addr_T_2; // @[Mux.scala 27:73]
@@ -21583,302 +21988,331 @@ module Cave(
   reg [31:0] _RAND_6;
   reg [31:0] _RAND_7;
   reg [31:0] _RAND_8;
+  reg [31:0] _RAND_9;
+  reg [31:0] _RAND_10;
+  reg [31:0] _RAND_11;
+  reg [31:0] _RAND_12;
+  reg [31:0] _RAND_13;
+  reg [31:0] _RAND_14;
+  reg [31:0] _RAND_15;
+  reg [31:0] _RAND_16;
+  reg [31:0] _RAND_17;
+  reg [31:0] _RAND_18;
+  reg [31:0] _RAND_19;
+  reg [31:0] _RAND_20;
+  reg [31:0] _RAND_21;
+  reg [31:0] _RAND_22;
+  reg [31:0] _RAND_23;
+  reg [31:0] _RAND_24;
+  reg [31:0] _RAND_25;
+  reg [31:0] _RAND_26;
+  reg [31:0] _RAND_27;
+  reg [31:0] _RAND_28;
+  reg [31:0] _RAND_29;
+  reg [31:0] _RAND_30;
+  reg [31:0] _RAND_31;
+  reg [31:0] _RAND_32;
+  reg [31:0] _RAND_33;
+  reg [31:0] _RAND_34;
+  reg [31:0] _RAND_35;
+  reg [31:0] _RAND_36;
+  reg [31:0] _RAND_37;
 `endif // RANDOMIZE_REG_INIT
-  wire  dipsRegs_clock; // @[Cave.scala 112:24]
-  wire  dipsRegs_io_mem_wr; // @[Cave.scala 112:24]
-  wire [1:0] dipsRegs_io_mem_addr; // @[Cave.scala 112:24]
-  wire [15:0] dipsRegs_io_mem_din; // @[Cave.scala 112:24]
-  wire [15:0] dipsRegs_io_regs_0; // @[Cave.scala 112:24]
-  wire  ddr_1_clock; // @[Cave.scala 118:19]
-  wire  ddr_1_reset; // @[Cave.scala 118:19]
-  wire  ddr_1_io_mem_rd; // @[Cave.scala 118:19]
-  wire  ddr_1_io_mem_wr; // @[Cave.scala 118:19]
-  wire [31:0] ddr_1_io_mem_addr; // @[Cave.scala 118:19]
-  wire [7:0] ddr_1_io_mem_mask; // @[Cave.scala 118:19]
-  wire [63:0] ddr_1_io_mem_din; // @[Cave.scala 118:19]
-  wire [63:0] ddr_1_io_mem_dout; // @[Cave.scala 118:19]
-  wire  ddr_1_io_mem_wait_n; // @[Cave.scala 118:19]
-  wire  ddr_1_io_mem_valid; // @[Cave.scala 118:19]
-  wire [7:0] ddr_1_io_mem_burstLength; // @[Cave.scala 118:19]
-  wire  ddr_1_io_mem_burstDone; // @[Cave.scala 118:19]
-  wire  ddr_1_io_ddr_rd; // @[Cave.scala 118:19]
-  wire  ddr_1_io_ddr_wr; // @[Cave.scala 118:19]
-  wire [31:0] ddr_1_io_ddr_addr; // @[Cave.scala 118:19]
-  wire [7:0] ddr_1_io_ddr_mask; // @[Cave.scala 118:19]
-  wire [63:0] ddr_1_io_ddr_din; // @[Cave.scala 118:19]
-  wire [63:0] ddr_1_io_ddr_dout; // @[Cave.scala 118:19]
-  wire  ddr_1_io_ddr_wait_n; // @[Cave.scala 118:19]
-  wire  ddr_1_io_ddr_valid; // @[Cave.scala 118:19]
-  wire [7:0] ddr_1_io_ddr_burstLength; // @[Cave.scala 118:19]
-  wire  sdram_1_clock; // @[Cave.scala 122:21]
-  wire  sdram_1_reset; // @[Cave.scala 122:21]
-  wire  sdram_1_io_mem_rd; // @[Cave.scala 122:21]
-  wire  sdram_1_io_mem_wr; // @[Cave.scala 122:21]
-  wire [24:0] sdram_1_io_mem_addr; // @[Cave.scala 122:21]
-  wire [15:0] sdram_1_io_mem_din; // @[Cave.scala 122:21]
-  wire [15:0] sdram_1_io_mem_dout; // @[Cave.scala 122:21]
-  wire  sdram_1_io_mem_wait_n; // @[Cave.scala 122:21]
-  wire  sdram_1_io_mem_valid; // @[Cave.scala 122:21]
-  wire  sdram_1_io_mem_burstDone; // @[Cave.scala 122:21]
-  wire  sdram_1_io_sdram_cs_n; // @[Cave.scala 122:21]
-  wire  sdram_1_io_sdram_ras_n; // @[Cave.scala 122:21]
-  wire  sdram_1_io_sdram_cas_n; // @[Cave.scala 122:21]
-  wire  sdram_1_io_sdram_we_n; // @[Cave.scala 122:21]
-  wire  sdram_1_io_sdram_oe_n; // @[Cave.scala 122:21]
-  wire [1:0] sdram_1_io_sdram_bank; // @[Cave.scala 122:21]
-  wire [12:0] sdram_1_io_sdram_addr; // @[Cave.scala 122:21]
-  wire [15:0] sdram_1_io_sdram_din; // @[Cave.scala 122:21]
-  wire [15:0] sdram_1_io_sdram_dout; // @[Cave.scala 122:21]
-  wire  memSys_clock; // @[Cave.scala 126:22]
-  wire  memSys_reset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_eepromOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_sound_0_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_sound_1_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_sound_2_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_layer_0_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_layer_1_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_layer_2_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_sprite_romOffset; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_gameConfig_sprite_romSize; // @[Cave.scala 126:22]
-  wire [2:0] memSys_io_gameConfig_sprite_descrambleStyle; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_rom_wr; // @[Cave.scala 126:22]
-  wire [26:0] memSys_io_prog_rom_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_prog_rom_din; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_rom_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_nvram_rd; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_nvram_wr; // @[Cave.scala 126:22]
-  wire [26:0] memSys_io_prog_nvram_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_prog_nvram_din; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_prog_nvram_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_nvram_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_nvram_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_prog_done; // @[Cave.scala 126:22]
-  wire  memSys_io_progRom_rd; // @[Cave.scala 126:22]
-  wire [21:0] memSys_io_progRom_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_progRom_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_progRom_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_progRom_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_highProgRom_rd; // @[Cave.scala 126:22]
-  wire [21:0] memSys_io_highProgRom_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_highProgRom_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_highProgRom_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_highProgRom_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_eeprom_rd; // @[Cave.scala 126:22]
-  wire  memSys_io_eeprom_wr; // @[Cave.scala 126:22]
-  wire [6:0] memSys_io_eeprom_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_eeprom_din; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_eeprom_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_eeprom_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_eeprom_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_0_rd; // @[Cave.scala 126:22]
-  wire [24:0] memSys_io_soundRom_0_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_soundRom_0_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_0_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_0_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_1_rd; // @[Cave.scala 126:22]
-  wire [24:0] memSys_io_soundRom_1_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_soundRom_1_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_1_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_1_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_2_rd; // @[Cave.scala 126:22]
-  wire [24:0] memSys_io_soundRom_2_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_soundRom_2_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_2_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_soundRom_2_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_0_rd; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_layerTileRom_0_addr; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_layerTileRom_0_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_0_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_0_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_1_rd; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_layerTileRom_1_addr; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_layerTileRom_1_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_1_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_1_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_2_rd; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_layerTileRom_2_addr; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_layerTileRom_2_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_2_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_layerTileRom_2_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteTileRom_rd; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_spriteTileRom_addr; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_spriteTileRom_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteTileRom_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteTileRom_valid; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_spriteTileRom_burstLength; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteTileRom_burstDone; // @[Cave.scala 126:22]
-  wire  memSys_io_ddr_rd; // @[Cave.scala 126:22]
-  wire  memSys_io_ddr_wr; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_ddr_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_ddr_mask; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_ddr_din; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_ddr_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_ddr_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_ddr_valid; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_ddr_burstLength; // @[Cave.scala 126:22]
-  wire  memSys_io_ddr_burstDone; // @[Cave.scala 126:22]
-  wire  memSys_io_sdram_rd; // @[Cave.scala 126:22]
-  wire  memSys_io_sdram_wr; // @[Cave.scala 126:22]
-  wire [24:0] memSys_io_sdram_addr; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_sdram_din; // @[Cave.scala 126:22]
-  wire [15:0] memSys_io_sdram_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_sdram_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_sdram_valid; // @[Cave.scala 126:22]
-  wire  memSys_io_sdram_burstDone; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteFrameBuffer_rd; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteFrameBuffer_wr; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_spriteFrameBuffer_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_spriteFrameBuffer_mask; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_spriteFrameBuffer_din; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_spriteFrameBuffer_dout; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteFrameBuffer_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteFrameBuffer_valid; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_spriteFrameBuffer_burstLength; // @[Cave.scala 126:22]
-  wire  memSys_io_spriteFrameBuffer_burstDone; // @[Cave.scala 126:22]
-  wire  memSys_io_systemFrameBuffer_wr; // @[Cave.scala 126:22]
-  wire [31:0] memSys_io_systemFrameBuffer_addr; // @[Cave.scala 126:22]
-  wire [7:0] memSys_io_systemFrameBuffer_mask; // @[Cave.scala 126:22]
-  wire [63:0] memSys_io_systemFrameBuffer_din; // @[Cave.scala 126:22]
-  wire  memSys_io_systemFrameBuffer_wait_n; // @[Cave.scala 126:22]
-  wire  memSys_io_ready; // @[Cave.scala 126:22]
-  wire  videoSys_clock; // @[Cave.scala 135:24]
-  wire  videoSys_reset; // @[Cave.scala 135:24]
-  wire  videoSys_io_videoClock; // @[Cave.scala 135:24]
-  wire  videoSys_io_videoReset; // @[Cave.scala 135:24]
-  wire  videoSys_io_prog_video_wr; // @[Cave.scala 135:24]
-  wire [26:0] videoSys_io_prog_video_addr; // @[Cave.scala 135:24]
-  wire [15:0] videoSys_io_prog_video_din; // @[Cave.scala 135:24]
-  wire  videoSys_io_prog_done; // @[Cave.scala 135:24]
-  wire [3:0] videoSys_io_options_offset_x; // @[Cave.scala 135:24]
-  wire [3:0] videoSys_io_options_offset_y; // @[Cave.scala 135:24]
-  wire  videoSys_io_options_compatibility; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_clockEnable; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_displayEnable; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_pos_x; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_pos_y; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_hSync; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_vSync; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_hBlank; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_vBlank; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_size_x; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_size_y; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_frontPorch_x; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_frontPorch_y; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_retrace_x; // @[Cave.scala 135:24]
-  wire [8:0] videoSys_io_video_regs_retrace_y; // @[Cave.scala 135:24]
-  wire  videoSys_io_video_changeMode; // @[Cave.scala 135:24]
-  wire  main_clock; // @[Cave.scala 143:86]
-  wire  main_reset; // @[Cave.scala 143:86]
-  wire  main_io_videoClock; // @[Cave.scala 143:86]
-  wire  main_io_spriteClock; // @[Cave.scala 143:86]
-  wire [3:0] main_io_gameIndex; // @[Cave.scala 143:86]
-  wire  main_io_options_service; // @[Cave.scala 143:86]
-  wire  main_io_player_0_up; // @[Cave.scala 143:86]
-  wire  main_io_player_0_down; // @[Cave.scala 143:86]
-  wire  main_io_player_0_left; // @[Cave.scala 143:86]
-  wire  main_io_player_0_right; // @[Cave.scala 143:86]
-  wire [3:0] main_io_player_0_buttons; // @[Cave.scala 143:86]
-  wire  main_io_player_0_start; // @[Cave.scala 143:86]
-  wire  main_io_player_0_coin; // @[Cave.scala 143:86]
-  wire  main_io_player_0_pause; // @[Cave.scala 143:86]
-  wire  main_io_player_1_up; // @[Cave.scala 143:86]
-  wire  main_io_player_1_down; // @[Cave.scala 143:86]
-  wire  main_io_player_1_left; // @[Cave.scala 143:86]
-  wire  main_io_player_1_right; // @[Cave.scala 143:86]
-  wire [3:0] main_io_player_1_buttons; // @[Cave.scala 143:86]
-  wire  main_io_player_1_start; // @[Cave.scala 143:86]
-  wire  main_io_player_1_coin; // @[Cave.scala 143:86]
-  wire  main_io_player_1_pause; // @[Cave.scala 143:86]
-  wire [15:0] main_io_dips_0; // @[Cave.scala 143:86]
-  wire  main_io_video_vBlank; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_tileSize; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_enable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_flipX; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_flipY; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_rowScrollEnable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_0_regs_rowSelectEnable; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_0_regs_scroll_x; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_0_regs_scroll_y; // @[Cave.scala 143:86]
-  wire [11:0] main_io_gpuMem_layer_0_vram8x8_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_0_vram8x8_dout; // @[Cave.scala 143:86]
-  wire [9:0] main_io_gpuMem_layer_0_vram16x16_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_0_vram16x16_dout; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_0_lineRam_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_0_lineRam_dout; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_tileSize; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_enable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_flipX; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_flipY; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_rowScrollEnable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_1_regs_rowSelectEnable; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_1_regs_scroll_x; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_1_regs_scroll_y; // @[Cave.scala 143:86]
-  wire [11:0] main_io_gpuMem_layer_1_vram8x8_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_1_vram8x8_dout; // @[Cave.scala 143:86]
-  wire [9:0] main_io_gpuMem_layer_1_vram16x16_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_1_vram16x16_dout; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_1_lineRam_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_1_lineRam_dout; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_tileSize; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_enable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_flipX; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_flipY; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_rowScrollEnable; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_layer_2_regs_rowSelectEnable; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_2_regs_scroll_x; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_2_regs_scroll_y; // @[Cave.scala 143:86]
-  wire [11:0] main_io_gpuMem_layer_2_vram8x8_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_2_vram8x8_dout; // @[Cave.scala 143:86]
-  wire [9:0] main_io_gpuMem_layer_2_vram16x16_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_2_vram16x16_dout; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_layer_2_lineRam_addr; // @[Cave.scala 143:86]
-  wire [31:0] main_io_gpuMem_layer_2_lineRam_dout; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_sprite_regs_offset_x; // @[Cave.scala 143:86]
-  wire [8:0] main_io_gpuMem_sprite_regs_offset_y; // @[Cave.scala 143:86]
-  wire [1:0] main_io_gpuMem_sprite_regs_bank; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_sprite_regs_fixed; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_sprite_regs_hFlip; // @[Cave.scala 143:86]
-  wire  main_io_gpuMem_sprite_vram_rd; // @[Cave.scala 143:86]
-  wire [11:0] main_io_gpuMem_sprite_vram_addr; // @[Cave.scala 143:86]
-  wire [127:0] main_io_gpuMem_sprite_vram_dout; // @[Cave.scala 143:86]
-  wire [14:0] main_io_gpuMem_paletteRam_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_gpuMem_paletteRam_dout; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_oki_0_wr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_oki_0_din; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_oki_0_dout; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_oki_1_wr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_oki_1_din; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_oki_1_dout; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_nmk_wr; // @[Cave.scala 143:86]
-  wire [22:0] main_io_soundCtrl_nmk_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_nmk_din; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_ymz_rd; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_ymz_wr; // @[Cave.scala 143:86]
-  wire [22:0] main_io_soundCtrl_ymz_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_ymz_din; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_ymz_dout; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_req; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_ack; // @[Cave.scala 143:86]
-  wire [15:0] main_io_soundCtrl_data; // @[Cave.scala 143:86]
-  wire [7:0] main_io_soundCtrl_ackData; // @[Cave.scala 143:86]
-  wire  main_io_soundCtrl_irq; // @[Cave.scala 143:86]
-  wire  main_io_progRom_rd; // @[Cave.scala 143:86]
-  wire [21:0] main_io_progRom_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_progRom_dout; // @[Cave.scala 143:86]
-  wire  main_io_progRom_valid; // @[Cave.scala 143:86]
-  wire  main_io_highProgRom_rd; // @[Cave.scala 143:86]
-  wire [21:0] main_io_highProgRom_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_highProgRom_dout; // @[Cave.scala 143:86]
-  wire  main_io_highProgRom_valid; // @[Cave.scala 143:86]
-  wire  main_io_eeprom_rd; // @[Cave.scala 143:86]
-  wire  main_io_eeprom_wr; // @[Cave.scala 143:86]
-  wire [6:0] main_io_eeprom_addr; // @[Cave.scala 143:86]
-  wire [15:0] main_io_eeprom_din; // @[Cave.scala 143:86]
-  wire [15:0] main_io_eeprom_dout; // @[Cave.scala 143:86]
-  wire  main_io_eeprom_wait_n; // @[Cave.scala 143:86]
-  wire  main_io_eeprom_valid; // @[Cave.scala 143:86]
-  wire  main_io_spriteFrameBufferSwap; // @[Cave.scala 143:86]
-  wire  main_io_tileBank; // @[Cave.scala 143:86]
+  wire  dipsRegs_clock; // @[Cave.scala 108:24]
+  wire  dipsRegs_io_mem_wr; // @[Cave.scala 108:24]
+  wire [1:0] dipsRegs_io_mem_addr; // @[Cave.scala 108:24]
+  wire [15:0] dipsRegs_io_mem_din; // @[Cave.scala 108:24]
+  wire [15:0] dipsRegs_io_regs_0; // @[Cave.scala 108:24]
+  wire  ddr_1_clock; // @[Cave.scala 114:19]
+  wire  ddr_1_reset; // @[Cave.scala 114:19]
+  wire  ddr_1_io_mem_rd; // @[Cave.scala 114:19]
+  wire  ddr_1_io_mem_wr; // @[Cave.scala 114:19]
+  wire [31:0] ddr_1_io_mem_addr; // @[Cave.scala 114:19]
+  wire [7:0] ddr_1_io_mem_mask; // @[Cave.scala 114:19]
+  wire [63:0] ddr_1_io_mem_din; // @[Cave.scala 114:19]
+  wire [63:0] ddr_1_io_mem_dout; // @[Cave.scala 114:19]
+  wire  ddr_1_io_mem_wait_n; // @[Cave.scala 114:19]
+  wire  ddr_1_io_mem_valid; // @[Cave.scala 114:19]
+  wire [7:0] ddr_1_io_mem_burstLength; // @[Cave.scala 114:19]
+  wire  ddr_1_io_mem_burstDone; // @[Cave.scala 114:19]
+  wire  ddr_1_io_ddr_rd; // @[Cave.scala 114:19]
+  wire  ddr_1_io_ddr_wr; // @[Cave.scala 114:19]
+  wire [31:0] ddr_1_io_ddr_addr; // @[Cave.scala 114:19]
+  wire [7:0] ddr_1_io_ddr_mask; // @[Cave.scala 114:19]
+  wire [63:0] ddr_1_io_ddr_din; // @[Cave.scala 114:19]
+  wire [63:0] ddr_1_io_ddr_dout; // @[Cave.scala 114:19]
+  wire  ddr_1_io_ddr_wait_n; // @[Cave.scala 114:19]
+  wire  ddr_1_io_ddr_valid; // @[Cave.scala 114:19]
+  wire [7:0] ddr_1_io_ddr_burstLength; // @[Cave.scala 114:19]
+  wire  sdram_1_clock; // @[Cave.scala 118:21]
+  wire  sdram_1_reset; // @[Cave.scala 118:21]
+  wire  sdram_1_io_mem_rd; // @[Cave.scala 118:21]
+  wire  sdram_1_io_mem_wr; // @[Cave.scala 118:21]
+  wire [24:0] sdram_1_io_mem_addr; // @[Cave.scala 118:21]
+  wire [15:0] sdram_1_io_mem_din; // @[Cave.scala 118:21]
+  wire [15:0] sdram_1_io_mem_dout; // @[Cave.scala 118:21]
+  wire  sdram_1_io_mem_wait_n; // @[Cave.scala 118:21]
+  wire  sdram_1_io_mem_valid; // @[Cave.scala 118:21]
+  wire  sdram_1_io_mem_burstDone; // @[Cave.scala 118:21]
+  wire  sdram_1_io_sdram_cs_n; // @[Cave.scala 118:21]
+  wire  sdram_1_io_sdram_ras_n; // @[Cave.scala 118:21]
+  wire  sdram_1_io_sdram_cas_n; // @[Cave.scala 118:21]
+  wire  sdram_1_io_sdram_we_n; // @[Cave.scala 118:21]
+  wire  sdram_1_io_sdram_oe_n; // @[Cave.scala 118:21]
+  wire [1:0] sdram_1_io_sdram_bank; // @[Cave.scala 118:21]
+  wire [12:0] sdram_1_io_sdram_addr; // @[Cave.scala 118:21]
+  wire [15:0] sdram_1_io_sdram_din; // @[Cave.scala 118:21]
+  wire [15:0] sdram_1_io_sdram_dout; // @[Cave.scala 118:21]
+  wire  memSys_clock; // @[Cave.scala 123:22]
+  wire  memSys_reset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_eepromOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_sound_0_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_sound_1_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_sound_2_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_layer_0_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_layer_1_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_layer_2_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_sprite_romOffset; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_gameConfig_sprite_romSize; // @[Cave.scala 123:22]
+  wire [2:0] memSys_io_gameConfig_sprite_descrambleStyle; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_rom_wr; // @[Cave.scala 123:22]
+  wire [26:0] memSys_io_prog_rom_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_prog_rom_din; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_rom_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_nvram_rd; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_nvram_wr; // @[Cave.scala 123:22]
+  wire [26:0] memSys_io_prog_nvram_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_prog_nvram_din; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_prog_nvram_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_nvram_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_nvram_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_prog_done; // @[Cave.scala 123:22]
+  wire  memSys_io_progRom_rd; // @[Cave.scala 123:22]
+  wire [21:0] memSys_io_progRom_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_progRom_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_progRom_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_progRom_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_highProgRom_rd; // @[Cave.scala 123:22]
+  wire [21:0] memSys_io_highProgRom_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_highProgRom_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_highProgRom_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_highProgRom_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_eeprom_rd; // @[Cave.scala 123:22]
+  wire  memSys_io_eeprom_wr; // @[Cave.scala 123:22]
+  wire [6:0] memSys_io_eeprom_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_eeprom_din; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_eeprom_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_eeprom_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_eeprom_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_0_rd; // @[Cave.scala 123:22]
+  wire [24:0] memSys_io_soundRom_0_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_soundRom_0_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_0_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_0_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_1_rd; // @[Cave.scala 123:22]
+  wire [24:0] memSys_io_soundRom_1_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_soundRom_1_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_1_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_1_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_2_rd; // @[Cave.scala 123:22]
+  wire [24:0] memSys_io_soundRom_2_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_soundRom_2_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_2_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_soundRom_2_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_0_rd; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_layerTileRom_0_addr; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_layerTileRom_0_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_0_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_0_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_1_rd; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_layerTileRom_1_addr; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_layerTileRom_1_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_1_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_1_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_2_rd; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_layerTileRom_2_addr; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_layerTileRom_2_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_2_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_layerTileRom_2_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteTileRom_rd; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_spriteTileRom_addr; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_spriteTileRom_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteTileRom_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteTileRom_valid; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_spriteTileRom_burstLength; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteTileRom_burstDone; // @[Cave.scala 123:22]
+  wire  memSys_io_ddr_rd; // @[Cave.scala 123:22]
+  wire  memSys_io_ddr_wr; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_ddr_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_ddr_mask; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_ddr_din; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_ddr_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_ddr_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_ddr_valid; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_ddr_burstLength; // @[Cave.scala 123:22]
+  wire  memSys_io_ddr_burstDone; // @[Cave.scala 123:22]
+  wire  memSys_io_sdram_rd; // @[Cave.scala 123:22]
+  wire  memSys_io_sdram_wr; // @[Cave.scala 123:22]
+  wire [24:0] memSys_io_sdram_addr; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_sdram_din; // @[Cave.scala 123:22]
+  wire [15:0] memSys_io_sdram_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_sdram_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_sdram_valid; // @[Cave.scala 123:22]
+  wire  memSys_io_sdram_burstDone; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteFrameBuffer_rd; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteFrameBuffer_wr; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_spriteFrameBuffer_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_spriteFrameBuffer_mask; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_spriteFrameBuffer_din; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_spriteFrameBuffer_dout; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteFrameBuffer_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteFrameBuffer_valid; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_spriteFrameBuffer_burstLength; // @[Cave.scala 123:22]
+  wire  memSys_io_spriteFrameBuffer_burstDone; // @[Cave.scala 123:22]
+  wire  memSys_io_systemFrameBuffer_wr; // @[Cave.scala 123:22]
+  wire [31:0] memSys_io_systemFrameBuffer_addr; // @[Cave.scala 123:22]
+  wire [7:0] memSys_io_systemFrameBuffer_mask; // @[Cave.scala 123:22]
+  wire [63:0] memSys_io_systemFrameBuffer_din; // @[Cave.scala 123:22]
+  wire  memSys_io_systemFrameBuffer_wait_n; // @[Cave.scala 123:22]
+  wire  memSys_io_ready; // @[Cave.scala 123:22]
+  wire  videoSys_clock; // @[Cave.scala 132:24]
+  wire  videoSys_reset; // @[Cave.scala 132:24]
+  wire  videoSys_io_videoClock; // @[Cave.scala 132:24]
+  wire  videoSys_io_videoReset; // @[Cave.scala 132:24]
+  wire  videoSys_io_prog_video_wr; // @[Cave.scala 132:24]
+  wire [26:0] videoSys_io_prog_video_addr; // @[Cave.scala 132:24]
+  wire [15:0] videoSys_io_prog_video_din; // @[Cave.scala 132:24]
+  wire  videoSys_io_prog_done; // @[Cave.scala 132:24]
+  wire [3:0] videoSys_io_options_offset_x; // @[Cave.scala 132:24]
+  wire [3:0] videoSys_io_options_offset_y; // @[Cave.scala 132:24]
+  wire  videoSys_io_options_compatibility; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_clockEnable; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_displayEnable; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_pos_x; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_pos_y; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_hSync; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_vSync; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_hBlank; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_vBlank; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_size_x; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_size_y; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_frontPorch_x; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_frontPorch_y; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_retrace_x; // @[Cave.scala 132:24]
+  wire [8:0] videoSys_io_video_regs_retrace_y; // @[Cave.scala 132:24]
+  wire  videoSys_io_video_changeMode; // @[Cave.scala 132:24]
+  wire  main_clock; // @[Cave.scala 141:80]
+  wire  main_reset; // @[Cave.scala 141:80]
+  wire  main_io_videoClock; // @[Cave.scala 141:80]
+  wire  main_io_spriteClock; // @[Cave.scala 141:80]
+  wire [3:0] main_io_gameIndex; // @[Cave.scala 141:80]
+  wire  main_io_options_service; // @[Cave.scala 141:80]
+  wire  main_io_player_0_up; // @[Cave.scala 141:80]
+  wire  main_io_player_0_down; // @[Cave.scala 141:80]
+  wire  main_io_player_0_left; // @[Cave.scala 141:80]
+  wire  main_io_player_0_right; // @[Cave.scala 141:80]
+  wire [3:0] main_io_player_0_buttons; // @[Cave.scala 141:80]
+  wire  main_io_player_0_start; // @[Cave.scala 141:80]
+  wire  main_io_player_0_coin; // @[Cave.scala 141:80]
+  wire  main_io_player_0_pause; // @[Cave.scala 141:80]
+  wire  main_io_player_1_up; // @[Cave.scala 141:80]
+  wire  main_io_player_1_down; // @[Cave.scala 141:80]
+  wire  main_io_player_1_left; // @[Cave.scala 141:80]
+  wire  main_io_player_1_right; // @[Cave.scala 141:80]
+  wire [3:0] main_io_player_1_buttons; // @[Cave.scala 141:80]
+  wire  main_io_player_1_start; // @[Cave.scala 141:80]
+  wire  main_io_player_1_coin; // @[Cave.scala 141:80]
+  wire  main_io_player_1_pause; // @[Cave.scala 141:80]
+  wire [15:0] main_io_dips_0; // @[Cave.scala 141:80]
+  wire  main_io_video_vBlank; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_tileSize; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_enable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_flipX; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_flipY; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_rowScrollEnable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_0_regs_rowSelectEnable; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_0_regs_scroll_x; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_0_regs_scroll_y; // @[Cave.scala 141:80]
+  wire [11:0] main_io_gpuMem_layer_0_vram8x8_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_0_vram8x8_dout; // @[Cave.scala 141:80]
+  wire [9:0] main_io_gpuMem_layer_0_vram16x16_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_0_vram16x16_dout; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_0_lineRam_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_0_lineRam_dout; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_tileSize; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_enable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_flipX; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_flipY; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_rowScrollEnable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_1_regs_rowSelectEnable; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_1_regs_scroll_x; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_1_regs_scroll_y; // @[Cave.scala 141:80]
+  wire [11:0] main_io_gpuMem_layer_1_vram8x8_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_1_vram8x8_dout; // @[Cave.scala 141:80]
+  wire [9:0] main_io_gpuMem_layer_1_vram16x16_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_1_vram16x16_dout; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_1_lineRam_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_1_lineRam_dout; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_tileSize; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_enable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_flipX; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_flipY; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_rowScrollEnable; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_layer_2_regs_rowSelectEnable; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_2_regs_scroll_x; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_2_regs_scroll_y; // @[Cave.scala 141:80]
+  wire [11:0] main_io_gpuMem_layer_2_vram8x8_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_2_vram8x8_dout; // @[Cave.scala 141:80]
+  wire [9:0] main_io_gpuMem_layer_2_vram16x16_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_2_vram16x16_dout; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_layer_2_lineRam_addr; // @[Cave.scala 141:80]
+  wire [31:0] main_io_gpuMem_layer_2_lineRam_dout; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_sprite_regs_offset_x; // @[Cave.scala 141:80]
+  wire [8:0] main_io_gpuMem_sprite_regs_offset_y; // @[Cave.scala 141:80]
+  wire [1:0] main_io_gpuMem_sprite_regs_bank; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_sprite_regs_fixed; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_sprite_regs_hFlip; // @[Cave.scala 141:80]
+  wire  main_io_gpuMem_sprite_vram_rd; // @[Cave.scala 141:80]
+  wire [11:0] main_io_gpuMem_sprite_vram_addr; // @[Cave.scala 141:80]
+  wire [127:0] main_io_gpuMem_sprite_vram_dout; // @[Cave.scala 141:80]
+  wire [14:0] main_io_gpuMem_paletteRam_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_gpuMem_paletteRam_dout; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_oki_0_wr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_oki_0_din; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_oki_0_dout; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_oki_1_wr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_oki_1_din; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_oki_1_dout; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_nmk_wr; // @[Cave.scala 141:80]
+  wire [22:0] main_io_soundCtrl_nmk_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_nmk_din; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_ymz_rd; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_ymz_wr; // @[Cave.scala 141:80]
+  wire [22:0] main_io_soundCtrl_ymz_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_ymz_din; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_ymz_dout; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_req; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_ack; // @[Cave.scala 141:80]
+  wire [15:0] main_io_soundCtrl_data; // @[Cave.scala 141:80]
+  wire [7:0] main_io_soundCtrl_ackData; // @[Cave.scala 141:80]
+  wire  main_io_soundCtrl_irq; // @[Cave.scala 141:80]
+  wire  main_io_progRom_rd; // @[Cave.scala 141:80]
+  wire [21:0] main_io_progRom_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_progRom_dout; // @[Cave.scala 141:80]
+  wire  main_io_progRom_valid; // @[Cave.scala 141:80]
+  wire  main_io_highProgRom_rd; // @[Cave.scala 141:80]
+  wire [21:0] main_io_highProgRom_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_highProgRom_dout; // @[Cave.scala 141:80]
+  wire  main_io_highProgRom_valid; // @[Cave.scala 141:80]
+  wire  main_io_eeprom_rd; // @[Cave.scala 141:80]
+  wire  main_io_eeprom_wr; // @[Cave.scala 141:80]
+  wire [6:0] main_io_eeprom_addr; // @[Cave.scala 141:80]
+  wire [15:0] main_io_eeprom_din; // @[Cave.scala 141:80]
+  wire [15:0] main_io_eeprom_dout; // @[Cave.scala 141:80]
+  wire  main_io_eeprom_wait_n; // @[Cave.scala 141:80]
+  wire  main_io_eeprom_valid; // @[Cave.scala 141:80]
+  wire  main_io_spriteFrameBufferSwap; // @[Cave.scala 141:80]
+  wire  main_io_tileBank; // @[Cave.scala 141:80]
   wire  main_io_progRom_freezer_clock; // @[Crossing.scala 213:25]
   wire  main_io_progRom_freezer_reset; // @[Crossing.scala 213:25]
   wire  main_io_progRom_freezer_io_targetClock; // @[Crossing.scala 213:25]
@@ -21920,42 +22354,42 @@ module Cave(
   wire [15:0] main_io_eeprom_freezer_io_out_dout; // @[Crossing.scala 226:25]
   wire  main_io_eeprom_freezer_io_out_wait_n; // @[Crossing.scala 226:25]
   wire  main_io_eeprom_freezer_io_out_valid; // @[Crossing.scala 226:25]
-  wire  sound_clock; // @[Cave.scala 156:87]
-  wire  sound_reset; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_oki_0_wr; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_oki_0_din; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_oki_0_dout; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_oki_1_wr; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_oki_1_din; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_oki_1_dout; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_nmk_wr; // @[Cave.scala 156:87]
-  wire [22:0] sound_io_ctrl_nmk_addr; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_nmk_din; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_ymz_rd; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_ymz_wr; // @[Cave.scala 156:87]
-  wire [22:0] sound_io_ctrl_ymz_addr; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_ymz_din; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_ymz_dout; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_req; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_ack; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_ctrl_data; // @[Cave.scala 156:87]
-  wire [7:0] sound_io_ctrl_ackData; // @[Cave.scala 156:87]
-  wire  sound_io_ctrl_irq; // @[Cave.scala 156:87]
-  wire [3:0] sound_io_gameIndex; // @[Cave.scala 156:87]
-  wire [1:0] sound_io_gameConfig_sound_0_device; // @[Cave.scala 156:87]
-  wire [1:0] sound_io_gameConfig_sound_2_device; // @[Cave.scala 156:87]
-  wire  sound_io_rom_0_rd; // @[Cave.scala 156:87]
-  wire [24:0] sound_io_rom_0_addr; // @[Cave.scala 156:87]
-  wire [7:0] sound_io_rom_0_dout; // @[Cave.scala 156:87]
-  wire  sound_io_rom_0_wait_n; // @[Cave.scala 156:87]
-  wire  sound_io_rom_0_valid; // @[Cave.scala 156:87]
-  wire [24:0] sound_io_rom_1_addr; // @[Cave.scala 156:87]
-  wire [7:0] sound_io_rom_1_dout; // @[Cave.scala 156:87]
-  wire  sound_io_rom_1_valid; // @[Cave.scala 156:87]
-  wire [24:0] sound_io_rom_2_addr; // @[Cave.scala 156:87]
-  wire [7:0] sound_io_rom_2_dout; // @[Cave.scala 156:87]
-  wire  sound_io_rom_2_valid; // @[Cave.scala 156:87]
-  wire [15:0] sound_io_audio; // @[Cave.scala 156:87]
+  wire  sound_clock; // @[Cave.scala 158:82]
+  wire  sound_reset; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_oki_0_wr; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_oki_0_din; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_oki_0_dout; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_oki_1_wr; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_oki_1_din; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_oki_1_dout; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_nmk_wr; // @[Cave.scala 158:82]
+  wire [22:0] sound_io_ctrl_nmk_addr; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_nmk_din; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_ymz_rd; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_ymz_wr; // @[Cave.scala 158:82]
+  wire [22:0] sound_io_ctrl_ymz_addr; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_ymz_din; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_ymz_dout; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_req; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_ack; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_ctrl_data; // @[Cave.scala 158:82]
+  wire [7:0] sound_io_ctrl_ackData; // @[Cave.scala 158:82]
+  wire  sound_io_ctrl_irq; // @[Cave.scala 158:82]
+  wire [3:0] sound_io_gameIndex; // @[Cave.scala 158:82]
+  wire [1:0] sound_io_gameConfig_sound_0_device; // @[Cave.scala 158:82]
+  wire [1:0] sound_io_gameConfig_sound_2_device; // @[Cave.scala 158:82]
+  wire  sound_io_rom_0_rd; // @[Cave.scala 158:82]
+  wire [24:0] sound_io_rom_0_addr; // @[Cave.scala 158:82]
+  wire [7:0] sound_io_rom_0_dout; // @[Cave.scala 158:82]
+  wire  sound_io_rom_0_wait_n; // @[Cave.scala 158:82]
+  wire  sound_io_rom_0_valid; // @[Cave.scala 158:82]
+  wire [24:0] sound_io_rom_1_addr; // @[Cave.scala 158:82]
+  wire [7:0] sound_io_rom_1_dout; // @[Cave.scala 158:82]
+  wire  sound_io_rom_1_valid; // @[Cave.scala 158:82]
+  wire [24:0] sound_io_rom_2_addr; // @[Cave.scala 158:82]
+  wire [7:0] sound_io_rom_2_dout; // @[Cave.scala 158:82]
+  wire  sound_io_rom_2_valid; // @[Cave.scala 158:82]
+  wire [15:0] sound_io_audio; // @[Cave.scala 158:82]
   wire  sound_io_rom_0_freezer_clock; // @[Crossing.scala 213:25]
   wire  sound_io_rom_0_freezer_reset; // @[Crossing.scala 213:25]
   wire  sound_io_rom_0_freezer_io_targetClock; // @[Crossing.scala 213:25]
@@ -21995,114 +22429,114 @@ module Cave(
   wire [7:0] sound_io_rom_2_freezer_io_out_dout; // @[Crossing.scala 213:25]
   wire  sound_io_rom_2_freezer_io_out_wait_n; // @[Crossing.scala 213:25]
   wire  sound_io_rom_2_freezer_io_out_valid; // @[Crossing.scala 213:25]
-  wire  gpu_clock; // @[Cave.scala 165:19]
-  wire  gpu_reset; // @[Cave.scala 165:19]
-  wire  gpu_io_videoClock; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_enable; // @[Cave.scala 165:19]
-  wire [2:0] gpu_io_layerCtrl_0_format; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_tileSize; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_enable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_flipX; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_flipY; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_rowScrollEnable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_regs_rowSelectEnable; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_0_regs_scroll_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_0_regs_scroll_y; // @[Cave.scala 165:19]
-  wire [11:0] gpu_io_layerCtrl_0_vram8x8_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_0_vram8x8_dout; // @[Cave.scala 165:19]
-  wire [9:0] gpu_io_layerCtrl_0_vram16x16_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_0_vram16x16_dout; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_0_lineRam_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_0_lineRam_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_0_tileRom_rd; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_0_tileRom_addr; // @[Cave.scala 165:19]
-  wire [63:0] gpu_io_layerCtrl_0_tileRom_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_enable; // @[Cave.scala 165:19]
-  wire [2:0] gpu_io_layerCtrl_1_format; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_tileSize; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_enable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_flipX; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_flipY; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_rowScrollEnable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_regs_rowSelectEnable; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_1_regs_scroll_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_1_regs_scroll_y; // @[Cave.scala 165:19]
-  wire [11:0] gpu_io_layerCtrl_1_vram8x8_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_1_vram8x8_dout; // @[Cave.scala 165:19]
-  wire [9:0] gpu_io_layerCtrl_1_vram16x16_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_1_vram16x16_dout; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_1_lineRam_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_1_lineRam_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_1_tileRom_rd; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_1_tileRom_addr; // @[Cave.scala 165:19]
-  wire [63:0] gpu_io_layerCtrl_1_tileRom_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_enable; // @[Cave.scala 165:19]
-  wire [2:0] gpu_io_layerCtrl_2_format; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_tileSize; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_enable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_flipX; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_flipY; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_rowScrollEnable; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_regs_rowSelectEnable; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_2_regs_scroll_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_2_regs_scroll_y; // @[Cave.scala 165:19]
-  wire [11:0] gpu_io_layerCtrl_2_vram8x8_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_2_vram8x8_dout; // @[Cave.scala 165:19]
-  wire [9:0] gpu_io_layerCtrl_2_vram16x16_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_2_vram16x16_dout; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_layerCtrl_2_lineRam_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_2_lineRam_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_tileRom_rd; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_layerCtrl_2_tileRom_addr; // @[Cave.scala 165:19]
-  wire [63:0] gpu_io_layerCtrl_2_tileRom_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_layerCtrl_2_tileBank; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_enable; // @[Cave.scala 165:19]
-  wire [2:0] gpu_io_spriteCtrl_format; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_start; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_zoom; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_spriteCtrl_regs_offset_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_spriteCtrl_regs_offset_y; // @[Cave.scala 165:19]
-  wire [1:0] gpu_io_spriteCtrl_regs_bank; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_regs_fixed; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_regs_hFlip; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_vram_rd; // @[Cave.scala 165:19]
-  wire [11:0] gpu_io_spriteCtrl_vram_addr; // @[Cave.scala 165:19]
-  wire [127:0] gpu_io_spriteCtrl_vram_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_tileRom_rd; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_spriteCtrl_tileRom_addr; // @[Cave.scala 165:19]
-  wire [63:0] gpu_io_spriteCtrl_tileRom_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_tileRom_wait_n; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_tileRom_valid; // @[Cave.scala 165:19]
-  wire [7:0] gpu_io_spriteCtrl_tileRom_burstLength; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteCtrl_tileRom_burstDone; // @[Cave.scala 165:19]
-  wire [1:0] gpu_io_gameConfig_layer_0_paletteBank; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_gameConfig_layer_0_granularity; // @[Cave.scala 165:19]
-  wire [1:0] gpu_io_gameConfig_layer_1_paletteBank; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_gameConfig_layer_1_granularity; // @[Cave.scala 165:19]
-  wire [1:0] gpu_io_gameConfig_layer_2_paletteBank; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_gameConfig_layer_2_granularity; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_gameConfig_sprite_granularity; // @[Cave.scala 165:19]
-  wire  gpu_io_options_rotate; // @[Cave.scala 165:19]
-  wire  gpu_io_options_flip; // @[Cave.scala 165:19]
-  wire  gpu_io_video_clockEnable; // @[Cave.scala 165:19]
-  wire  gpu_io_video_displayEnable; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_video_pos_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_video_pos_y; // @[Cave.scala 165:19]
-  wire  gpu_io_video_vBlank; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_video_regs_size_x; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_video_regs_size_y; // @[Cave.scala 165:19]
-  wire [8:0] gpu_io_spriteLineBuffer_addr; // @[Cave.scala 165:19]
-  wire [15:0] gpu_io_spriteLineBuffer_dout; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteFrameBuffer_wr; // @[Cave.scala 165:19]
-  wire [16:0] gpu_io_spriteFrameBuffer_addr; // @[Cave.scala 165:19]
-  wire [15:0] gpu_io_spriteFrameBuffer_din; // @[Cave.scala 165:19]
-  wire  gpu_io_spriteFrameBuffer_wait_n; // @[Cave.scala 165:19]
-  wire  gpu_io_systemFrameBuffer_wr; // @[Cave.scala 165:19]
-  wire [16:0] gpu_io_systemFrameBuffer_addr; // @[Cave.scala 165:19]
-  wire [31:0] gpu_io_systemFrameBuffer_din; // @[Cave.scala 165:19]
-  wire [14:0] gpu_io_paletteRam_addr; // @[Cave.scala 165:19]
-  wire [15:0] gpu_io_paletteRam_dout; // @[Cave.scala 165:19]
-  wire [23:0] gpu_io_rgb; // @[Cave.scala 165:19]
+  wire  gpu_clock; // @[Cave.scala 169:19]
+  wire  gpu_reset; // @[Cave.scala 169:19]
+  wire  gpu_io_videoClock; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_enable; // @[Cave.scala 169:19]
+  wire [2:0] gpu_io_layerCtrl_0_format; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_tileSize; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_enable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_flipX; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_flipY; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_rowScrollEnable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_regs_rowSelectEnable; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_0_regs_scroll_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_0_regs_scroll_y; // @[Cave.scala 169:19]
+  wire [11:0] gpu_io_layerCtrl_0_vram8x8_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_0_vram8x8_dout; // @[Cave.scala 169:19]
+  wire [9:0] gpu_io_layerCtrl_0_vram16x16_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_0_vram16x16_dout; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_0_lineRam_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_0_lineRam_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_0_tileRom_rd; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_0_tileRom_addr; // @[Cave.scala 169:19]
+  wire [63:0] gpu_io_layerCtrl_0_tileRom_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_enable; // @[Cave.scala 169:19]
+  wire [2:0] gpu_io_layerCtrl_1_format; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_tileSize; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_enable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_flipX; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_flipY; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_rowScrollEnable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_regs_rowSelectEnable; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_1_regs_scroll_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_1_regs_scroll_y; // @[Cave.scala 169:19]
+  wire [11:0] gpu_io_layerCtrl_1_vram8x8_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_1_vram8x8_dout; // @[Cave.scala 169:19]
+  wire [9:0] gpu_io_layerCtrl_1_vram16x16_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_1_vram16x16_dout; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_1_lineRam_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_1_lineRam_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_1_tileRom_rd; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_1_tileRom_addr; // @[Cave.scala 169:19]
+  wire [63:0] gpu_io_layerCtrl_1_tileRom_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_enable; // @[Cave.scala 169:19]
+  wire [2:0] gpu_io_layerCtrl_2_format; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_tileSize; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_enable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_flipX; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_flipY; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_rowScrollEnable; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_regs_rowSelectEnable; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_2_regs_scroll_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_2_regs_scroll_y; // @[Cave.scala 169:19]
+  wire [11:0] gpu_io_layerCtrl_2_vram8x8_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_2_vram8x8_dout; // @[Cave.scala 169:19]
+  wire [9:0] gpu_io_layerCtrl_2_vram16x16_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_2_vram16x16_dout; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_layerCtrl_2_lineRam_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_2_lineRam_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_tileRom_rd; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_layerCtrl_2_tileRom_addr; // @[Cave.scala 169:19]
+  wire [63:0] gpu_io_layerCtrl_2_tileRom_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_layerCtrl_2_tileBank; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_enable; // @[Cave.scala 169:19]
+  wire [2:0] gpu_io_spriteCtrl_format; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_start; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_zoom; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_spriteCtrl_regs_offset_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_spriteCtrl_regs_offset_y; // @[Cave.scala 169:19]
+  wire [1:0] gpu_io_spriteCtrl_regs_bank; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_regs_fixed; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_regs_hFlip; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_vram_rd; // @[Cave.scala 169:19]
+  wire [11:0] gpu_io_spriteCtrl_vram_addr; // @[Cave.scala 169:19]
+  wire [127:0] gpu_io_spriteCtrl_vram_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_tileRom_rd; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_spriteCtrl_tileRom_addr; // @[Cave.scala 169:19]
+  wire [63:0] gpu_io_spriteCtrl_tileRom_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_tileRom_wait_n; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_tileRom_valid; // @[Cave.scala 169:19]
+  wire [7:0] gpu_io_spriteCtrl_tileRom_burstLength; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteCtrl_tileRom_burstDone; // @[Cave.scala 169:19]
+  wire [1:0] gpu_io_gameConfig_layer_0_paletteBank; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_gameConfig_layer_0_granularity; // @[Cave.scala 169:19]
+  wire [1:0] gpu_io_gameConfig_layer_1_paletteBank; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_gameConfig_layer_1_granularity; // @[Cave.scala 169:19]
+  wire [1:0] gpu_io_gameConfig_layer_2_paletteBank; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_gameConfig_layer_2_granularity; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_gameConfig_sprite_granularity; // @[Cave.scala 169:19]
+  wire  gpu_io_options_rotate; // @[Cave.scala 169:19]
+  wire  gpu_io_options_flip; // @[Cave.scala 169:19]
+  wire  gpu_io_video_clockEnable; // @[Cave.scala 169:19]
+  wire  gpu_io_video_displayEnable; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_video_pos_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_video_pos_y; // @[Cave.scala 169:19]
+  wire  gpu_io_video_vBlank; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_video_regs_size_x; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_video_regs_size_y; // @[Cave.scala 169:19]
+  wire [8:0] gpu_io_spriteLineBuffer_addr; // @[Cave.scala 169:19]
+  wire [15:0] gpu_io_spriteLineBuffer_dout; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteFrameBuffer_wr; // @[Cave.scala 169:19]
+  wire [16:0] gpu_io_spriteFrameBuffer_addr; // @[Cave.scala 169:19]
+  wire [15:0] gpu_io_spriteFrameBuffer_din; // @[Cave.scala 169:19]
+  wire  gpu_io_spriteFrameBuffer_wait_n; // @[Cave.scala 169:19]
+  wire  gpu_io_systemFrameBuffer_wr; // @[Cave.scala 169:19]
+  wire [16:0] gpu_io_systemFrameBuffer_addr; // @[Cave.scala 169:19]
+  wire [31:0] gpu_io_systemFrameBuffer_din; // @[Cave.scala 169:19]
+  wire [14:0] gpu_io_paletteRam_addr; // @[Cave.scala 169:19]
+  wire [15:0] gpu_io_paletteRam_dout; // @[Cave.scala 169:19]
+  wire [23:0] gpu_io_rgb; // @[Cave.scala 169:19]
   wire  gpu_io_layerCtrl_0_tileRom_crossing_clock; // @[Crossing.scala 200:26]
   wire  gpu_io_layerCtrl_0_tileRom_crossing_io_targetClock; // @[Crossing.scala 200:26]
   wire  gpu_io_layerCtrl_0_tileRom_crossing_io_in_rd; // @[Crossing.scala 200:26]
@@ -22133,77 +22567,70 @@ module Cave(
   wire [63:0] gpu_io_layerCtrl_2_tileRom_crossing_io_out_dout; // @[Crossing.scala 200:26]
   wire  gpu_io_layerCtrl_2_tileRom_crossing_io_out_wait_n; // @[Crossing.scala 200:26]
   wire  gpu_io_layerCtrl_2_tileRom_crossing_io_out_valid; // @[Crossing.scala 200:26]
-  wire  spriteFrameBuffer_clock; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_reset; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_videoClock; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_enable; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_swap; // @[Cave.scala 190:33]
-  wire [8:0] spriteFrameBuffer_io_video_pos_y; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_video_hBlank; // @[Cave.scala 190:33]
-  wire [8:0] spriteFrameBuffer_io_lineBuffer_addr; // @[Cave.scala 190:33]
-  wire [15:0] spriteFrameBuffer_io_lineBuffer_dout; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_frameBuffer_wr; // @[Cave.scala 190:33]
-  wire [16:0] spriteFrameBuffer_io_frameBuffer_addr; // @[Cave.scala 190:33]
-  wire [15:0] spriteFrameBuffer_io_frameBuffer_din; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_frameBuffer_wait_n; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_ddr_rd; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_ddr_wr; // @[Cave.scala 190:33]
-  wire [31:0] spriteFrameBuffer_io_ddr_addr; // @[Cave.scala 190:33]
-  wire [7:0] spriteFrameBuffer_io_ddr_mask; // @[Cave.scala 190:33]
-  wire [63:0] spriteFrameBuffer_io_ddr_din; // @[Cave.scala 190:33]
-  wire [63:0] spriteFrameBuffer_io_ddr_dout; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_ddr_wait_n; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_ddr_valid; // @[Cave.scala 190:33]
-  wire [7:0] spriteFrameBuffer_io_ddr_burstLength; // @[Cave.scala 190:33]
-  wire  spriteFrameBuffer_io_ddr_burstDone; // @[Cave.scala 190:33]
-  wire  systemFrameBuffer_clock; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_reset; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_videoClock; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_enable; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_rotate; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_forceBlank; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_video_vBlank; // @[Cave.scala 200:33]
-  wire [8:0] systemFrameBuffer_io_video_regs_size_x; // @[Cave.scala 200:33]
-  wire [8:0] systemFrameBuffer_io_video_regs_size_y; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_frameBufferCtrl_enable; // @[Cave.scala 200:33]
-  wire [11:0] systemFrameBuffer_io_frameBufferCtrl_hSize; // @[Cave.scala 200:33]
-  wire [11:0] systemFrameBuffer_io_frameBufferCtrl_vSize; // @[Cave.scala 200:33]
-  wire [31:0] systemFrameBuffer_io_frameBufferCtrl_baseAddr; // @[Cave.scala 200:33]
-  wire [13:0] systemFrameBuffer_io_frameBufferCtrl_stride; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_frameBufferCtrl_vBlank; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_frameBufferCtrl_lowLat; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_frameBufferCtrl_forceBlank; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_frameBuffer_wr; // @[Cave.scala 200:33]
-  wire [16:0] systemFrameBuffer_io_frameBuffer_addr; // @[Cave.scala 200:33]
-  wire [31:0] systemFrameBuffer_io_frameBuffer_din; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_ddr_wr; // @[Cave.scala 200:33]
-  wire [31:0] systemFrameBuffer_io_ddr_addr; // @[Cave.scala 200:33]
-  wire [7:0] systemFrameBuffer_io_ddr_mask; // @[Cave.scala 200:33]
-  wire [63:0] systemFrameBuffer_io_ddr_din; // @[Cave.scala 200:33]
-  wire  systemFrameBuffer_io_ddr_wait_n; // @[Cave.scala 200:33]
+  wire  spriteFrameBuffer_clock; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_reset; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_videoClock; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_enable; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_swap; // @[Cave.scala 195:33]
+  wire [8:0] spriteFrameBuffer_io_video_pos_y; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_video_hBlank; // @[Cave.scala 195:33]
+  wire [8:0] spriteFrameBuffer_io_lineBuffer_addr; // @[Cave.scala 195:33]
+  wire [15:0] spriteFrameBuffer_io_lineBuffer_dout; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_frameBuffer_wr; // @[Cave.scala 195:33]
+  wire [16:0] spriteFrameBuffer_io_frameBuffer_addr; // @[Cave.scala 195:33]
+  wire [15:0] spriteFrameBuffer_io_frameBuffer_din; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_frameBuffer_wait_n; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_ddr_rd; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_ddr_wr; // @[Cave.scala 195:33]
+  wire [31:0] spriteFrameBuffer_io_ddr_addr; // @[Cave.scala 195:33]
+  wire [7:0] spriteFrameBuffer_io_ddr_mask; // @[Cave.scala 195:33]
+  wire [63:0] spriteFrameBuffer_io_ddr_din; // @[Cave.scala 195:33]
+  wire [63:0] spriteFrameBuffer_io_ddr_dout; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_ddr_wait_n; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_ddr_valid; // @[Cave.scala 195:33]
+  wire [7:0] spriteFrameBuffer_io_ddr_burstLength; // @[Cave.scala 195:33]
+  wire  spriteFrameBuffer_io_ddr_burstDone; // @[Cave.scala 195:33]
+  wire  systemFrameBuffer_clock; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_reset; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_videoClock; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_enable; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_rotate; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_forceBlank; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_video_vBlank; // @[Cave.scala 205:33]
+  wire [8:0] systemFrameBuffer_io_video_regs_size_x; // @[Cave.scala 205:33]
+  wire [8:0] systemFrameBuffer_io_video_regs_size_y; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_frameBufferCtrl_enable; // @[Cave.scala 205:33]
+  wire [11:0] systemFrameBuffer_io_frameBufferCtrl_hSize; // @[Cave.scala 205:33]
+  wire [11:0] systemFrameBuffer_io_frameBufferCtrl_vSize; // @[Cave.scala 205:33]
+  wire [31:0] systemFrameBuffer_io_frameBufferCtrl_baseAddr; // @[Cave.scala 205:33]
+  wire [13:0] systemFrameBuffer_io_frameBufferCtrl_stride; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_frameBufferCtrl_vBlank; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_frameBufferCtrl_lowLat; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_frameBufferCtrl_forceBlank; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_frameBuffer_wr; // @[Cave.scala 205:33]
+  wire [16:0] systemFrameBuffer_io_frameBuffer_addr; // @[Cave.scala 205:33]
+  wire [31:0] systemFrameBuffer_io_frameBuffer_din; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_ddr_wr; // @[Cave.scala 205:33]
+  wire [31:0] systemFrameBuffer_io_ddr_addr; // @[Cave.scala 205:33]
+  wire [7:0] systemFrameBuffer_io_ddr_mask; // @[Cave.scala 205:33]
+  wire [63:0] systemFrameBuffer_io_ddr_din; // @[Cave.scala 205:33]
+  wire  systemFrameBuffer_io_ddr_wait_n; // @[Cave.scala 205:33]
   reg  vBlank_r; // @[Reg.scala 19:16]
   reg  vBlank; // @[Reg.scala 19:16]
   reg  vBlankFalling_REG; // @[Util.scala 165:45]
-  reg [3:0] gameIndexReg; // @[Cave.scala 95:18]
-  reg  gameIndexReg_latched; // @[Cave.scala 96:26]
-  wire  _GEN_3 = ioctl_download & ioctl_wr & ioctl_index == 8'h1 | gameIndexReg_latched; // @[Cave.scala 97:85 99:15 96:26]
-  reg  gameIndexReg_REG; // @[Util.scala 165:45]
-  wire  _gameIndexReg_T_4 = ~ioctl_download & gameIndexReg_REG; // @[Util.scala 165:35]
-  wire  _GEN_5 = _gameIndexReg_T_4 & ~gameIndexReg_latched | _GEN_3; // @[Cave.scala 101:55 103:15]
-  wire [31:0] _gameConfig_T_1_eepromOffset = 4'h8 == gameIndexReg ? 32'h400000 : 32'h100000; // @[Mux.scala 81:58]
+  reg [3:0] gameIndexReg; // @[Cave.scala 97:18]
+  wire [31:0] _gameConfig_T_1_eepromOffset = 4'h8 == gameIndexReg ? 32'h80000 : 32'h100000; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_1_sound_0_device = 4'h8 == gameIndexReg ? 2'h3 : 2'h1; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_sound_0_romOffset = 4'h8 == gameIndexReg ? 32'h400080 : 32'h100080; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_1_sound_0_romOffset = 4'h8 == gameIndexReg ? 32'h80080 : 32'h100080; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_1_sound_1_device = 4'h8 == gameIndexReg ? 2'h2 : 2'h0; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_sound_1_romOffset = 4'h8 == gameIndexReg ? 32'h480080 : 32'h0; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_sound_2_romOffset = 4'h8 == gameIndexReg ? 32'h680080 : 32'h0; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_layer_0_romOffset = 4'h8 == gameIndexReg ? 32'h880080 : 32'h500080; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_layer_1_romOffset = 4'h8 == gameIndexReg ? 32'ha80080 : 32'h700080; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_1_sound_1_romOffset = 4'h8 == gameIndexReg ? 32'h100080 : 32'h0; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_1_sound_2_romOffset = 4'h8 == gameIndexReg ? 32'h300080 : 32'h0; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_1_layer_1_paletteBank = 4'h8 == gameIndexReg ? 2'h2 : 2'h1; // @[Mux.scala 81:58]
   wire [2:0] _gameConfig_T_1_layer_2_format = 4'h8 == gameIndexReg ? 3'h4 : 3'h0; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_layer_2_romOffset = 4'h8 == gameIndexReg ? 32'hc80080 : 32'h0; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_1_layer_2_romOffset = 4'h8 == gameIndexReg ? 32'h900080 : 32'h0; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_1_layer_2_paletteBank = 4'h8 == gameIndexReg ? 2'h3 : 2'h0; // @[Mux.scala 81:58]
   wire [8:0] _gameConfig_T_1_layer_2_granularity = 4'h8 == gameIndexReg ? 9'h40 : 9'h10; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_1_sprite_romOffset = 4'h8 == gameIndexReg ? 32'h2080080 : 32'h900080; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_1_sprite_romOffset = 4'h8 == gameIndexReg ? 32'hd00080 : 32'h900080; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_1_sprite_romSize = 4'h8 == gameIndexReg ? 32'h400000 : 32'h800000; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_3_eepromOffset = 4'h1 == gameIndexReg ? 32'h100000 : _gameConfig_T_1_eepromOffset; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_3_sound_0_device = 4'h1 == gameIndexReg ? 2'h1 : _gameConfig_T_1_sound_0_device; // @[Mux.scala 81:58]
@@ -22211,9 +22638,7 @@ module Cave(
   wire [1:0] _gameConfig_T_3_sound_1_device = 4'h1 == gameIndexReg ? 2'h0 : _gameConfig_T_1_sound_1_device; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_3_sound_1_romOffset = 4'h1 == gameIndexReg ? 32'h0 : _gameConfig_T_1_sound_1_romOffset; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_3_sound_2_romOffset = 4'h1 == gameIndexReg ? 32'h0 : _gameConfig_T_1_sound_2_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_3_layer_0_romOffset = 4'h1 == gameIndexReg ? 32'h500080 : _gameConfig_T_1_layer_0_romOffset; // @[Mux.scala 81:58]
   wire [8:0] _gameConfig_T_3_layer_0_granularity = 4'h1 == gameIndexReg ? 9'h100 : 9'h10; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_3_layer_1_romOffset = 4'h1 == gameIndexReg ? 32'h700080 : _gameConfig_T_1_layer_1_romOffset; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_3_layer_1_paletteBank = 4'h1 == gameIndexReg ? 2'h1 : _gameConfig_T_1_layer_1_paletteBank; // @[Mux.scala 81:58]
   wire [2:0] _gameConfig_T_3_layer_2_format = 4'h1 == gameIndexReg ? 3'h3 : _gameConfig_T_1_layer_2_format; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_3_layer_2_romOffset = 4'h1 == gameIndexReg ? 32'h900080 : _gameConfig_T_1_layer_2_romOffset; // @[Mux.scala 81:58]
@@ -22230,9 +22655,9 @@ module Cave(
   wire [31:0] _gameConfig_T_5_sound_1_romOffset = 4'h2 == gameIndexReg ? 32'h280080 : _gameConfig_T_3_sound_1_romOffset; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_5_sound_2_device = 4'h2 == gameIndexReg ? 2'h0 : _gameConfig_T_3_sound_1_device; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_5_sound_2_romOffset = 4'h2 == gameIndexReg ? 32'h0 : _gameConfig_T_3_sound_2_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_5_layer_0_romOffset = 4'h2 == gameIndexReg ? 32'h380080 : _gameConfig_T_3_layer_0_romOffset; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_5_layer_0_romOffset = 4'h2 == gameIndexReg ? 32'h380080 : 32'h500080; // @[Mux.scala 81:58]
   wire [8:0] _gameConfig_T_5_layer_0_granularity = 4'h2 == gameIndexReg ? 9'h10 : _gameConfig_T_3_layer_0_granularity; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_5_layer_1_romOffset = 4'h2 == gameIndexReg ? 32'h480080 : _gameConfig_T_3_layer_1_romOffset; // @[Mux.scala 81:58]
+  wire [31:0] _gameConfig_T_5_layer_1_romOffset = 4'h2 == gameIndexReg ? 32'h480080 : 32'h700080; // @[Mux.scala 81:58]
   wire [1:0] _gameConfig_T_5_layer_1_paletteBank = 4'h2 == gameIndexReg ? 2'h1 : _gameConfig_T_3_layer_1_paletteBank; // @[Mux.scala 81:58]
   wire [2:0] _gameConfig_T_5_layer_2_format = 4'h2 == gameIndexReg ? 3'h1 : _gameConfig_T_3_layer_2_format; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_5_layer_2_romOffset = 4'h2 == gameIndexReg ? 32'h580080 : _gameConfig_T_3_layer_2_romOffset; // @[Mux.scala 81:58]
@@ -22284,112 +22709,67 @@ module Cave(
   wire [2:0] _gameConfig_T_9_sprite_format = 4'h6 == gameIndexReg ? 3'h1 : _gameConfig_T_7_sprite_format; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_9_sprite_romOffset = 4'h6 == gameIndexReg ? 32'h1900000 : _gameConfig_T_7_sprite_romOffset; // @[Mux.scala 81:58]
   wire [31:0] _gameConfig_T_9_sprite_romSize = 4'h6 == gameIndexReg ? 32'h800000 : _gameConfig_T_7_sprite_romSize; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_eepromOffset = 4'h5 == gameIndexReg ? 32'h100000 : _gameConfig_T_9_eepromOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_11_sound_0_device = 4'h5 == gameIndexReg ? 2'h1 : _gameConfig_T_9_sound_0_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_sound_0_romOffset = 4'h5 == gameIndexReg ? 32'h100080 : _gameConfig_T_9_sound_0_romOffset
-    ; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_sound_1_romOffset = 4'h5 == gameIndexReg ? 32'h0 : _gameConfig_T_9_sound_1_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_11_sound_2_device = 4'h5 == gameIndexReg ? 2'h0 : _gameConfig_T_9_sound_2_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_sound_2_romOffset = 4'h5 == gameIndexReg ? 32'h0 : _gameConfig_T_9_sound_2_romOffset; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_11_layer_0_format = 4'h5 == gameIndexReg ? 3'h3 : _gameConfig_T_9_layer_0_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_layer_0_romOffset = 4'h5 == gameIndexReg ? 32'h500080 : _gameConfig_T_9_layer_0_romOffset
-    ; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_11_layer_0_granularity = 4'h5 == gameIndexReg ? 9'h100 : _gameConfig_T_9_layer_0_granularity; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_layer_1_romOffset = 4'h5 == gameIndexReg ? 32'hd00080 : _gameConfig_T_9_layer_1_romOffset
-    ; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_11_layer_1_paletteBank = 4'h5 == gameIndexReg ? 2'h1 : _gameConfig_T_9_layer_1_paletteBank; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_11_layer_2_format = 4'h5 == gameIndexReg ? 3'h3 : _gameConfig_T_9_layer_2_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_layer_2_romOffset = 4'h5 == gameIndexReg ? 32'h1100080 :
-    _gameConfig_T_9_layer_2_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_11_layer_2_paletteBank = 4'h5 == gameIndexReg ? 2'h1 : _gameConfig_T_9_layer_2_paletteBank; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_11_layer_2_granularity = 4'h5 == gameIndexReg ? 9'h100 : _gameConfig_T_9_layer_2_granularity; // @[Mux.scala 81:58]
   wire  _gameConfig_T_11_layer_2_tileBank = 4'h5 == gameIndexReg ? 1'h0 : _gameConfig_T_9_layer_2_tileBank; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_11_sprite_format = 4'h5 == gameIndexReg ? 3'h3 : _gameConfig_T_9_sprite_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_sprite_romOffset = 4'h5 == gameIndexReg ? 32'h1500080 : _gameConfig_T_9_sprite_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_11_sprite_romSize = 4'h5 == gameIndexReg ? 32'h2000000 : _gameConfig_T_9_sprite_romSize; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_eepromOffset = 4'h7 == gameIndexReg ? 32'h100000 : _gameConfig_T_11_eepromOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_13_sound_0_device = 4'h7 == gameIndexReg ? 2'h3 : _gameConfig_T_11_sound_0_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_sound_0_romOffset = 4'h7 == gameIndexReg ? 32'h100080 :
-    _gameConfig_T_11_sound_0_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_sound_1_romOffset = 4'h7 == gameIndexReg ? 32'h140080 :
-    _gameConfig_T_11_sound_1_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_13_sound_2_device = 4'h7 == gameIndexReg ? 2'h0 : _gameConfig_T_11_sound_2_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_sound_2_romOffset = 4'h7 == gameIndexReg ? 32'h0 : _gameConfig_T_11_sound_2_romOffset; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_13_layer_0_format = 4'h7 == gameIndexReg ? 3'h1 : _gameConfig_T_11_layer_0_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_layer_0_romOffset = 4'h7 == gameIndexReg ? 32'h1c0080 :
-    _gameConfig_T_11_layer_0_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_13_layer_0_paletteBank = 4'h7 == gameIndexReg ? 2'h0 : 2'h1; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_13_layer_0_granularity = 4'h7 == gameIndexReg ? 9'h10 : _gameConfig_T_11_layer_0_granularity; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_layer_1_romOffset = 4'h7 == gameIndexReg ? 32'h240080 :
-    _gameConfig_T_11_layer_1_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_13_layer_1_paletteBank = 4'h7 == gameIndexReg ? 2'h0 : _gameConfig_T_11_layer_1_paletteBank; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_13_layer_2_format = 4'h7 == gameIndexReg ? 3'h1 : _gameConfig_T_11_layer_2_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_layer_2_romOffset = 4'h7 == gameIndexReg ? 32'h2c0080 :
-    _gameConfig_T_11_layer_2_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_13_layer_2_paletteBank = 4'h7 == gameIndexReg ? 2'h0 : _gameConfig_T_11_layer_2_paletteBank; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_13_layer_2_granularity = 4'h7 == gameIndexReg ? 9'h10 : _gameConfig_T_11_layer_2_granularity; // @[Mux.scala 81:58]
   wire  _gameConfig_T_13_layer_2_tileBank = 4'h7 == gameIndexReg ? 1'h0 : _gameConfig_T_11_layer_2_tileBank; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_13_sprite_format = 4'h7 == gameIndexReg ? 3'h1 : _gameConfig_T_11_sprite_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_sprite_romOffset = 4'h7 == gameIndexReg ? 32'h340080 : _gameConfig_T_11_sprite_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_13_sprite_romSize = 4'h7 == gameIndexReg ? 32'h400000 : _gameConfig_T_11_sprite_romSize; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_eepromOffset = 4'h9 == gameIndexReg ? 32'h400000 : _gameConfig_T_13_eepromOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_15_sound_0_device = 4'h9 == gameIndexReg ? 2'h3 : _gameConfig_T_13_sound_0_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_sound_0_romOffset = 4'h9 == gameIndexReg ? 32'h400080 :
-    _gameConfig_T_13_sound_0_romOffset; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_sound_1_romOffset = 4'h9 == gameIndexReg ? 32'h480080 :
-    _gameConfig_T_13_sound_1_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_15_sound_2_device = 4'h9 == gameIndexReg ? 2'h2 : _gameConfig_T_13_sound_2_device; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_sound_2_romOffset = 4'h9 == gameIndexReg ? 32'h680080 :
-    _gameConfig_T_13_sound_2_romOffset; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_15_layer_0_format = 4'h9 == gameIndexReg ? 3'h1 : _gameConfig_T_13_layer_0_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_layer_0_romOffset = 4'h9 == gameIndexReg ? 32'h880080 :
-    _gameConfig_T_13_layer_0_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_15_layer_0_paletteBank = 4'h9 == gameIndexReg ? 2'h1 : _gameConfig_T_13_layer_0_paletteBank; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_15_layer_0_granularity = 4'h9 == gameIndexReg ? 9'h10 : _gameConfig_T_13_layer_0_granularity; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_layer_1_romOffset = 4'h9 == gameIndexReg ? 32'ha80080 :
-    _gameConfig_T_13_layer_1_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_15_layer_1_paletteBank = 4'h9 == gameIndexReg ? 2'h2 : _gameConfig_T_13_layer_1_paletteBank; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_15_layer_2_format = 4'h9 == gameIndexReg ? 3'h4 : _gameConfig_T_13_layer_2_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_layer_2_romOffset = 4'h9 == gameIndexReg ? 32'hc80080 :
-    _gameConfig_T_13_layer_2_romOffset; // @[Mux.scala 81:58]
-  wire [1:0] _gameConfig_T_15_layer_2_paletteBank = 4'h9 == gameIndexReg ? 2'h3 : _gameConfig_T_13_layer_2_paletteBank; // @[Mux.scala 81:58]
-  wire [8:0] _gameConfig_T_15_layer_2_granularity = 4'h9 == gameIndexReg ? 9'h40 : _gameConfig_T_13_layer_2_granularity; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_15_sprite_format = 4'h9 == gameIndexReg ? 3'h1 : _gameConfig_T_13_sprite_format; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_sprite_romOffset = 4'h9 == gameIndexReg ? 32'h2080080 : _gameConfig_T_13_sprite_romOffset
-    ; // @[Mux.scala 81:58]
-  wire [31:0] _gameConfig_T_15_sprite_romSize = 4'h9 == gameIndexReg ? 32'h400000 : _gameConfig_T_13_sprite_romSize; // @[Mux.scala 81:58]
-  wire [2:0] _gameConfig_T_15_sprite_descrambleStyle = 4'h9 == gameIndexReg ? 3'h1 : 3'h0; // @[Mux.scala 81:58]
-  wire  gameConfig_layer_2_tileBank = 4'h4 == gameIndexReg ? 1'h0 : 4'h9 == gameIndexReg |
-    _gameConfig_T_13_layer_2_tileBank; // @[Mux.scala 81:58]
   wire  dipsRegs_io_mem_writeEnable = ioctl_download & ioctl_index == 8'hfe & ~(|ioctl_addr[26:3]); // @[IOCTL.scala 105:68]
+  reg [31:0] memGameConfig_eepromOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_sound_0_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_sound_1_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_sound_2_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_layer_0_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_layer_1_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_layer_2_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_sprite_romOffset; // @[Cave.scala 121:30]
+  reg [31:0] memGameConfig_sprite_romSize; // @[Cave.scala 121:30]
+  reg [2:0] memGameConfig_sprite_descrambleStyle; // @[Cave.scala 121:30]
   wire  _memSys_io_prog_rom_writeEnable_T = ioctl_index == 8'h0; // @[IOCTL.scala 67:46]
   wire  memSys_io_prog_rom_writeEnable = ioctl_download & ioctl_index == 8'h0; // @[IOCTL.scala 67:32]
-  wire  memSys_io_prog_rom_mem_wait_n = memSys_io_prog_rom_wait_n; // @[IOCTL.scala 68:19 Cave.scala 128:22]
-  wire  _GEN_7 = memSys_io_prog_rom_writeEnable ? memSys_io_prog_rom_mem_wait_n : 1'h1; // @[IOCTL.scala 70:{23,32}]
+  wire  memSys_io_prog_rom_mem_wait_n = memSys_io_prog_rom_wait_n; // @[IOCTL.scala 68:19 Cave.scala 125:22]
+  wire  _GEN_4 = memSys_io_prog_rom_writeEnable ? memSys_io_prog_rom_mem_wait_n : 1'h1; // @[IOCTL.scala 70:{23,32}]
   wire  _memSys_io_prog_nvram_readEnable_T = ioctl_index == 8'h2; // @[IOCTL.scala 90:43]
   wire  memSys_io_prog_nvram_readEnable = ioctl_upload & ioctl_index == 8'h2; // @[IOCTL.scala 90:29]
   wire  memSys_io_prog_nvram_writeEnable = ioctl_download & _memSys_io_prog_nvram_readEnable_T; // @[IOCTL.scala 91:32]
-  wire  memSys_io_prog_nvram_mem_wait_n = memSys_io_prog_nvram_wait_n; // @[IOCTL.scala 92:19 Cave.scala 129:24]
-  wire  _GEN_8 = memSys_io_prog_nvram_readEnable | memSys_io_prog_nvram_writeEnable ? memSys_io_prog_nvram_mem_wait_n :
-    _GEN_7; // @[IOCTL.scala 95:{37,46}]
+  wire  memSys_io_prog_nvram_mem_wait_n = memSys_io_prog_nvram_wait_n; // @[IOCTL.scala 92:19 Cave.scala 126:24]
+  wire  _GEN_5 = memSys_io_prog_nvram_readEnable | memSys_io_prog_nvram_writeEnable ? memSys_io_prog_nvram_mem_wait_n :
+    _GEN_4; // @[IOCTL.scala 95:{37,46}]
   reg [15:0] memSys_io_prog_nvram_view__ioctl_din_r; // @[Reg.scala 19:16]
-  wire  memSys_io_prog_nvram_mem_valid = memSys_io_prog_nvram_valid; // @[IOCTL.scala 92:19 Cave.scala 129:24]
-  wire [15:0] memSys_io_prog_nvram_mem_dout = memSys_io_prog_nvram_dout; // @[IOCTL.scala 92:19 Cave.scala 129:24]
+  wire  memSys_io_prog_nvram_mem_valid = memSys_io_prog_nvram_valid; // @[IOCTL.scala 92:19 Cave.scala 126:24]
+  wire [15:0] memSys_io_prog_nvram_mem_dout = memSys_io_prog_nvram_dout; // @[IOCTL.scala 92:19 Cave.scala 126:24]
   reg  memSys_io_prog_done_REG; // @[Util.scala 165:45]
   wire  _memSys_io_prog_done_T_1 = ~ioctl_download & memSys_io_prog_done_REG; // @[Util.scala 165:35]
   wire  _videoSys_io_prog_video_writeEnable_T = ioctl_index == 8'h3; // @[IOCTL.scala 117:46]
   wire  videoSys_io_prog_video_writeEnable = ioctl_download & ioctl_index == 8'h3; // @[IOCTL.scala 117:32]
   reg  videoSys_io_prog_done_REG; // @[Util.scala 165:45]
   wire  _videoSys_io_prog_done_T_1 = ~ioctl_download & videoSys_io_prog_done_REG; // @[Util.scala 165:35]
-  wire  _T = ~memSys_io_ready; // @[Cave.scala 143:60]
-  RegisterFile dipsRegs ( // @[Cave.scala 112:24]
+  reg  mainReady; // @[Cave.scala 140:26]
+  reg [3:0] mainGameIndex; // @[Cave.scala 142:30]
+  reg [1:0] soundGameConfig_sound_0_device; // @[Cave.scala 154:32]
+  reg [1:0] soundGameConfig_sound_2_device; // @[Cave.scala 154:32]
+  reg [3:0] soundGameIndex; // @[Cave.scala 155:31]
+  reg  soundReady; // @[Cave.scala 156:27]
+  reg [2:0] gpuGameConfig_layer_0_format; // @[Cave.scala 168:30]
+  reg [1:0] gpuGameConfig_layer_0_paletteBank; // @[Cave.scala 168:30]
+  reg [8:0] gpuGameConfig_layer_0_granularity; // @[Cave.scala 168:30]
+  reg [2:0] gpuGameConfig_layer_1_format; // @[Cave.scala 168:30]
+  reg [1:0] gpuGameConfig_layer_1_paletteBank; // @[Cave.scala 168:30]
+  reg [8:0] gpuGameConfig_layer_1_granularity; // @[Cave.scala 168:30]
+  reg [2:0] gpuGameConfig_layer_2_format; // @[Cave.scala 168:30]
+  reg [1:0] gpuGameConfig_layer_2_paletteBank; // @[Cave.scala 168:30]
+  reg [8:0] gpuGameConfig_layer_2_granularity; // @[Cave.scala 168:30]
+  reg  gpuGameConfig_layer_2_tileBank; // @[Cave.scala 168:30]
+  reg [2:0] gpuGameConfig_sprite_format; // @[Cave.scala 168:30]
+  reg  gpuGameConfig_sprite_zoom; // @[Cave.scala 168:30]
+  reg [8:0] gpuGameConfig_sprite_granularity; // @[Cave.scala 168:30]
+  reg  spriteFBReady; // @[Cave.scala 194:30]
+  reg  sysFBReady; // @[Cave.scala 206:27]
+  RegisterFile dipsRegs ( // @[Cave.scala 108:24]
     .clock(dipsRegs_clock),
     .io_mem_wr(dipsRegs_io_mem_wr),
     .io_mem_addr(dipsRegs_io_mem_addr),
     .io_mem_din(dipsRegs_io_mem_din),
     .io_regs_0(dipsRegs_io_regs_0)
   );
-  DDR ddr_1 ( // @[Cave.scala 118:19]
+  DDR ddr_1 ( // @[Cave.scala 114:19]
     .clock(ddr_1_clock),
     .reset(ddr_1_reset),
     .io_mem_rd(ddr_1_io_mem_rd),
@@ -22412,7 +22792,7 @@ module Cave(
     .io_ddr_valid(ddr_1_io_ddr_valid),
     .io_ddr_burstLength(ddr_1_io_ddr_burstLength)
   );
-  SDRAM sdram_1 ( // @[Cave.scala 122:21]
+  SDRAM sdram_1 ( // @[Cave.scala 118:21]
     .clock(sdram_1_clock),
     .reset(sdram_1_reset),
     .io_mem_rd(sdram_1_io_mem_rd),
@@ -22433,7 +22813,7 @@ module Cave(
     .io_sdram_din(sdram_1_io_sdram_din),
     .io_sdram_dout(sdram_1_io_sdram_dout)
   );
-  MemSys memSys ( // @[Cave.scala 126:22]
+  MemSys memSys ( // @[Cave.scala 123:22]
     .clock(memSys_clock),
     .reset(memSys_reset),
     .io_gameConfig_eepromOffset(memSys_io_gameConfig_eepromOffset),
@@ -22547,7 +22927,7 @@ module Cave(
     .io_systemFrameBuffer_wait_n(memSys_io_systemFrameBuffer_wait_n),
     .io_ready(memSys_io_ready)
   );
-  VideoSys videoSys ( // @[Cave.scala 135:24]
+  VideoSys videoSys ( // @[Cave.scala 132:24]
     .clock(videoSys_clock),
     .reset(videoSys_reset),
     .io_videoClock(videoSys_io_videoClock),
@@ -22575,7 +22955,7 @@ module Cave(
     .io_video_regs_retrace_y(videoSys_io_video_regs_retrace_y),
     .io_video_changeMode(videoSys_io_video_changeMode)
   );
-  Main main ( // @[Cave.scala 143:86]
+  Main main ( // @[Cave.scala 141:80]
     .clock(main_clock),
     .reset(main_reset),
     .io_videoClock(main_io_videoClock),
@@ -22736,7 +23116,7 @@ module Cave(
     .io_out_wait_n(main_io_eeprom_freezer_io_out_wait_n),
     .io_out_valid(main_io_eeprom_freezer_io_out_valid)
   );
-  Sound sound ( // @[Cave.scala 156:87]
+  Sound sound ( // @[Cave.scala 158:82]
     .clock(sound_clock),
     .reset(sound_reset),
     .io_ctrl_oki_0_wr(sound_io_ctrl_oki_0_wr),
@@ -22819,7 +23199,7 @@ module Cave(
     .io_out_wait_n(sound_io_rom_2_freezer_io_out_wait_n),
     .io_out_valid(sound_io_rom_2_freezer_io_out_valid)
   );
-  GPU gpu ( // @[Cave.scala 165:19]
+  GPU gpu ( // @[Cave.scala 169:19]
     .clock(gpu_clock),
     .reset(gpu_reset),
     .io_videoClock(gpu_io_videoClock),
@@ -22965,7 +23345,7 @@ module Cave(
     .io_out_wait_n(gpu_io_layerCtrl_2_tileRom_crossing_io_out_wait_n),
     .io_out_valid(gpu_io_layerCtrl_2_tileRom_crossing_io_out_valid)
   );
-  SpriteFrameBuffer spriteFrameBuffer ( // @[Cave.scala 190:33]
+  SpriteFrameBuffer spriteFrameBuffer ( // @[Cave.scala 195:33]
     .clock(spriteFrameBuffer_clock),
     .reset(spriteFrameBuffer_reset),
     .io_videoClock(spriteFrameBuffer_io_videoClock),
@@ -22990,7 +23370,7 @@ module Cave(
     .io_ddr_burstLength(spriteFrameBuffer_io_ddr_burstLength),
     .io_ddr_burstDone(spriteFrameBuffer_io_ddr_burstDone)
   );
-  SystemFrameBuffer systemFrameBuffer ( // @[Cave.scala 200:33]
+  SystemFrameBuffer systemFrameBuffer ( // @[Cave.scala 205:33]
     .clock(systemFrameBuffer_clock),
     .reset(systemFrameBuffer_reset),
     .io_videoClock(systemFrameBuffer_io_videoClock),
@@ -23017,87 +23397,84 @@ module Cave(
     .io_ddr_din(systemFrameBuffer_io_ddr_din),
     .io_ddr_wait_n(systemFrameBuffer_io_ddr_wait_n)
   );
-  assign ioctl_wait_n = videoSys_io_prog_video_writeEnable | _GEN_8; // @[IOCTL.scala 120:{23,32}]
+  assign ioctl_wait_n = videoSys_io_prog_video_writeEnable | _GEN_5; // @[IOCTL.scala 120:{23,32}]
   assign ioctl_din = memSys_io_prog_nvram_readEnable ? memSys_io_prog_nvram_view__ioctl_din_r : 16'h0; // @[IOCTL.scala 99:{22,28} 62:9]
-  assign led_power = 1'h0; // @[Cave.scala 214:16]
-  assign led_disk = ioctl_download; // @[Cave.scala 215:15]
-  assign led_user = memSys_io_ready; // @[Cave.scala 216:15]
-  assign frameBufferCtrl_enable = systemFrameBuffer_io_frameBufferCtrl_enable; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_hSize = systemFrameBuffer_io_frameBufferCtrl_hSize; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_vSize = systemFrameBuffer_io_frameBufferCtrl_vSize; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_format = 5'h6; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_baseAddr = systemFrameBuffer_io_frameBufferCtrl_baseAddr; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_stride = systemFrameBuffer_io_frameBufferCtrl_stride; // @[Cave.scala 206:40]
-  assign frameBufferCtrl_forceBlank = systemFrameBuffer_io_frameBufferCtrl_forceBlank; // @[Cave.scala 206:40]
-  assign video_clockEnable = videoSys_io_video_clockEnable; // @[Cave.scala 211:12]
-  assign video_displayEnable = videoSys_io_video_displayEnable; // @[Cave.scala 211:12]
-  assign video_pos_x = videoSys_io_video_pos_x; // @[Cave.scala 211:12]
-  assign video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 211:12]
-  assign video_hSync = videoSys_io_video_hSync; // @[Cave.scala 211:12]
-  assign video_vSync = videoSys_io_video_vSync; // @[Cave.scala 211:12]
-  assign video_hBlank = videoSys_io_video_hBlank; // @[Cave.scala 211:12]
-  assign video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 211:12]
-  assign video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 211:12]
-  assign video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 211:12]
-  assign video_regs_frontPorch_x = videoSys_io_video_regs_frontPorch_x; // @[Cave.scala 211:12]
-  assign video_regs_frontPorch_y = videoSys_io_video_regs_frontPorch_y; // @[Cave.scala 211:12]
-  assign video_regs_retrace_x = videoSys_io_video_regs_retrace_x; // @[Cave.scala 211:12]
-  assign video_regs_retrace_y = videoSys_io_video_regs_retrace_y; // @[Cave.scala 211:12]
-  assign video_changeMode = videoSys_io_video_changeMode; // @[Cave.scala 211:12]
-  assign rgb = gpu_io_rgb; // @[Cave.scala 212:10]
-  assign audio = sound_io_audio; // @[Cave.scala 213:12]
-  assign sdram_cke = 1'h1; // @[Cave.scala 123:18]
-  assign sdram_cs_n = sdram_1_io_sdram_cs_n; // @[Cave.scala 123:18]
-  assign sdram_ras_n = sdram_1_io_sdram_ras_n; // @[Cave.scala 123:18]
-  assign sdram_cas_n = sdram_1_io_sdram_cas_n; // @[Cave.scala 123:18]
-  assign sdram_we_n = sdram_1_io_sdram_we_n; // @[Cave.scala 123:18]
-  assign sdram_oe_n = sdram_1_io_sdram_oe_n; // @[Cave.scala 123:18]
-  assign sdram_bank = sdram_1_io_sdram_bank; // @[Cave.scala 123:18]
-  assign sdram_addr = sdram_1_io_sdram_addr; // @[Cave.scala 123:18]
-  assign sdram_din = sdram_1_io_sdram_din; // @[Cave.scala 123:18]
-  assign ddr_rd = ddr_1_io_ddr_rd; // @[Cave.scala 119:14]
-  assign ddr_wr = ddr_1_io_ddr_wr; // @[Cave.scala 119:14]
-  assign ddr_addr = ddr_1_io_ddr_addr; // @[Cave.scala 119:14]
-  assign ddr_mask = ddr_1_io_ddr_mask; // @[Cave.scala 119:14]
-  assign ddr_din = ddr_1_io_ddr_din; // @[Cave.scala 119:14]
-  assign ddr_burstLength = ddr_1_io_ddr_burstLength; // @[Cave.scala 119:14]
+  assign led_power = 1'h0; // @[Cave.scala 220:16]
+  assign led_disk = ioctl_download; // @[Cave.scala 221:15]
+  assign led_user = memSys_io_ready; // @[Cave.scala 222:15]
+  assign frameBufferCtrl_enable = systemFrameBuffer_io_frameBufferCtrl_enable; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_hSize = systemFrameBuffer_io_frameBufferCtrl_hSize; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_vSize = systemFrameBuffer_io_frameBufferCtrl_vSize; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_format = 5'h6; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_baseAddr = systemFrameBuffer_io_frameBufferCtrl_baseAddr; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_stride = systemFrameBuffer_io_frameBufferCtrl_stride; // @[Cave.scala 212:40]
+  assign frameBufferCtrl_forceBlank = systemFrameBuffer_io_frameBufferCtrl_forceBlank; // @[Cave.scala 212:40]
+  assign video_clockEnable = videoSys_io_video_clockEnable; // @[Cave.scala 217:12]
+  assign video_displayEnable = videoSys_io_video_displayEnable; // @[Cave.scala 217:12]
+  assign video_pos_x = videoSys_io_video_pos_x; // @[Cave.scala 217:12]
+  assign video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 217:12]
+  assign video_hSync = videoSys_io_video_hSync; // @[Cave.scala 217:12]
+  assign video_vSync = videoSys_io_video_vSync; // @[Cave.scala 217:12]
+  assign video_hBlank = videoSys_io_video_hBlank; // @[Cave.scala 217:12]
+  assign video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 217:12]
+  assign video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 217:12]
+  assign video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 217:12]
+  assign video_regs_frontPorch_x = videoSys_io_video_regs_frontPorch_x; // @[Cave.scala 217:12]
+  assign video_regs_frontPorch_y = videoSys_io_video_regs_frontPorch_y; // @[Cave.scala 217:12]
+  assign video_regs_retrace_x = videoSys_io_video_regs_retrace_x; // @[Cave.scala 217:12]
+  assign video_regs_retrace_y = videoSys_io_video_regs_retrace_y; // @[Cave.scala 217:12]
+  assign video_changeMode = videoSys_io_video_changeMode; // @[Cave.scala 217:12]
+  assign rgb = gpu_io_rgb; // @[Cave.scala 218:10]
+  assign audio = sound_io_audio; // @[Cave.scala 219:12]
+  assign sdram_cke = 1'h1; // @[Cave.scala 119:18]
+  assign sdram_cs_n = sdram_1_io_sdram_cs_n; // @[Cave.scala 119:18]
+  assign sdram_ras_n = sdram_1_io_sdram_ras_n; // @[Cave.scala 119:18]
+  assign sdram_cas_n = sdram_1_io_sdram_cas_n; // @[Cave.scala 119:18]
+  assign sdram_we_n = sdram_1_io_sdram_we_n; // @[Cave.scala 119:18]
+  assign sdram_oe_n = sdram_1_io_sdram_oe_n; // @[Cave.scala 119:18]
+  assign sdram_bank = sdram_1_io_sdram_bank; // @[Cave.scala 119:18]
+  assign sdram_addr = sdram_1_io_sdram_addr; // @[Cave.scala 119:18]
+  assign sdram_din = sdram_1_io_sdram_din; // @[Cave.scala 119:18]
+  assign ddr_rd = ddr_1_io_ddr_rd; // @[Cave.scala 115:14]
+  assign ddr_wr = ddr_1_io_ddr_wr; // @[Cave.scala 115:14]
+  assign ddr_addr = ddr_1_io_ddr_addr; // @[Cave.scala 115:14]
+  assign ddr_mask = ddr_1_io_ddr_mask; // @[Cave.scala 115:14]
+  assign ddr_din = ddr_1_io_ddr_din; // @[Cave.scala 115:14]
+  assign ddr_burstLength = ddr_1_io_ddr_burstLength; // @[Cave.scala 115:14]
   assign dipsRegs_clock = clock;
   assign dipsRegs_io_mem_wr = dipsRegs_io_mem_writeEnable & ioctl_wr; // @[IOCTL.scala 107:27]
-  assign dipsRegs_io_mem_addr = ioctl_addr[2:1]; // @[Cave.scala 113:19]
+  assign dipsRegs_io_mem_addr = ioctl_addr[2:1]; // @[Cave.scala 109:19]
   assign dipsRegs_io_mem_din = ioctl_dout; // @[IOCTL.scala 106:19 111:13]
   assign ddr_1_clock = clock;
   assign ddr_1_reset = reset;
-  assign ddr_1_io_mem_rd = memSys_io_ddr_rd; // @[Cave.scala 131:17]
-  assign ddr_1_io_mem_wr = memSys_io_ddr_wr; // @[Cave.scala 131:17]
-  assign ddr_1_io_mem_addr = memSys_io_ddr_addr; // @[Cave.scala 131:17]
-  assign ddr_1_io_mem_mask = memSys_io_ddr_mask; // @[Cave.scala 131:17]
-  assign ddr_1_io_mem_din = memSys_io_ddr_din; // @[Cave.scala 131:17]
-  assign ddr_1_io_mem_burstLength = memSys_io_ddr_burstLength; // @[Cave.scala 131:17]
-  assign ddr_1_io_ddr_dout = ddr_dout; // @[Cave.scala 119:14]
-  assign ddr_1_io_ddr_wait_n = ddr_wait_n; // @[Cave.scala 119:14]
-  assign ddr_1_io_ddr_valid = ddr_valid; // @[Cave.scala 119:14]
+  assign ddr_1_io_mem_rd = memSys_io_ddr_rd; // @[Cave.scala 128:17]
+  assign ddr_1_io_mem_wr = memSys_io_ddr_wr; // @[Cave.scala 128:17]
+  assign ddr_1_io_mem_addr = memSys_io_ddr_addr; // @[Cave.scala 128:17]
+  assign ddr_1_io_mem_mask = memSys_io_ddr_mask; // @[Cave.scala 128:17]
+  assign ddr_1_io_mem_din = memSys_io_ddr_din; // @[Cave.scala 128:17]
+  assign ddr_1_io_mem_burstLength = memSys_io_ddr_burstLength; // @[Cave.scala 128:17]
+  assign ddr_1_io_ddr_dout = ddr_dout; // @[Cave.scala 115:14]
+  assign ddr_1_io_ddr_wait_n = ddr_wait_n; // @[Cave.scala 115:14]
+  assign ddr_1_io_ddr_valid = ddr_valid; // @[Cave.scala 115:14]
   assign sdram_1_clock = clock;
   assign sdram_1_reset = reset;
-  assign sdram_1_io_mem_rd = memSys_io_sdram_rd; // @[Cave.scala 132:19]
-  assign sdram_1_io_mem_wr = memSys_io_sdram_wr; // @[Cave.scala 132:19]
-  assign sdram_1_io_mem_addr = memSys_io_sdram_addr; // @[Cave.scala 132:19]
-  assign sdram_1_io_mem_din = memSys_io_sdram_din; // @[Cave.scala 132:19]
-  assign sdram_1_io_sdram_dout = sdram_dout; // @[Cave.scala 123:18]
+  assign sdram_1_io_mem_rd = memSys_io_sdram_rd; // @[Cave.scala 129:19]
+  assign sdram_1_io_mem_wr = memSys_io_sdram_wr; // @[Cave.scala 129:19]
+  assign sdram_1_io_mem_addr = memSys_io_sdram_addr; // @[Cave.scala 129:19]
+  assign sdram_1_io_mem_din = memSys_io_sdram_din; // @[Cave.scala 129:19]
+  assign sdram_1_io_sdram_dout = sdram_dout; // @[Cave.scala 119:18]
   assign memSys_clock = clock;
   assign memSys_reset = reset;
-  assign memSys_io_gameConfig_eepromOffset = 4'h4 == gameIndexReg ? 32'h100000 : _gameConfig_T_15_eepromOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sound_0_romOffset = 4'h4 == gameIndexReg ? 32'h100080 : _gameConfig_T_15_sound_0_romOffset
-    ; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sound_1_romOffset = 4'h4 == gameIndexReg ? 32'h0 : _gameConfig_T_15_sound_1_romOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sound_2_romOffset = 4'h4 == gameIndexReg ? 32'h0 : _gameConfig_T_15_sound_2_romOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_layer_0_romOffset = 4'h4 == gameIndexReg ? 32'h300080 : _gameConfig_T_15_layer_0_romOffset
-    ; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_layer_1_romOffset = 4'h4 == gameIndexReg ? 32'h0 : _gameConfig_T_15_layer_1_romOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_layer_2_romOffset = 4'h4 == gameIndexReg ? 32'h0 : _gameConfig_T_15_layer_2_romOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sprite_romOffset = 4'h4 == gameIndexReg ? 32'h700080 : _gameConfig_T_15_sprite_romOffset; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sprite_romSize = 4'h4 == gameIndexReg ? 32'h400000 : _gameConfig_T_15_sprite_romSize; // @[Mux.scala 81:58]
-  assign memSys_io_gameConfig_sprite_descrambleStyle = 4'h4 == gameIndexReg ? 3'h0 :
-    _gameConfig_T_15_sprite_descrambleStyle; // @[Mux.scala 81:58]
+  assign memSys_io_gameConfig_eepromOffset = memGameConfig_eepromOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sound_0_romOffset = memGameConfig_sound_0_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sound_1_romOffset = memGameConfig_sound_1_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sound_2_romOffset = memGameConfig_sound_2_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_layer_0_romOffset = memGameConfig_layer_0_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_layer_1_romOffset = memGameConfig_layer_1_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_layer_2_romOffset = memGameConfig_layer_2_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sprite_romOffset = memGameConfig_sprite_romOffset; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sprite_romSize = memGameConfig_sprite_romSize; // @[Cave.scala 124:24]
+  assign memSys_io_gameConfig_sprite_descrambleStyle = memGameConfig_sprite_descrambleStyle; // @[Cave.scala 124:24]
   assign memSys_io_prog_rom_wr = memSys_io_prog_rom_writeEnable & ioctl_wr; // @[IOCTL.scala 69:27]
   assign memSys_io_prog_rom_addr = ioctl_addr; // @[IOCTL.scala 68:19 71:14]
   assign memSys_io_prog_rom_din = ioctl_dout; // @[IOCTL.scala 68:19 73:13]
@@ -23105,7 +23482,7 @@ module Cave(
   assign memSys_io_prog_nvram_wr = memSys_io_prog_nvram_writeEnable & ioctl_wr; // @[IOCTL.scala 94:27]
   assign memSys_io_prog_nvram_addr = ioctl_addr; // @[IOCTL.scala 92:19 96:14]
   assign memSys_io_prog_nvram_din = ioctl_dout; // @[IOCTL.scala 92:19 98:13]
-  assign memSys_io_prog_done = _memSys_io_prog_done_T_1 & _memSys_io_prog_rom_writeEnable_T; // @[Cave.scala 130:58]
+  assign memSys_io_prog_done = _memSys_io_prog_done_T_1 & _memSys_io_prog_rom_writeEnable_T; // @[Cave.scala 127:58]
   assign memSys_io_progRom_rd = main_io_progRom_freezer_io_out_rd; // @[Crossing.scala 215:20]
   assign memSys_io_progRom_addr = main_io_progRom_freezer_io_out_addr; // @[Crossing.scala 215:20]
   assign memSys_io_highProgRom_rd = main_io_highProgRom_freezer_io_out_rd; // @[Crossing.scala 215:20]
@@ -23126,313 +23503,564 @@ module Cave(
   assign memSys_io_layerTileRom_1_addr = gpu_io_layerCtrl_1_tileRom_crossing_io_out_addr; // @[Crossing.scala 202:21]
   assign memSys_io_layerTileRom_2_rd = gpu_io_layerCtrl_2_tileRom_crossing_io_out_rd; // @[Crossing.scala 202:21]
   assign memSys_io_layerTileRom_2_addr = gpu_io_layerCtrl_2_tileRom_crossing_io_out_addr; // @[Crossing.scala 202:21]
-  assign memSys_io_spriteTileRom_rd = gpu_io_spriteCtrl_tileRom_rd; // @[Cave.scala 182:29]
-  assign memSys_io_spriteTileRom_addr = gpu_io_spriteCtrl_tileRom_addr; // @[Cave.scala 182:29]
-  assign memSys_io_spriteTileRom_burstLength = gpu_io_spriteCtrl_tileRom_burstLength; // @[Cave.scala 182:29]
-  assign memSys_io_ddr_dout = ddr_1_io_mem_dout; // @[Cave.scala 131:17]
-  assign memSys_io_ddr_wait_n = ddr_1_io_mem_wait_n; // @[Cave.scala 131:17]
-  assign memSys_io_ddr_valid = ddr_1_io_mem_valid; // @[Cave.scala 131:17]
-  assign memSys_io_ddr_burstDone = ddr_1_io_mem_burstDone; // @[Cave.scala 131:17]
-  assign memSys_io_sdram_dout = sdram_1_io_mem_dout; // @[Cave.scala 132:19]
-  assign memSys_io_sdram_wait_n = sdram_1_io_mem_wait_n; // @[Cave.scala 132:19]
-  assign memSys_io_sdram_valid = sdram_1_io_mem_valid; // @[Cave.scala 132:19]
-  assign memSys_io_sdram_burstDone = sdram_1_io_mem_burstDone; // @[Cave.scala 132:19]
-  assign memSys_io_spriteFrameBuffer_rd = spriteFrameBuffer_io_ddr_rd; // @[Cave.scala 197:28]
-  assign memSys_io_spriteFrameBuffer_wr = spriteFrameBuffer_io_ddr_wr; // @[Cave.scala 197:28]
-  assign memSys_io_spriteFrameBuffer_addr = spriteFrameBuffer_io_ddr_addr; // @[Cave.scala 197:28]
-  assign memSys_io_spriteFrameBuffer_mask = spriteFrameBuffer_io_ddr_mask; // @[Cave.scala 197:28]
-  assign memSys_io_spriteFrameBuffer_din = spriteFrameBuffer_io_ddr_din; // @[Cave.scala 197:28]
-  assign memSys_io_spriteFrameBuffer_burstLength = spriteFrameBuffer_io_ddr_burstLength; // @[Cave.scala 197:28]
-  assign memSys_io_systemFrameBuffer_wr = systemFrameBuffer_io_ddr_wr; // @[Cave.scala 208:28]
-  assign memSys_io_systemFrameBuffer_addr = systemFrameBuffer_io_ddr_addr; // @[Cave.scala 208:28]
-  assign memSys_io_systemFrameBuffer_mask = systemFrameBuffer_io_ddr_mask; // @[Cave.scala 208:28]
-  assign memSys_io_systemFrameBuffer_din = systemFrameBuffer_io_ddr_din; // @[Cave.scala 208:28]
+  assign memSys_io_spriteTileRom_rd = gpu_io_spriteCtrl_tileRom_rd; // @[Cave.scala 186:29]
+  assign memSys_io_spriteTileRom_addr = gpu_io_spriteCtrl_tileRom_addr; // @[Cave.scala 186:29]
+  assign memSys_io_spriteTileRom_burstLength = gpu_io_spriteCtrl_tileRom_burstLength; // @[Cave.scala 186:29]
+  assign memSys_io_ddr_dout = ddr_1_io_mem_dout; // @[Cave.scala 128:17]
+  assign memSys_io_ddr_wait_n = ddr_1_io_mem_wait_n; // @[Cave.scala 128:17]
+  assign memSys_io_ddr_valid = ddr_1_io_mem_valid; // @[Cave.scala 128:17]
+  assign memSys_io_ddr_burstDone = ddr_1_io_mem_burstDone; // @[Cave.scala 128:17]
+  assign memSys_io_sdram_dout = sdram_1_io_mem_dout; // @[Cave.scala 129:19]
+  assign memSys_io_sdram_wait_n = sdram_1_io_mem_wait_n; // @[Cave.scala 129:19]
+  assign memSys_io_sdram_valid = sdram_1_io_mem_valid; // @[Cave.scala 129:19]
+  assign memSys_io_sdram_burstDone = sdram_1_io_mem_burstDone; // @[Cave.scala 129:19]
+  assign memSys_io_spriteFrameBuffer_rd = spriteFrameBuffer_io_ddr_rd; // @[Cave.scala 202:28]
+  assign memSys_io_spriteFrameBuffer_wr = spriteFrameBuffer_io_ddr_wr; // @[Cave.scala 202:28]
+  assign memSys_io_spriteFrameBuffer_addr = spriteFrameBuffer_io_ddr_addr; // @[Cave.scala 202:28]
+  assign memSys_io_spriteFrameBuffer_mask = spriteFrameBuffer_io_ddr_mask; // @[Cave.scala 202:28]
+  assign memSys_io_spriteFrameBuffer_din = spriteFrameBuffer_io_ddr_din; // @[Cave.scala 202:28]
+  assign memSys_io_spriteFrameBuffer_burstLength = spriteFrameBuffer_io_ddr_burstLength; // @[Cave.scala 202:28]
+  assign memSys_io_systemFrameBuffer_wr = systemFrameBuffer_io_ddr_wr; // @[Cave.scala 214:28]
+  assign memSys_io_systemFrameBuffer_addr = systemFrameBuffer_io_ddr_addr; // @[Cave.scala 214:28]
+  assign memSys_io_systemFrameBuffer_mask = systemFrameBuffer_io_ddr_mask; // @[Cave.scala 214:28]
+  assign memSys_io_systemFrameBuffer_din = systemFrameBuffer_io_ddr_din; // @[Cave.scala 214:28]
   assign videoSys_clock = clock;
   assign videoSys_reset = reset;
-  assign videoSys_io_videoClock = videoClock; // @[Cave.scala 136:26]
-  assign videoSys_io_videoReset = videoReset; // @[Cave.scala 137:26]
+  assign videoSys_io_videoClock = videoClock; // @[Cave.scala 133:26]
+  assign videoSys_io_videoReset = videoReset; // @[Cave.scala 134:26]
   assign videoSys_io_prog_video_wr = videoSys_io_prog_video_writeEnable & ioctl_wr; // @[IOCTL.scala 119:27]
   assign videoSys_io_prog_video_addr = ioctl_addr; // @[IOCTL.scala 118:19 121:14]
   assign videoSys_io_prog_video_din = ioctl_dout; // @[IOCTL.scala 118:19 123:13]
-  assign videoSys_io_prog_done = _videoSys_io_prog_done_T_1 & _videoSys_io_prog_video_writeEnable_T; // @[Cave.scala 139:60]
-  assign videoSys_io_options_offset_x = options_offset_x; // @[Cave.scala 140:23]
-  assign videoSys_io_options_offset_y = options_offset_y; // @[Cave.scala 140:23]
-  assign videoSys_io_options_compatibility = options_compatibility; // @[Cave.scala 140:23]
+  assign videoSys_io_prog_done = _videoSys_io_prog_done_T_1 & _videoSys_io_prog_video_writeEnable_T; // @[Cave.scala 136:60]
+  assign videoSys_io_options_offset_x = options_offset_x; // @[Cave.scala 137:23]
+  assign videoSys_io_options_offset_y = options_offset_y; // @[Cave.scala 137:23]
+  assign videoSys_io_options_compatibility = options_compatibility; // @[Cave.scala 137:23]
   assign main_clock = cpuClock;
-  assign main_reset = cpuReset | ~memSys_io_ready; // @[Cave.scala 143:57]
-  assign main_io_videoClock = videoClock; // @[Cave.scala 144:22]
-  assign main_io_spriteClock = clock; // @[Cave.scala 145:23]
-  assign main_io_gameIndex = gameIndexReg; // @[Cave.scala 146:21]
-  assign main_io_options_service = options_service; // @[Cave.scala 147:19]
-  assign main_io_player_0_up = player_0_up; // @[Cave.scala 149:18]
-  assign main_io_player_0_down = player_0_down; // @[Cave.scala 149:18]
-  assign main_io_player_0_left = player_0_left; // @[Cave.scala 149:18]
-  assign main_io_player_0_right = player_0_right; // @[Cave.scala 149:18]
-  assign main_io_player_0_buttons = player_0_buttons; // @[Cave.scala 149:18]
-  assign main_io_player_0_start = player_0_start; // @[Cave.scala 149:18]
-  assign main_io_player_0_coin = player_0_coin; // @[Cave.scala 149:18]
-  assign main_io_player_0_pause = player_0_pause; // @[Cave.scala 149:18]
-  assign main_io_player_1_up = player_1_up; // @[Cave.scala 149:18]
-  assign main_io_player_1_down = player_1_down; // @[Cave.scala 149:18]
-  assign main_io_player_1_left = player_1_left; // @[Cave.scala 149:18]
-  assign main_io_player_1_right = player_1_right; // @[Cave.scala 149:18]
-  assign main_io_player_1_buttons = player_1_buttons; // @[Cave.scala 149:18]
-  assign main_io_player_1_start = player_1_start; // @[Cave.scala 149:18]
-  assign main_io_player_1_coin = player_1_coin; // @[Cave.scala 149:18]
-  assign main_io_player_1_pause = player_1_pause; // @[Cave.scala 149:18]
-  assign main_io_dips_0 = dipsRegs_io_regs_0; // @[Cave.scala 148:16]
-  assign main_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 150:17]
-  assign main_io_gpuMem_layer_0_vram8x8_addr = gpu_io_layerCtrl_0_vram8x8_addr; // @[Cave.scala 170:33]
-  assign main_io_gpuMem_layer_0_vram16x16_addr = gpu_io_layerCtrl_0_vram16x16_addr; // @[Cave.scala 171:35]
-  assign main_io_gpuMem_layer_0_lineRam_addr = gpu_io_layerCtrl_0_lineRam_addr; // @[Cave.scala 172:33]
-  assign main_io_gpuMem_layer_1_vram8x8_addr = gpu_io_layerCtrl_1_vram8x8_addr; // @[Cave.scala 170:33]
-  assign main_io_gpuMem_layer_1_vram16x16_addr = gpu_io_layerCtrl_1_vram16x16_addr; // @[Cave.scala 171:35]
-  assign main_io_gpuMem_layer_1_lineRam_addr = gpu_io_layerCtrl_1_lineRam_addr; // @[Cave.scala 172:33]
-  assign main_io_gpuMem_layer_2_vram8x8_addr = gpu_io_layerCtrl_2_vram8x8_addr; // @[Cave.scala 170:33]
-  assign main_io_gpuMem_layer_2_vram16x16_addr = gpu_io_layerCtrl_2_vram16x16_addr; // @[Cave.scala 171:35]
-  assign main_io_gpuMem_layer_2_lineRam_addr = gpu_io_layerCtrl_2_lineRam_addr; // @[Cave.scala 172:33]
-  assign main_io_gpuMem_sprite_vram_rd = gpu_io_spriteCtrl_vram_rd; // @[Cave.scala 181:26]
-  assign main_io_gpuMem_sprite_vram_addr = gpu_io_spriteCtrl_vram_addr; // @[Cave.scala 181:26]
-  assign main_io_gpuMem_paletteRam_addr = gpu_io_paletteRam_addr; // @[Cave.scala 187:21]
-  assign main_io_soundCtrl_oki_0_dout = sound_io_ctrl_oki_0_dout; // @[Cave.scala 159:17]
-  assign main_io_soundCtrl_oki_1_dout = sound_io_ctrl_oki_1_dout; // @[Cave.scala 159:17]
-  assign main_io_soundCtrl_ymz_dout = sound_io_ctrl_ymz_dout; // @[Cave.scala 159:17]
-  assign main_io_soundCtrl_ack = sound_io_ctrl_ack; // @[Cave.scala 159:17]
-  assign main_io_soundCtrl_ackData = sound_io_ctrl_ackData; // @[Cave.scala 159:17]
-  assign main_io_soundCtrl_irq = sound_io_ctrl_irq; // @[Cave.scala 159:17]
-  assign main_io_progRom_dout = main_io_progRom_freezer_io_in_dout; // @[Cave.scala 151:19]
-  assign main_io_progRom_valid = main_io_progRom_freezer_io_in_valid; // @[Cave.scala 151:19]
-  assign main_io_highProgRom_dout = main_io_highProgRom_freezer_io_in_dout; // @[Cave.scala 152:23]
-  assign main_io_highProgRom_valid = main_io_highProgRom_freezer_io_in_valid; // @[Cave.scala 152:23]
-  assign main_io_eeprom_dout = main_io_eeprom_freezer_io_in_dout; // @[Cave.scala 153:18]
-  assign main_io_eeprom_wait_n = main_io_eeprom_freezer_io_in_wait_n; // @[Cave.scala 153:18]
-  assign main_io_eeprom_valid = main_io_eeprom_freezer_io_in_valid; // @[Cave.scala 153:18]
+  assign main_reset = cpuReset | ~mainReady; // @[Cave.scala 141:57]
+  assign main_io_videoClock = videoClock; // @[Cave.scala 143:22]
+  assign main_io_spriteClock = clock; // @[Cave.scala 144:23]
+  assign main_io_gameIndex = mainGameIndex; // @[Cave.scala 145:21]
+  assign main_io_options_service = options_service; // @[Cave.scala 146:19]
+  assign main_io_player_0_up = player_0_up; // @[Cave.scala 148:18]
+  assign main_io_player_0_down = player_0_down; // @[Cave.scala 148:18]
+  assign main_io_player_0_left = player_0_left; // @[Cave.scala 148:18]
+  assign main_io_player_0_right = player_0_right; // @[Cave.scala 148:18]
+  assign main_io_player_0_buttons = player_0_buttons; // @[Cave.scala 148:18]
+  assign main_io_player_0_start = player_0_start; // @[Cave.scala 148:18]
+  assign main_io_player_0_coin = player_0_coin; // @[Cave.scala 148:18]
+  assign main_io_player_0_pause = player_0_pause; // @[Cave.scala 148:18]
+  assign main_io_player_1_up = player_1_up; // @[Cave.scala 148:18]
+  assign main_io_player_1_down = player_1_down; // @[Cave.scala 148:18]
+  assign main_io_player_1_left = player_1_left; // @[Cave.scala 148:18]
+  assign main_io_player_1_right = player_1_right; // @[Cave.scala 148:18]
+  assign main_io_player_1_buttons = player_1_buttons; // @[Cave.scala 148:18]
+  assign main_io_player_1_start = player_1_start; // @[Cave.scala 148:18]
+  assign main_io_player_1_coin = player_1_coin; // @[Cave.scala 148:18]
+  assign main_io_player_1_pause = player_1_pause; // @[Cave.scala 148:18]
+  assign main_io_dips_0 = dipsRegs_io_regs_0; // @[Cave.scala 147:16]
+  assign main_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 149:17]
+  assign main_io_gpuMem_layer_0_vram8x8_addr = gpu_io_layerCtrl_0_vram8x8_addr; // @[Cave.scala 174:33]
+  assign main_io_gpuMem_layer_0_vram16x16_addr = gpu_io_layerCtrl_0_vram16x16_addr; // @[Cave.scala 175:35]
+  assign main_io_gpuMem_layer_0_lineRam_addr = gpu_io_layerCtrl_0_lineRam_addr; // @[Cave.scala 176:33]
+  assign main_io_gpuMem_layer_1_vram8x8_addr = gpu_io_layerCtrl_1_vram8x8_addr; // @[Cave.scala 174:33]
+  assign main_io_gpuMem_layer_1_vram16x16_addr = gpu_io_layerCtrl_1_vram16x16_addr; // @[Cave.scala 175:35]
+  assign main_io_gpuMem_layer_1_lineRam_addr = gpu_io_layerCtrl_1_lineRam_addr; // @[Cave.scala 176:33]
+  assign main_io_gpuMem_layer_2_vram8x8_addr = gpu_io_layerCtrl_2_vram8x8_addr; // @[Cave.scala 174:33]
+  assign main_io_gpuMem_layer_2_vram16x16_addr = gpu_io_layerCtrl_2_vram16x16_addr; // @[Cave.scala 175:35]
+  assign main_io_gpuMem_layer_2_lineRam_addr = gpu_io_layerCtrl_2_lineRam_addr; // @[Cave.scala 176:33]
+  assign main_io_gpuMem_sprite_vram_rd = gpu_io_spriteCtrl_vram_rd; // @[Cave.scala 185:26]
+  assign main_io_gpuMem_sprite_vram_addr = gpu_io_spriteCtrl_vram_addr; // @[Cave.scala 185:26]
+  assign main_io_gpuMem_paletteRam_addr = gpu_io_paletteRam_addr; // @[Cave.scala 191:21]
+  assign main_io_soundCtrl_oki_0_dout = sound_io_ctrl_oki_0_dout; // @[Cave.scala 161:17]
+  assign main_io_soundCtrl_oki_1_dout = sound_io_ctrl_oki_1_dout; // @[Cave.scala 161:17]
+  assign main_io_soundCtrl_ymz_dout = sound_io_ctrl_ymz_dout; // @[Cave.scala 161:17]
+  assign main_io_soundCtrl_ack = sound_io_ctrl_ack; // @[Cave.scala 161:17]
+  assign main_io_soundCtrl_ackData = sound_io_ctrl_ackData; // @[Cave.scala 161:17]
+  assign main_io_soundCtrl_irq = sound_io_ctrl_irq; // @[Cave.scala 161:17]
+  assign main_io_progRom_dout = main_io_progRom_freezer_io_in_dout; // @[Cave.scala 150:19]
+  assign main_io_progRom_valid = main_io_progRom_freezer_io_in_valid; // @[Cave.scala 150:19]
+  assign main_io_highProgRom_dout = main_io_highProgRom_freezer_io_in_dout; // @[Cave.scala 151:23]
+  assign main_io_highProgRom_valid = main_io_highProgRom_freezer_io_in_valid; // @[Cave.scala 151:23]
+  assign main_io_eeprom_dout = main_io_eeprom_freezer_io_in_dout; // @[Cave.scala 152:18]
+  assign main_io_eeprom_wait_n = main_io_eeprom_freezer_io_in_wait_n; // @[Cave.scala 152:18]
+  assign main_io_eeprom_valid = main_io_eeprom_freezer_io_in_valid; // @[Cave.scala 152:18]
   assign main_io_progRom_freezer_clock = clock;
   assign main_io_progRom_freezer_reset = reset;
   assign main_io_progRom_freezer_io_targetClock = cpuClock; // @[Crossing.scala 214:28]
-  assign main_io_progRom_freezer_io_in_rd = main_io_progRom_rd; // @[Cave.scala 151:19]
-  assign main_io_progRom_freezer_io_in_addr = main_io_progRom_addr; // @[Cave.scala 151:19]
+  assign main_io_progRom_freezer_io_in_rd = main_io_progRom_rd; // @[Cave.scala 150:19]
+  assign main_io_progRom_freezer_io_in_addr = main_io_progRom_addr; // @[Cave.scala 150:19]
   assign main_io_progRom_freezer_io_out_dout = memSys_io_progRom_dout; // @[Crossing.scala 215:20]
   assign main_io_progRom_freezer_io_out_wait_n = memSys_io_progRom_wait_n; // @[Crossing.scala 215:20]
   assign main_io_progRom_freezer_io_out_valid = memSys_io_progRom_valid; // @[Crossing.scala 215:20]
   assign main_io_highProgRom_freezer_clock = clock;
   assign main_io_highProgRom_freezer_reset = reset;
   assign main_io_highProgRom_freezer_io_targetClock = cpuClock; // @[Crossing.scala 214:28]
-  assign main_io_highProgRom_freezer_io_in_rd = main_io_highProgRom_rd; // @[Cave.scala 152:23]
-  assign main_io_highProgRom_freezer_io_in_addr = main_io_highProgRom_addr; // @[Cave.scala 152:23]
+  assign main_io_highProgRom_freezer_io_in_rd = main_io_highProgRom_rd; // @[Cave.scala 151:23]
+  assign main_io_highProgRom_freezer_io_in_addr = main_io_highProgRom_addr; // @[Cave.scala 151:23]
   assign main_io_highProgRom_freezer_io_out_dout = memSys_io_highProgRom_dout; // @[Crossing.scala 215:20]
   assign main_io_highProgRom_freezer_io_out_wait_n = memSys_io_highProgRom_wait_n; // @[Crossing.scala 215:20]
   assign main_io_highProgRom_freezer_io_out_valid = memSys_io_highProgRom_valid; // @[Crossing.scala 215:20]
   assign main_io_eeprom_freezer_clock = clock;
   assign main_io_eeprom_freezer_reset = reset;
   assign main_io_eeprom_freezer_io_targetClock = cpuClock; // @[Crossing.scala 227:28]
-  assign main_io_eeprom_freezer_io_in_rd = main_io_eeprom_rd; // @[Cave.scala 153:18]
-  assign main_io_eeprom_freezer_io_in_wr = main_io_eeprom_wr; // @[Cave.scala 153:18]
-  assign main_io_eeprom_freezer_io_in_addr = main_io_eeprom_addr; // @[Cave.scala 153:18]
-  assign main_io_eeprom_freezer_io_in_din = main_io_eeprom_din; // @[Cave.scala 153:18]
+  assign main_io_eeprom_freezer_io_in_rd = main_io_eeprom_rd; // @[Cave.scala 152:18]
+  assign main_io_eeprom_freezer_io_in_wr = main_io_eeprom_wr; // @[Cave.scala 152:18]
+  assign main_io_eeprom_freezer_io_in_addr = main_io_eeprom_addr; // @[Cave.scala 152:18]
+  assign main_io_eeprom_freezer_io_in_din = main_io_eeprom_din; // @[Cave.scala 152:18]
   assign main_io_eeprom_freezer_io_out_dout = memSys_io_eeprom_dout; // @[Crossing.scala 228:20]
   assign main_io_eeprom_freezer_io_out_wait_n = memSys_io_eeprom_wait_n; // @[Crossing.scala 228:20]
   assign main_io_eeprom_freezer_io_out_valid = memSys_io_eeprom_valid; // @[Crossing.scala 228:20]
   assign sound_clock = cpuClock;
-  assign sound_reset = cpuReset | _T; // @[Cave.scala 156:58]
-  assign sound_io_ctrl_oki_0_wr = main_io_soundCtrl_oki_0_wr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_oki_0_din = main_io_soundCtrl_oki_0_din; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_oki_1_wr = main_io_soundCtrl_oki_1_wr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_oki_1_din = main_io_soundCtrl_oki_1_din; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_nmk_wr = main_io_soundCtrl_nmk_wr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_nmk_addr = main_io_soundCtrl_nmk_addr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_nmk_din = main_io_soundCtrl_nmk_din; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_ymz_rd = main_io_soundCtrl_ymz_rd; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_ymz_wr = main_io_soundCtrl_ymz_wr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_ymz_addr = main_io_soundCtrl_ymz_addr; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_ymz_din = main_io_soundCtrl_ymz_din; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_req = main_io_soundCtrl_req; // @[Cave.scala 159:17]
-  assign sound_io_ctrl_data = main_io_soundCtrl_data; // @[Cave.scala 159:17]
-  assign sound_io_gameIndex = gameIndexReg; // @[Cave.scala 157:22]
-  assign sound_io_gameConfig_sound_0_device = 4'h4 == gameIndexReg ? 2'h1 : _gameConfig_T_15_sound_0_device; // @[Mux.scala 81:58]
-  assign sound_io_gameConfig_sound_2_device = 4'h4 == gameIndexReg ? 2'h0 : _gameConfig_T_15_sound_2_device; // @[Mux.scala 81:58]
-  assign sound_io_rom_0_dout = sound_io_rom_0_freezer_io_in_dout; // @[Cave.scala 160:19]
-  assign sound_io_rom_0_wait_n = sound_io_rom_0_freezer_io_in_wait_n; // @[Cave.scala 160:19]
-  assign sound_io_rom_0_valid = sound_io_rom_0_freezer_io_in_valid; // @[Cave.scala 160:19]
-  assign sound_io_rom_1_dout = sound_io_rom_1_freezer_io_in_dout; // @[Cave.scala 161:19]
-  assign sound_io_rom_1_valid = sound_io_rom_1_freezer_io_in_valid; // @[Cave.scala 161:19]
-  assign sound_io_rom_2_dout = sound_io_rom_2_freezer_io_in_dout; // @[Cave.scala 162:19]
-  assign sound_io_rom_2_valid = sound_io_rom_2_freezer_io_in_valid; // @[Cave.scala 162:19]
+  assign sound_reset = cpuReset | ~soundReady; // @[Cave.scala 158:58]
+  assign sound_io_ctrl_oki_0_wr = main_io_soundCtrl_oki_0_wr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_oki_0_din = main_io_soundCtrl_oki_0_din; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_oki_1_wr = main_io_soundCtrl_oki_1_wr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_oki_1_din = main_io_soundCtrl_oki_1_din; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_nmk_wr = main_io_soundCtrl_nmk_wr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_nmk_addr = main_io_soundCtrl_nmk_addr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_nmk_din = main_io_soundCtrl_nmk_din; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_ymz_rd = main_io_soundCtrl_ymz_rd; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_ymz_wr = main_io_soundCtrl_ymz_wr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_ymz_addr = main_io_soundCtrl_ymz_addr; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_ymz_din = main_io_soundCtrl_ymz_din; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_req = main_io_soundCtrl_req; // @[Cave.scala 161:17]
+  assign sound_io_ctrl_data = main_io_soundCtrl_data; // @[Cave.scala 161:17]
+  assign sound_io_gameIndex = soundGameIndex; // @[Cave.scala 159:22]
+  assign sound_io_gameConfig_sound_0_device = soundGameConfig_sound_0_device; // @[Cave.scala 160:23]
+  assign sound_io_gameConfig_sound_2_device = soundGameConfig_sound_2_device; // @[Cave.scala 160:23]
+  assign sound_io_rom_0_dout = sound_io_rom_0_freezer_io_in_dout; // @[Cave.scala 162:19]
+  assign sound_io_rom_0_wait_n = sound_io_rom_0_freezer_io_in_wait_n; // @[Cave.scala 162:19]
+  assign sound_io_rom_0_valid = sound_io_rom_0_freezer_io_in_valid; // @[Cave.scala 162:19]
+  assign sound_io_rom_1_dout = sound_io_rom_1_freezer_io_in_dout; // @[Cave.scala 163:19]
+  assign sound_io_rom_1_valid = sound_io_rom_1_freezer_io_in_valid; // @[Cave.scala 163:19]
+  assign sound_io_rom_2_dout = sound_io_rom_2_freezer_io_in_dout; // @[Cave.scala 164:19]
+  assign sound_io_rom_2_valid = sound_io_rom_2_freezer_io_in_valid; // @[Cave.scala 164:19]
   assign sound_io_rom_0_freezer_clock = clock;
   assign sound_io_rom_0_freezer_reset = reset;
   assign sound_io_rom_0_freezer_io_targetClock = cpuClock; // @[Crossing.scala 214:28]
-  assign sound_io_rom_0_freezer_io_in_rd = sound_io_rom_0_rd; // @[Cave.scala 160:19]
-  assign sound_io_rom_0_freezer_io_in_addr = sound_io_rom_0_addr; // @[Cave.scala 160:19]
+  assign sound_io_rom_0_freezer_io_in_rd = sound_io_rom_0_rd; // @[Cave.scala 162:19]
+  assign sound_io_rom_0_freezer_io_in_addr = sound_io_rom_0_addr; // @[Cave.scala 162:19]
   assign sound_io_rom_0_freezer_io_out_dout = memSys_io_soundRom_0_dout; // @[Crossing.scala 215:20]
   assign sound_io_rom_0_freezer_io_out_wait_n = memSys_io_soundRom_0_wait_n; // @[Crossing.scala 215:20]
   assign sound_io_rom_0_freezer_io_out_valid = memSys_io_soundRom_0_valid; // @[Crossing.scala 215:20]
   assign sound_io_rom_1_freezer_clock = clock;
   assign sound_io_rom_1_freezer_reset = reset;
   assign sound_io_rom_1_freezer_io_targetClock = cpuClock; // @[Crossing.scala 214:28]
-  assign sound_io_rom_1_freezer_io_in_rd = 1'h1; // @[Cave.scala 161:19]
-  assign sound_io_rom_1_freezer_io_in_addr = sound_io_rom_1_addr; // @[Cave.scala 161:19]
+  assign sound_io_rom_1_freezer_io_in_rd = 1'h1; // @[Cave.scala 163:19]
+  assign sound_io_rom_1_freezer_io_in_addr = sound_io_rom_1_addr; // @[Cave.scala 163:19]
   assign sound_io_rom_1_freezer_io_out_dout = memSys_io_soundRom_1_dout; // @[Crossing.scala 215:20]
   assign sound_io_rom_1_freezer_io_out_wait_n = memSys_io_soundRom_1_wait_n; // @[Crossing.scala 215:20]
   assign sound_io_rom_1_freezer_io_out_valid = memSys_io_soundRom_1_valid; // @[Crossing.scala 215:20]
   assign sound_io_rom_2_freezer_clock = clock;
   assign sound_io_rom_2_freezer_reset = reset;
   assign sound_io_rom_2_freezer_io_targetClock = cpuClock; // @[Crossing.scala 214:28]
-  assign sound_io_rom_2_freezer_io_in_rd = 1'h1; // @[Cave.scala 162:19]
-  assign sound_io_rom_2_freezer_io_in_addr = sound_io_rom_2_addr; // @[Cave.scala 162:19]
+  assign sound_io_rom_2_freezer_io_in_rd = 1'h1; // @[Cave.scala 164:19]
+  assign sound_io_rom_2_freezer_io_in_addr = sound_io_rom_2_addr; // @[Cave.scala 164:19]
   assign sound_io_rom_2_freezer_io_out_dout = memSys_io_soundRom_2_dout; // @[Crossing.scala 215:20]
   assign sound_io_rom_2_freezer_io_out_wait_n = memSys_io_soundRom_2_wait_n; // @[Crossing.scala 215:20]
   assign sound_io_rom_2_freezer_io_out_valid = memSys_io_soundRom_2_valid; // @[Crossing.scala 215:20]
   assign gpu_clock = clock;
   assign gpu_reset = reset;
-  assign gpu_io_videoClock = videoClock; // @[Cave.scala 166:21]
-  assign gpu_io_layerCtrl_0_enable = options_layer_0; // @[Cave.scala 168:32]
-  assign gpu_io_layerCtrl_0_format = 4'h4 == gameIndexReg ? 3'h3 : _gameConfig_T_15_layer_0_format; // @[Mux.scala 81:58]
-  assign gpu_io_layerCtrl_0_regs_tileSize = main_io_gpuMem_layer_0_regs_tileSize; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_enable = main_io_gpuMem_layer_0_regs_enable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_flipX = main_io_gpuMem_layer_0_regs_flipX; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_flipY = main_io_gpuMem_layer_0_regs_flipY; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_rowScrollEnable = main_io_gpuMem_layer_0_regs_rowScrollEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_rowSelectEnable = main_io_gpuMem_layer_0_regs_rowSelectEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_scroll_x = main_io_gpuMem_layer_0_regs_scroll_x; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_regs_scroll_y = main_io_gpuMem_layer_0_regs_scroll_y; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_0_vram8x8_dout = main_io_gpuMem_layer_0_vram8x8_dout; // @[Cave.scala 170:33]
-  assign gpu_io_layerCtrl_0_vram16x16_dout = main_io_gpuMem_layer_0_vram16x16_dout; // @[Cave.scala 171:35]
-  assign gpu_io_layerCtrl_0_lineRam_dout = main_io_gpuMem_layer_0_lineRam_dout; // @[Cave.scala 172:33]
-  assign gpu_io_layerCtrl_0_tileRom_dout = gpu_io_layerCtrl_0_tileRom_crossing_io_in_dout; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_1_enable = options_layer_1; // @[Cave.scala 168:32]
-  assign gpu_io_layerCtrl_1_format = 4'h4 == gameIndexReg ? 3'h0 : _gameConfig_T_15_layer_0_format; // @[Mux.scala 81:58]
-  assign gpu_io_layerCtrl_1_regs_tileSize = main_io_gpuMem_layer_1_regs_tileSize; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_enable = main_io_gpuMem_layer_1_regs_enable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_flipX = main_io_gpuMem_layer_1_regs_flipX; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_flipY = main_io_gpuMem_layer_1_regs_flipY; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_rowScrollEnable = main_io_gpuMem_layer_1_regs_rowScrollEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_rowSelectEnable = main_io_gpuMem_layer_1_regs_rowSelectEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_scroll_x = main_io_gpuMem_layer_1_regs_scroll_x; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_regs_scroll_y = main_io_gpuMem_layer_1_regs_scroll_y; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_1_vram8x8_dout = main_io_gpuMem_layer_1_vram8x8_dout; // @[Cave.scala 170:33]
-  assign gpu_io_layerCtrl_1_vram16x16_dout = main_io_gpuMem_layer_1_vram16x16_dout; // @[Cave.scala 171:35]
-  assign gpu_io_layerCtrl_1_lineRam_dout = main_io_gpuMem_layer_1_lineRam_dout; // @[Cave.scala 172:33]
-  assign gpu_io_layerCtrl_1_tileRom_dout = gpu_io_layerCtrl_1_tileRom_crossing_io_in_dout; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_2_enable = options_layer_2; // @[Cave.scala 168:32]
-  assign gpu_io_layerCtrl_2_format = 4'h4 == gameIndexReg ? 3'h0 : _gameConfig_T_15_layer_2_format; // @[Mux.scala 81:58]
-  assign gpu_io_layerCtrl_2_regs_tileSize = main_io_gpuMem_layer_2_regs_tileSize; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_enable = main_io_gpuMem_layer_2_regs_enable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_flipX = main_io_gpuMem_layer_2_regs_flipX; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_flipY = main_io_gpuMem_layer_2_regs_flipY; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_rowScrollEnable = main_io_gpuMem_layer_2_regs_rowScrollEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_rowSelectEnable = main_io_gpuMem_layer_2_regs_rowSelectEnable; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_scroll_x = main_io_gpuMem_layer_2_regs_scroll_x; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_regs_scroll_y = main_io_gpuMem_layer_2_regs_scroll_y; // @[Cave.scala 174:30]
-  assign gpu_io_layerCtrl_2_vram8x8_dout = main_io_gpuMem_layer_2_vram8x8_dout; // @[Cave.scala 170:33]
-  assign gpu_io_layerCtrl_2_vram16x16_dout = main_io_gpuMem_layer_2_vram16x16_dout; // @[Cave.scala 171:35]
-  assign gpu_io_layerCtrl_2_lineRam_dout = main_io_gpuMem_layer_2_lineRam_dout; // @[Cave.scala 172:33]
-  assign gpu_io_layerCtrl_2_tileRom_dout = gpu_io_layerCtrl_2_tileRom_crossing_io_in_dout; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_2_tileBank = gameConfig_layer_2_tileBank & main_io_tileBank; // @[Cave.scala 175:40]
-  assign gpu_io_spriteCtrl_enable = options_sprite; // @[Cave.scala 177:28]
-  assign gpu_io_spriteCtrl_format = 4'h4 == gameIndexReg ? 3'h1 : _gameConfig_T_15_sprite_format; // @[Mux.scala 81:58]
+  assign gpu_io_videoClock = videoClock; // @[Cave.scala 170:21]
+  assign gpu_io_layerCtrl_0_enable = options_layer_0; // @[Cave.scala 172:32]
+  assign gpu_io_layerCtrl_0_format = gpuGameConfig_layer_0_format; // @[Cave.scala 173:32]
+  assign gpu_io_layerCtrl_0_regs_tileSize = main_io_gpuMem_layer_0_regs_tileSize; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_enable = main_io_gpuMem_layer_0_regs_enable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_flipX = main_io_gpuMem_layer_0_regs_flipX; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_flipY = main_io_gpuMem_layer_0_regs_flipY; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_rowScrollEnable = main_io_gpuMem_layer_0_regs_rowScrollEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_rowSelectEnable = main_io_gpuMem_layer_0_regs_rowSelectEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_scroll_x = main_io_gpuMem_layer_0_regs_scroll_x; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_regs_scroll_y = main_io_gpuMem_layer_0_regs_scroll_y; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_0_vram8x8_dout = main_io_gpuMem_layer_0_vram8x8_dout; // @[Cave.scala 174:33]
+  assign gpu_io_layerCtrl_0_vram16x16_dout = main_io_gpuMem_layer_0_vram16x16_dout; // @[Cave.scala 175:35]
+  assign gpu_io_layerCtrl_0_lineRam_dout = main_io_gpuMem_layer_0_lineRam_dout; // @[Cave.scala 176:33]
+  assign gpu_io_layerCtrl_0_tileRom_dout = gpu_io_layerCtrl_0_tileRom_crossing_io_in_dout; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_1_enable = options_layer_1; // @[Cave.scala 172:32]
+  assign gpu_io_layerCtrl_1_format = gpuGameConfig_layer_1_format; // @[Cave.scala 173:32]
+  assign gpu_io_layerCtrl_1_regs_tileSize = main_io_gpuMem_layer_1_regs_tileSize; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_enable = main_io_gpuMem_layer_1_regs_enable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_flipX = main_io_gpuMem_layer_1_regs_flipX; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_flipY = main_io_gpuMem_layer_1_regs_flipY; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_rowScrollEnable = main_io_gpuMem_layer_1_regs_rowScrollEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_rowSelectEnable = main_io_gpuMem_layer_1_regs_rowSelectEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_scroll_x = main_io_gpuMem_layer_1_regs_scroll_x; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_regs_scroll_y = main_io_gpuMem_layer_1_regs_scroll_y; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_1_vram8x8_dout = main_io_gpuMem_layer_1_vram8x8_dout; // @[Cave.scala 174:33]
+  assign gpu_io_layerCtrl_1_vram16x16_dout = main_io_gpuMem_layer_1_vram16x16_dout; // @[Cave.scala 175:35]
+  assign gpu_io_layerCtrl_1_lineRam_dout = main_io_gpuMem_layer_1_lineRam_dout; // @[Cave.scala 176:33]
+  assign gpu_io_layerCtrl_1_tileRom_dout = gpu_io_layerCtrl_1_tileRom_crossing_io_in_dout; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_2_enable = options_layer_2; // @[Cave.scala 172:32]
+  assign gpu_io_layerCtrl_2_format = gpuGameConfig_layer_2_format; // @[Cave.scala 173:32]
+  assign gpu_io_layerCtrl_2_regs_tileSize = main_io_gpuMem_layer_2_regs_tileSize; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_enable = main_io_gpuMem_layer_2_regs_enable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_flipX = main_io_gpuMem_layer_2_regs_flipX; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_flipY = main_io_gpuMem_layer_2_regs_flipY; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_rowScrollEnable = main_io_gpuMem_layer_2_regs_rowScrollEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_rowSelectEnable = main_io_gpuMem_layer_2_regs_rowSelectEnable; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_scroll_x = main_io_gpuMem_layer_2_regs_scroll_x; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_regs_scroll_y = main_io_gpuMem_layer_2_regs_scroll_y; // @[Cave.scala 178:30]
+  assign gpu_io_layerCtrl_2_vram8x8_dout = main_io_gpuMem_layer_2_vram8x8_dout; // @[Cave.scala 174:33]
+  assign gpu_io_layerCtrl_2_vram16x16_dout = main_io_gpuMem_layer_2_vram16x16_dout; // @[Cave.scala 175:35]
+  assign gpu_io_layerCtrl_2_lineRam_dout = main_io_gpuMem_layer_2_lineRam_dout; // @[Cave.scala 176:33]
+  assign gpu_io_layerCtrl_2_tileRom_dout = gpu_io_layerCtrl_2_tileRom_crossing_io_in_dout; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_2_tileBank = gpuGameConfig_layer_2_tileBank & main_io_tileBank; // @[Cave.scala 179:40]
+  assign gpu_io_spriteCtrl_enable = options_sprite; // @[Cave.scala 181:28]
+  assign gpu_io_spriteCtrl_format = gpuGameConfig_sprite_format; // @[Cave.scala 182:28]
   assign gpu_io_spriteCtrl_start = ~vBlank & vBlankFalling_REG; // @[Util.scala 165:35]
-  assign gpu_io_spriteCtrl_zoom = 4'h4 == gameIndexReg | (4'h9 == gameIndexReg | (4'h7 == gameIndexReg | (4'h5 ==
-    gameIndexReg | (4'h6 == gameIndexReg | (4'h3 == gameIndexReg | _gameConfig_T_5_sprite_zoom))))); // @[Mux.scala 81:58]
-  assign gpu_io_spriteCtrl_regs_offset_x = main_io_gpuMem_sprite_regs_offset_x; // @[Cave.scala 183:26]
-  assign gpu_io_spriteCtrl_regs_offset_y = main_io_gpuMem_sprite_regs_offset_y; // @[Cave.scala 183:26]
-  assign gpu_io_spriteCtrl_regs_bank = main_io_gpuMem_sprite_regs_bank; // @[Cave.scala 183:26]
-  assign gpu_io_spriteCtrl_regs_fixed = main_io_gpuMem_sprite_regs_fixed; // @[Cave.scala 183:26]
-  assign gpu_io_spriteCtrl_regs_hFlip = main_io_gpuMem_sprite_regs_hFlip; // @[Cave.scala 183:26]
-  assign gpu_io_spriteCtrl_vram_dout = main_io_gpuMem_sprite_vram_dout; // @[Cave.scala 181:26]
-  assign gpu_io_spriteCtrl_tileRom_dout = memSys_io_spriteTileRom_dout; // @[Cave.scala 182:29]
-  assign gpu_io_spriteCtrl_tileRom_wait_n = memSys_io_spriteTileRom_wait_n; // @[Cave.scala 182:29]
-  assign gpu_io_spriteCtrl_tileRom_valid = memSys_io_spriteTileRom_valid; // @[Cave.scala 182:29]
-  assign gpu_io_spriteCtrl_tileRom_burstDone = memSys_io_spriteTileRom_burstDone; // @[Cave.scala 182:29]
-  assign gpu_io_gameConfig_layer_0_paletteBank = 4'h4 == gameIndexReg ? 2'h1 : _gameConfig_T_15_layer_0_paletteBank; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_layer_0_granularity = 4'h4 == gameIndexReg ? 9'h100 : _gameConfig_T_15_layer_0_granularity; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_layer_1_paletteBank = 4'h4 == gameIndexReg ? 2'h0 : _gameConfig_T_15_layer_1_paletteBank; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_layer_1_granularity = 4'h4 == gameIndexReg ? 9'h100 : _gameConfig_T_15_layer_0_granularity; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_layer_2_paletteBank = 4'h4 == gameIndexReg ? 2'h0 : _gameConfig_T_15_layer_2_paletteBank; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_layer_2_granularity = 4'h4 == gameIndexReg ? 9'h100 : _gameConfig_T_15_layer_2_granularity; // @[Mux.scala 81:58]
-  assign gpu_io_gameConfig_sprite_granularity = 4'h4 == gameIndexReg ? 9'h100 : _gameConfig_T_15_layer_0_granularity; // @[Mux.scala 81:58]
-  assign gpu_io_options_rotate = options_rotate; // @[Cave.scala 185:18]
-  assign gpu_io_options_flip = options_flip; // @[Cave.scala 185:18]
-  assign gpu_io_video_clockEnable = videoSys_io_video_clockEnable; // @[Cave.scala 186:16]
-  assign gpu_io_video_displayEnable = videoSys_io_video_displayEnable; // @[Cave.scala 186:16]
-  assign gpu_io_video_pos_x = videoSys_io_video_pos_x; // @[Cave.scala 186:16]
-  assign gpu_io_video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 186:16]
-  assign gpu_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 186:16]
-  assign gpu_io_video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 186:16]
-  assign gpu_io_video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 186:16]
-  assign gpu_io_spriteLineBuffer_dout = spriteFrameBuffer_io_lineBuffer_dout; // @[Cave.scala 195:35]
-  assign gpu_io_spriteFrameBuffer_wait_n = spriteFrameBuffer_io_frameBuffer_wait_n; // @[Cave.scala 196:36]
-  assign gpu_io_paletteRam_dout = main_io_gpuMem_paletteRam_dout; // @[Cave.scala 187:21]
+  assign gpu_io_spriteCtrl_zoom = gpuGameConfig_sprite_zoom; // @[Cave.scala 184:26]
+  assign gpu_io_spriteCtrl_regs_offset_x = main_io_gpuMem_sprite_regs_offset_x; // @[Cave.scala 187:26]
+  assign gpu_io_spriteCtrl_regs_offset_y = main_io_gpuMem_sprite_regs_offset_y; // @[Cave.scala 187:26]
+  assign gpu_io_spriteCtrl_regs_bank = main_io_gpuMem_sprite_regs_bank; // @[Cave.scala 187:26]
+  assign gpu_io_spriteCtrl_regs_fixed = main_io_gpuMem_sprite_regs_fixed; // @[Cave.scala 187:26]
+  assign gpu_io_spriteCtrl_regs_hFlip = main_io_gpuMem_sprite_regs_hFlip; // @[Cave.scala 187:26]
+  assign gpu_io_spriteCtrl_vram_dout = main_io_gpuMem_sprite_vram_dout; // @[Cave.scala 185:26]
+  assign gpu_io_spriteCtrl_tileRom_dout = memSys_io_spriteTileRom_dout; // @[Cave.scala 186:29]
+  assign gpu_io_spriteCtrl_tileRom_wait_n = memSys_io_spriteTileRom_wait_n; // @[Cave.scala 186:29]
+  assign gpu_io_spriteCtrl_tileRom_valid = memSys_io_spriteTileRom_valid; // @[Cave.scala 186:29]
+  assign gpu_io_spriteCtrl_tileRom_burstDone = memSys_io_spriteTileRom_burstDone; // @[Cave.scala 186:29]
+  assign gpu_io_gameConfig_layer_0_paletteBank = gpuGameConfig_layer_0_paletteBank; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_layer_0_granularity = gpuGameConfig_layer_0_granularity; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_layer_1_paletteBank = gpuGameConfig_layer_1_paletteBank; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_layer_1_granularity = gpuGameConfig_layer_1_granularity; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_layer_2_paletteBank = gpuGameConfig_layer_2_paletteBank; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_layer_2_granularity = gpuGameConfig_layer_2_granularity; // @[Cave.scala 188:21]
+  assign gpu_io_gameConfig_sprite_granularity = gpuGameConfig_sprite_granularity; // @[Cave.scala 188:21]
+  assign gpu_io_options_rotate = options_rotate; // @[Cave.scala 189:18]
+  assign gpu_io_options_flip = options_flip; // @[Cave.scala 189:18]
+  assign gpu_io_video_clockEnable = videoSys_io_video_clockEnable; // @[Cave.scala 190:16]
+  assign gpu_io_video_displayEnable = videoSys_io_video_displayEnable; // @[Cave.scala 190:16]
+  assign gpu_io_video_pos_x = videoSys_io_video_pos_x; // @[Cave.scala 190:16]
+  assign gpu_io_video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 190:16]
+  assign gpu_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 190:16]
+  assign gpu_io_video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 190:16]
+  assign gpu_io_video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 190:16]
+  assign gpu_io_spriteLineBuffer_dout = spriteFrameBuffer_io_lineBuffer_dout; // @[Cave.scala 200:35]
+  assign gpu_io_spriteFrameBuffer_wait_n = spriteFrameBuffer_io_frameBuffer_wait_n; // @[Cave.scala 201:36]
+  assign gpu_io_paletteRam_dout = main_io_gpuMem_paletteRam_dout; // @[Cave.scala 191:21]
   assign gpu_io_layerCtrl_0_tileRom_crossing_clock = clock;
   assign gpu_io_layerCtrl_0_tileRom_crossing_io_targetClock = videoClock; // @[Crossing.scala 201:29]
-  assign gpu_io_layerCtrl_0_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_0_tileRom_rd; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_0_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_0_tileRom_addr; // @[Cave.scala 173:33]
+  assign gpu_io_layerCtrl_0_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_0_tileRom_rd; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_0_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_0_tileRom_addr; // @[Cave.scala 177:33]
   assign gpu_io_layerCtrl_0_tileRom_crossing_io_out_dout = memSys_io_layerTileRom_0_dout; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_0_tileRom_crossing_io_out_wait_n = memSys_io_layerTileRom_0_wait_n; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_0_tileRom_crossing_io_out_valid = memSys_io_layerTileRom_0_valid; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_1_tileRom_crossing_clock = clock;
   assign gpu_io_layerCtrl_1_tileRom_crossing_io_targetClock = videoClock; // @[Crossing.scala 201:29]
-  assign gpu_io_layerCtrl_1_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_1_tileRom_rd; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_1_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_1_tileRom_addr; // @[Cave.scala 173:33]
+  assign gpu_io_layerCtrl_1_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_1_tileRom_rd; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_1_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_1_tileRom_addr; // @[Cave.scala 177:33]
   assign gpu_io_layerCtrl_1_tileRom_crossing_io_out_dout = memSys_io_layerTileRom_1_dout; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_1_tileRom_crossing_io_out_wait_n = memSys_io_layerTileRom_1_wait_n; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_1_tileRom_crossing_io_out_valid = memSys_io_layerTileRom_1_valid; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_2_tileRom_crossing_clock = clock;
   assign gpu_io_layerCtrl_2_tileRom_crossing_io_targetClock = videoClock; // @[Crossing.scala 201:29]
-  assign gpu_io_layerCtrl_2_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_2_tileRom_rd; // @[Cave.scala 173:33]
-  assign gpu_io_layerCtrl_2_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_2_tileRom_addr; // @[Cave.scala 173:33]
+  assign gpu_io_layerCtrl_2_tileRom_crossing_io_in_rd = gpu_io_layerCtrl_2_tileRom_rd; // @[Cave.scala 177:33]
+  assign gpu_io_layerCtrl_2_tileRom_crossing_io_in_addr = gpu_io_layerCtrl_2_tileRom_addr; // @[Cave.scala 177:33]
   assign gpu_io_layerCtrl_2_tileRom_crossing_io_out_dout = memSys_io_layerTileRom_2_dout; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_2_tileRom_crossing_io_out_wait_n = memSys_io_layerTileRom_2_wait_n; // @[Crossing.scala 202:21]
   assign gpu_io_layerCtrl_2_tileRom_crossing_io_out_valid = memSys_io_layerTileRom_2_valid; // @[Crossing.scala 202:21]
   assign spriteFrameBuffer_clock = clock;
   assign spriteFrameBuffer_reset = reset;
-  assign spriteFrameBuffer_io_videoClock = videoClock; // @[Cave.scala 191:35]
-  assign spriteFrameBuffer_io_enable = memSys_io_ready; // @[Cave.scala 192:31]
-  assign spriteFrameBuffer_io_swap = main_io_spriteFrameBufferSwap; // @[Cave.scala 193:29]
-  assign spriteFrameBuffer_io_video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 194:30]
-  assign spriteFrameBuffer_io_video_hBlank = videoSys_io_video_hBlank; // @[Cave.scala 194:30]
-  assign spriteFrameBuffer_io_lineBuffer_addr = gpu_io_spriteLineBuffer_addr; // @[Cave.scala 195:35]
-  assign spriteFrameBuffer_io_frameBuffer_wr = gpu_io_spriteFrameBuffer_wr; // @[Cave.scala 196:36]
-  assign spriteFrameBuffer_io_frameBuffer_addr = gpu_io_spriteFrameBuffer_addr; // @[Cave.scala 196:36]
-  assign spriteFrameBuffer_io_frameBuffer_din = gpu_io_spriteFrameBuffer_din; // @[Cave.scala 196:36]
-  assign spriteFrameBuffer_io_ddr_dout = memSys_io_spriteFrameBuffer_dout; // @[Cave.scala 197:28]
-  assign spriteFrameBuffer_io_ddr_wait_n = memSys_io_spriteFrameBuffer_wait_n; // @[Cave.scala 197:28]
-  assign spriteFrameBuffer_io_ddr_valid = memSys_io_spriteFrameBuffer_valid; // @[Cave.scala 197:28]
-  assign spriteFrameBuffer_io_ddr_burstDone = memSys_io_spriteFrameBuffer_burstDone; // @[Cave.scala 197:28]
+  assign spriteFrameBuffer_io_videoClock = videoClock; // @[Cave.scala 196:35]
+  assign spriteFrameBuffer_io_enable = spriteFBReady; // @[Cave.scala 197:31]
+  assign spriteFrameBuffer_io_swap = main_io_spriteFrameBufferSwap; // @[Cave.scala 198:29]
+  assign spriteFrameBuffer_io_video_pos_y = videoSys_io_video_pos_y; // @[Cave.scala 199:30]
+  assign spriteFrameBuffer_io_video_hBlank = videoSys_io_video_hBlank; // @[Cave.scala 199:30]
+  assign spriteFrameBuffer_io_lineBuffer_addr = gpu_io_spriteLineBuffer_addr; // @[Cave.scala 200:35]
+  assign spriteFrameBuffer_io_frameBuffer_wr = gpu_io_spriteFrameBuffer_wr; // @[Cave.scala 201:36]
+  assign spriteFrameBuffer_io_frameBuffer_addr = gpu_io_spriteFrameBuffer_addr; // @[Cave.scala 201:36]
+  assign spriteFrameBuffer_io_frameBuffer_din = gpu_io_spriteFrameBuffer_din; // @[Cave.scala 201:36]
+  assign spriteFrameBuffer_io_ddr_dout = memSys_io_spriteFrameBuffer_dout; // @[Cave.scala 202:28]
+  assign spriteFrameBuffer_io_ddr_wait_n = memSys_io_spriteFrameBuffer_wait_n; // @[Cave.scala 202:28]
+  assign spriteFrameBuffer_io_ddr_valid = memSys_io_spriteFrameBuffer_valid; // @[Cave.scala 202:28]
+  assign spriteFrameBuffer_io_ddr_burstDone = memSys_io_spriteFrameBuffer_burstDone; // @[Cave.scala 202:28]
   assign systemFrameBuffer_clock = clock;
   assign systemFrameBuffer_reset = reset;
-  assign systemFrameBuffer_io_videoClock = videoClock; // @[Cave.scala 201:35]
-  assign systemFrameBuffer_io_enable = memSys_io_ready; // @[Cave.scala 202:31]
-  assign systemFrameBuffer_io_rotate = options_rotate; // @[Cave.scala 203:31]
-  assign systemFrameBuffer_io_forceBlank = ~memSys_io_ready; // @[Cave.scala 204:38]
-  assign systemFrameBuffer_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 205:30]
-  assign systemFrameBuffer_io_video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 205:30]
-  assign systemFrameBuffer_io_video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 205:30]
-  assign systemFrameBuffer_io_frameBufferCtrl_vBlank = frameBufferCtrl_vBlank; // @[Cave.scala 206:40]
-  assign systemFrameBuffer_io_frameBufferCtrl_lowLat = frameBufferCtrl_lowLat; // @[Cave.scala 206:40]
-  assign systemFrameBuffer_io_frameBuffer_wr = gpu_io_systemFrameBuffer_wr; // @[Cave.scala 207:36]
-  assign systemFrameBuffer_io_frameBuffer_addr = gpu_io_systemFrameBuffer_addr; // @[Cave.scala 207:36]
-  assign systemFrameBuffer_io_frameBuffer_din = gpu_io_systemFrameBuffer_din; // @[Cave.scala 207:36]
-  assign systemFrameBuffer_io_ddr_wait_n = memSys_io_systemFrameBuffer_wait_n; // @[Cave.scala 208:28]
+  assign systemFrameBuffer_io_videoClock = videoClock; // @[Cave.scala 207:35]
+  assign systemFrameBuffer_io_enable = sysFBReady; // @[Cave.scala 208:31]
+  assign systemFrameBuffer_io_rotate = options_rotate; // @[Cave.scala 209:31]
+  assign systemFrameBuffer_io_forceBlank = ~sysFBReady; // @[Cave.scala 210:38]
+  assign systemFrameBuffer_io_video_vBlank = videoSys_io_video_vBlank; // @[Cave.scala 211:30]
+  assign systemFrameBuffer_io_video_regs_size_x = videoSys_io_video_regs_size_x; // @[Cave.scala 211:30]
+  assign systemFrameBuffer_io_video_regs_size_y = videoSys_io_video_regs_size_y; // @[Cave.scala 211:30]
+  assign systemFrameBuffer_io_frameBufferCtrl_vBlank = frameBufferCtrl_vBlank; // @[Cave.scala 212:40]
+  assign systemFrameBuffer_io_frameBufferCtrl_lowLat = frameBufferCtrl_lowLat; // @[Cave.scala 212:40]
+  assign systemFrameBuffer_io_frameBuffer_wr = gpu_io_systemFrameBuffer_wr; // @[Cave.scala 213:36]
+  assign systemFrameBuffer_io_frameBuffer_addr = gpu_io_systemFrameBuffer_addr; // @[Cave.scala 213:36]
+  assign systemFrameBuffer_io_frameBuffer_din = gpu_io_systemFrameBuffer_din; // @[Cave.scala 213:36]
+  assign systemFrameBuffer_io_ddr_wait_n = memSys_io_systemFrameBuffer_wait_n; // @[Cave.scala 214:28]
   always @(posedge clock) begin
     vBlank_r <= video_vBlank; // @[Reg.scala 19:16 20:{18,22}]
     vBlank <= vBlank_r; // @[Reg.scala 19:16 20:{18,22}]
     vBlankFalling_REG <= vBlank; // @[Util.scala 165:45]
-    if (_gameIndexReg_T_4 & ~gameIndexReg_latched) begin // @[Cave.scala 101:55]
-      gameIndexReg <= options_gameIndex; // @[Cave.scala 102:11]
-    end else if (ioctl_download & ioctl_wr & ioctl_index == 8'h1) begin // @[Cave.scala 97:85]
-      gameIndexReg <= ioctl_dout[3:0]; // @[Cave.scala 98:11]
+    if (ioctl_download & ioctl_wr & ioctl_index == 8'h1) begin // @[Cave.scala 98:85]
+      gameIndexReg <= ioctl_dout[3:0]; // @[Cave.scala 99:11]
     end
-    if (reset) begin // @[Cave.scala 96:26]
-      gameIndexReg_latched <= 1'h0; // @[Cave.scala 96:26]
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_eepromOffset <= 32'h100000;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_eepromOffset <= 32'h400000;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_eepromOffset <= 32'h100000;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_eepromOffset <= 32'h100000;
     end else begin
-      gameIndexReg_latched <= _GEN_5;
+      memGameConfig_eepromOffset <= _gameConfig_T_9_eepromOffset;
     end
-    gameIndexReg_REG <= ioctl_download; // @[Util.scala 165:45]
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_0_romOffset <= 32'h100080;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_0_romOffset <= 32'h400080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_0_romOffset <= 32'h100080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_0_romOffset <= 32'h100080;
+    end else begin
+      memGameConfig_sound_0_romOffset <= _gameConfig_T_9_sound_0_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_1_romOffset <= 32'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_1_romOffset <= 32'h480080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_1_romOffset <= 32'h140080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_1_romOffset <= 32'h0;
+    end else begin
+      memGameConfig_sound_1_romOffset <= _gameConfig_T_9_sound_1_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_2_romOffset <= 32'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_2_romOffset <= 32'h680080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_2_romOffset <= 32'h0;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sound_2_romOffset <= 32'h0;
+    end else begin
+      memGameConfig_sound_2_romOffset <= _gameConfig_T_9_sound_2_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_0_romOffset <= 32'h300080;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_0_romOffset <= 32'h880080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_0_romOffset <= 32'h1c0080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_0_romOffset <= 32'h500080;
+    end else begin
+      memGameConfig_layer_0_romOffset <= _gameConfig_T_9_layer_0_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_1_romOffset <= 32'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_1_romOffset <= 32'ha80080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_1_romOffset <= 32'h240080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_1_romOffset <= 32'hd00080;
+    end else begin
+      memGameConfig_layer_1_romOffset <= _gameConfig_T_9_layer_1_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_2_romOffset <= 32'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_2_romOffset <= 32'hc80080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_2_romOffset <= 32'h2c0080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_layer_2_romOffset <= 32'h1100080;
+    end else begin
+      memGameConfig_layer_2_romOffset <= _gameConfig_T_9_layer_2_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romOffset <= 32'h700080;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romOffset <= 32'h2080080;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romOffset <= 32'h340080;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romOffset <= 32'h1500080;
+    end else begin
+      memGameConfig_sprite_romOffset <= _gameConfig_T_9_sprite_romOffset;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romSize <= 32'h400000;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romSize <= 32'h400000;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romSize <= 32'h400000;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_romSize <= 32'h2000000;
+    end else begin
+      memGameConfig_sprite_romSize <= _gameConfig_T_9_sprite_romSize;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_descrambleStyle <= 3'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      memGameConfig_sprite_descrambleStyle <= 3'h1;
+    end else begin
+      memGameConfig_sprite_descrambleStyle <= 3'h0;
+    end
     if (memSys_io_prog_nvram_mem_valid) begin // @[Reg.scala 20:18]
       memSys_io_prog_nvram_view__ioctl_din_r <= memSys_io_prog_nvram_mem_dout; // @[Reg.scala 20:22]
     end
     memSys_io_prog_done_REG <= ioctl_download; // @[Util.scala 165:45]
     videoSys_io_prog_done_REG <= ioctl_download; // @[Util.scala 165:45]
+    mainReady <= memSys_io_ready; // @[Cave.scala 140:26]
+    mainGameIndex <= gameIndexReg; // @[Cave.scala 142:30]
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_0_device <= 2'h1;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_0_device <= 2'h3;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_0_device <= 2'h3;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_0_device <= 2'h1;
+    end else begin
+      soundGameConfig_sound_0_device <= _gameConfig_T_9_sound_0_device;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_2_device <= 2'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_2_device <= 2'h2;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_2_device <= 2'h0;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      soundGameConfig_sound_2_device <= 2'h0;
+    end else begin
+      soundGameConfig_sound_2_device <= _gameConfig_T_9_sound_2_device;
+    end
+    soundGameIndex <= gameIndexReg; // @[Cave.scala 155:31]
+    soundReady <= memSys_io_ready; // @[Cave.scala 156:27]
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_format <= 3'h3;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_format <= 3'h1;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_format <= 3'h1;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_format <= 3'h3;
+    end else begin
+      gpuGameConfig_layer_0_format <= _gameConfig_T_9_layer_0_format;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_paletteBank <= 2'h1;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_paletteBank <= 2'h1;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_paletteBank <= 2'h0;
+    end else begin
+      gpuGameConfig_layer_0_paletteBank <= 2'h1;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_granularity <= 9'h100;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_granularity <= 9'h10;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_granularity <= 9'h10;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_0_granularity <= 9'h100;
+    end else begin
+      gpuGameConfig_layer_0_granularity <= _gameConfig_T_9_layer_0_granularity;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_format <= 3'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_format <= 3'h1;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_format <= 3'h1;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_format <= 3'h3;
+    end else begin
+      gpuGameConfig_layer_1_format <= _gameConfig_T_9_layer_0_format;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_paletteBank <= 2'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_paletteBank <= 2'h2;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_paletteBank <= 2'h0;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_paletteBank <= 2'h1;
+    end else begin
+      gpuGameConfig_layer_1_paletteBank <= _gameConfig_T_9_layer_1_paletteBank;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_granularity <= 9'h100;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_granularity <= 9'h10;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_granularity <= 9'h10;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_1_granularity <= 9'h100;
+    end else begin
+      gpuGameConfig_layer_1_granularity <= _gameConfig_T_9_layer_0_granularity;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_format <= 3'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_format <= 3'h4;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_format <= 3'h1;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_format <= 3'h3;
+    end else begin
+      gpuGameConfig_layer_2_format <= _gameConfig_T_9_layer_2_format;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_paletteBank <= 2'h0;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_paletteBank <= 2'h3;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_paletteBank <= 2'h0;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_paletteBank <= 2'h1;
+    end else begin
+      gpuGameConfig_layer_2_paletteBank <= _gameConfig_T_9_layer_2_paletteBank;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_granularity <= 9'h100;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_granularity <= 9'h40;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_granularity <= 9'h10;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_granularity <= 9'h100;
+    end else begin
+      gpuGameConfig_layer_2_granularity <= _gameConfig_T_9_layer_2_granularity;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_layer_2_tileBank <= 1'h0;
+    end else begin
+      gpuGameConfig_layer_2_tileBank <= 4'h9 == gameIndexReg | _gameConfig_T_13_layer_2_tileBank;
+    end
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_format <= 3'h1;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_format <= 3'h1;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_format <= 3'h1;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_format <= 3'h3;
+    end else begin
+      gpuGameConfig_sprite_format <= _gameConfig_T_9_sprite_format;
+    end
+    gpuGameConfig_sprite_zoom <= 4'h4 == gameIndexReg | (4'h9 == gameIndexReg | (4'h7 == gameIndexReg | (4'h5 ==
+      gameIndexReg | (4'h6 == gameIndexReg | (4'h3 == gameIndexReg | _gameConfig_T_5_sprite_zoom))))); // @[Mux.scala 81:58]
+    if (4'h4 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_granularity <= 9'h100;
+    end else if (4'h9 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_granularity <= 9'h10;
+    end else if (4'h7 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_granularity <= 9'h10;
+    end else if (4'h5 == gameIndexReg) begin // @[Mux.scala 81:58]
+      gpuGameConfig_sprite_granularity <= 9'h100;
+    end else begin
+      gpuGameConfig_sprite_granularity <= _gameConfig_T_9_layer_0_granularity;
+    end
+    spriteFBReady <= memSys_io_ready; // @[Cave.scala 194:30]
+    sysFBReady <= memSys_io_ready; // @[Cave.scala 206:27]
   end
 // Register and memory initialization
 `ifdef RANDOMIZE_GARBAGE_ASSIGN
@@ -23479,15 +24107,73 @@ initial begin
   _RAND_3 = {1{`RANDOM}};
   gameIndexReg = _RAND_3[3:0];
   _RAND_4 = {1{`RANDOM}};
-  gameIndexReg_latched = _RAND_4[0:0];
+  memGameConfig_eepromOffset = _RAND_4[31:0];
   _RAND_5 = {1{`RANDOM}};
-  gameIndexReg_REG = _RAND_5[0:0];
+  memGameConfig_sound_0_romOffset = _RAND_5[31:0];
   _RAND_6 = {1{`RANDOM}};
-  memSys_io_prog_nvram_view__ioctl_din_r = _RAND_6[15:0];
+  memGameConfig_sound_1_romOffset = _RAND_6[31:0];
   _RAND_7 = {1{`RANDOM}};
-  memSys_io_prog_done_REG = _RAND_7[0:0];
+  memGameConfig_sound_2_romOffset = _RAND_7[31:0];
   _RAND_8 = {1{`RANDOM}};
-  videoSys_io_prog_done_REG = _RAND_8[0:0];
+  memGameConfig_layer_0_romOffset = _RAND_8[31:0];
+  _RAND_9 = {1{`RANDOM}};
+  memGameConfig_layer_1_romOffset = _RAND_9[31:0];
+  _RAND_10 = {1{`RANDOM}};
+  memGameConfig_layer_2_romOffset = _RAND_10[31:0];
+  _RAND_11 = {1{`RANDOM}};
+  memGameConfig_sprite_romOffset = _RAND_11[31:0];
+  _RAND_12 = {1{`RANDOM}};
+  memGameConfig_sprite_romSize = _RAND_12[31:0];
+  _RAND_13 = {1{`RANDOM}};
+  memGameConfig_sprite_descrambleStyle = _RAND_13[2:0];
+  _RAND_14 = {1{`RANDOM}};
+  memSys_io_prog_nvram_view__ioctl_din_r = _RAND_14[15:0];
+  _RAND_15 = {1{`RANDOM}};
+  memSys_io_prog_done_REG = _RAND_15[0:0];
+  _RAND_16 = {1{`RANDOM}};
+  videoSys_io_prog_done_REG = _RAND_16[0:0];
+  _RAND_17 = {1{`RANDOM}};
+  mainReady = _RAND_17[0:0];
+  _RAND_18 = {1{`RANDOM}};
+  mainGameIndex = _RAND_18[3:0];
+  _RAND_19 = {1{`RANDOM}};
+  soundGameConfig_sound_0_device = _RAND_19[1:0];
+  _RAND_20 = {1{`RANDOM}};
+  soundGameConfig_sound_2_device = _RAND_20[1:0];
+  _RAND_21 = {1{`RANDOM}};
+  soundGameIndex = _RAND_21[3:0];
+  _RAND_22 = {1{`RANDOM}};
+  soundReady = _RAND_22[0:0];
+  _RAND_23 = {1{`RANDOM}};
+  gpuGameConfig_layer_0_format = _RAND_23[2:0];
+  _RAND_24 = {1{`RANDOM}};
+  gpuGameConfig_layer_0_paletteBank = _RAND_24[1:0];
+  _RAND_25 = {1{`RANDOM}};
+  gpuGameConfig_layer_0_granularity = _RAND_25[8:0];
+  _RAND_26 = {1{`RANDOM}};
+  gpuGameConfig_layer_1_format = _RAND_26[2:0];
+  _RAND_27 = {1{`RANDOM}};
+  gpuGameConfig_layer_1_paletteBank = _RAND_27[1:0];
+  _RAND_28 = {1{`RANDOM}};
+  gpuGameConfig_layer_1_granularity = _RAND_28[8:0];
+  _RAND_29 = {1{`RANDOM}};
+  gpuGameConfig_layer_2_format = _RAND_29[2:0];
+  _RAND_30 = {1{`RANDOM}};
+  gpuGameConfig_layer_2_paletteBank = _RAND_30[1:0];
+  _RAND_31 = {1{`RANDOM}};
+  gpuGameConfig_layer_2_granularity = _RAND_31[8:0];
+  _RAND_32 = {1{`RANDOM}};
+  gpuGameConfig_layer_2_tileBank = _RAND_32[0:0];
+  _RAND_33 = {1{`RANDOM}};
+  gpuGameConfig_sprite_format = _RAND_33[2:0];
+  _RAND_34 = {1{`RANDOM}};
+  gpuGameConfig_sprite_zoom = _RAND_34[0:0];
+  _RAND_35 = {1{`RANDOM}};
+  gpuGameConfig_sprite_granularity = _RAND_35[8:0];
+  _RAND_36 = {1{`RANDOM}};
+  spriteFBReady = _RAND_36[0:0];
+  _RAND_37 = {1{`RANDOM}};
+  sysFBReady = _RAND_37[0:0];
 `endif // RANDOMIZE_REG_INIT
   `endif // RANDOMIZE
 end // initial

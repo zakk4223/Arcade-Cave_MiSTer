@@ -34,7 +34,7 @@ package cave
 
 import arcadia.Util
 import arcadia.mem._
-import arcadia.mem.arbiter.{AsyncMemArbiter, BurstMemArbiter}
+import arcadia.mem.arbiter.{AsyncMemArbiter, BurstMemArbiter, AsyncReadMemArbiter}
 import arcadia.mem.buffer.BurstBuffer
 import arcadia.mem.cache.{Cache, ReadCache}
 import arcadia.mem.dma.BurstReadDMA
@@ -106,6 +106,9 @@ class MemSys extends Module {
   copyDma.io.start := !io.ready && io.prog.done
   copyDma.io.out <> sdramDownloadBuffer.io.in
 
+
+ 
+
   // Program ROM cache
   val progRomCache = Module(new ReadCache(cache.Config(
     inAddrWidth = Config.PROG_ROM_ADDR_WIDTH,
@@ -130,6 +133,13 @@ class MemSys extends Module {
   )))
   highProgRomCache.io.enable := io.ready
   highProgRomCache.io.in <> io.highProgRom
+  /*
+  val progArbiter = Module(new AsyncReadMemArbiter(2, Config.PROG_ROM_ADDR_WIDTH, Config.PROG_ROM_DATA_WIDTH))
+  progArbiter.connect(
+    io.progRom,
+    io.highProgRom
+  ) <> progRomCache.io.in
+  */
 
   // EEPROM cache
   val eepromCache = Module(new Cache(cache.Config(

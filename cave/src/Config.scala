@@ -234,7 +234,7 @@ object Config {
   )
 
   /** Copy download DMA configuration */
-  val copyDownloadDmaConfig = dma.Config(depth = 0x400000, burstLength = 16) // 32 MB
+  val copyDownloadDmaConfig = dma.Config(depth = 0x400000, burstLength = 16, useSyncReadMem = false) // 32 MB
 
   /** Sprite frame buffer DMA configuration */
   val spriteFrameBufferDmaConfig = dma.Config(

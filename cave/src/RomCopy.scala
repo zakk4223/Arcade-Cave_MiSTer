@@ -1,5 +1,5 @@
 
-package cave.gfx
+package cave
 
 import arcadia.mem._
 import arcadia.mem.arbiter.BurstMemArbiter
@@ -9,7 +9,7 @@ import cave._
 import chisel3.util._
 import chisel3._
 
-class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
+class RomCopy(inaddrWidth: Int, indataWidth: Int, outaddrWidth: Int, outdataWidth: Int) extends Module {
 
   val io = IO(new Bundle {
     val start = Input(Bool())
@@ -17,17 +17,19 @@ class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
     val gameConfig = Input(GameConfig())
 
     /** memory port */
-    val in = BurstReadMemIO(addrWidth, dataWidth)
-    val out = BurstWriteMemIO(addrWidth, dataWidth)
+    val in = BurstReadMemIO(inaddrWidth, indataWidth)
+    val out = BurstWriteMemIO(outaddrWidth, outdataWidth)
   })
 
+  /** I'm going to cheat here. I know this is a ddr->sdram copy, so I'm going to
+   *  hardcode some widths/register sizes etc. 
+   */
 
   val readOffset = RegInit(UInt(16.W), 0.U)
   val writeOffset = RegInit(UInt(32.W), 0.U)
   val writeCount = RegInit(UInt(16.W), 0.U) 
-  val regIdx = RegInit(UInt(4.W), 0.U)
 
-  val readRegs = Reg(Vec(4, UInt(16.W)))
+  val readReg = Reg(UInt(16.W))
 
 
 
@@ -43,15 +45,7 @@ class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
   val read = RegInit(false.B)
 
   val readAddr = {
-    val descramble_0 =  writeOffset + readOffset 
-    val xorRes = descramble_0 ^ 0x950c4.U(32.W)
-    val descramble_1 = Cat(Seq(23,22,21,20,15,10,12,6,11,1,13,3,16,17,2,5,14,7,18,8,4,19,9,0)
-      .map(Util.decode(xorRes, 24, 1).apply).toSeq)
-
-    MuxCase(descramble_0, Seq(
-      (io.gameConfig.sprite.descrambleStyle === 0.U) -> descramble_0,
-      (io.gameConfig.sprite.descrambleStyle === 1.U) -> descramble_1
-    ))
+    writeOffset + readOffset 
   }
 
   val writeAddr = {
@@ -77,24 +71,18 @@ class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
     stateReadValid := true.B
   }.elsewhen(stateReadValid) {
     stateReadValid := false.B
-    readRegs(regIdx) := (io.in.dout >> (resultOffset << 3))(15,0) 
+    readReg := (io.in.dout >> (resultOffset << 3))(15,0) 
     readOffset := readOffset + 2.U
-    regIdx := regIdx + 1.U
-    when (regIdx === 3.U) {
-      stateWrite := true.B
-    }.otherwise {
-      stateRead := true.B
-    }
+    stateWrite := true.B
   }.elsewhen(stateWrite && io.out.wait_n) {
     stateWrite := false.B
     stateWriteDone := true.B
   }.elsewhen(stateWriteDone) {
-     writeOffset := writeOffset + 8.U
+     writeOffset := writeOffset + 2.U
      stateWriteDone := false.B
-     when (writeOffset + 8.U < io.gameConfig.sprite.romSize) {
+     when (writeOffset + 2.U < (io.gameConfig.sprite.romOffset/2.U)) {
        stateIdle := true.B 
        readOffset := 0.U
-       regIdx := 0.U
      }.otherwise {
        stateDone := true.B
      }
@@ -106,9 +94,9 @@ class SpriteDescrambler(addrWidth: Int, dataWidth: Int) extends Module {
   io.out.burstLength := 1.U
   io.done := stateDone
   io.in.rd := stateRead 
-  io.out.wr := stateWrite 
+  io.out.wr := RegNext(stateWrite) 
 
 
-  io.out.din := Cat(readRegs(3), readRegs(2), readRegs(1), readRegs(0))
+  io.out.din := readReg 
   io.out.mask := Fill(io.out.maskWidth, 1.U)
 }

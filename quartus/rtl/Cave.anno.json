@@ -370,6 +370,38 @@
     "emitter":"firrtl.VerilogEmitter"
   },
   {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup7"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup6"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup5"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup4"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup3"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup2"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup1"
+  },
+  {
+    "class":"firrtl.transforms.DontTouchAnnotation",
+    "target":"~Cave|SDRAM>waitCounter_dup"
+  },
+  {
     "class":"firrtl.transforms.BlackBoxTargetDirAnno",
     "targetDir":"quartus/rtl"
   },
